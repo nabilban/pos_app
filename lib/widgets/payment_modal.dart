@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import '../providers/cart_provider.dart';
+import '../cubits/cart_cubit.dart';
+import '../cubits/cart_state.dart';
 import 'receipt_dialog.dart';
 
 final _currencyFormatter = NumberFormat.currency(
@@ -38,133 +39,136 @@ class _PaymentSheetState extends State<_PaymentSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final cart = context.read<CartProvider>();
-    final total = cart.total;
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (context, state) {
+        final total = state.total;
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE2E8F0),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'Pilih Metode Pembayaran',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1A1A2E),
-            ),
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
           ),
-          const SizedBox(height: 6),
-          Text(
-            'Total: ${_currencyFormatter.format(total)}',
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF2563EB),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Payment options
-          Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _PayOption(
-                label: 'Tunai',
-                icon: Icons.payments_outlined,
-                selected: _selected == 'Tunai',
-                onTap: () => setState(() => _selected = 'Tunai'),
-              ),
-              const SizedBox(width: 12),
-              _PayOption(
-                label: 'Kartu',
-                icon: Icons.credit_card_outlined,
-                selected: _selected == 'Kartu',
-                onTap: () => setState(() => _selected = 'Kartu'),
-              ),
-              const SizedBox(width: 12),
-              _PayOption(
-                label: 'E-Wallet',
-                icon: Icons.account_balance_wallet_outlined,
-                selected: _selected == 'E-Wallet',
-                onTap: () => setState(() => _selected = 'E-Wallet'),
-              ),
-            ],
-          ),
-
-          // Cash input field (only for Tunai)
-          if (_selected == 'Tunai') ...[
-            const SizedBox(height: 16),
-            TextField(
-              controller: _cashController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Jumlah Uang Diterima',
-                prefixText: 'Rp ',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF2563EB),
-                    width: 2,
+              // Handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE2E8F0),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-            ),
-          ],
-
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: _selected.isEmpty
-                  ? null
-                  : () {
-                      Navigator.pop(context);
-                      showReceiptDialog(context, _selected);
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2563EB),
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: const Color(0xFFE2E8F0),
-                disabledForegroundColor: const Color(0xFF94A3B8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+              const SizedBox(height: 20),
+              const Text(
+                'Pilih Metode Pembayaran',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1A1A2E),
                 ),
-                elevation: 0,
               ),
-              child: const Text(
-                'Konfirmasi Pembayaran',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              const SizedBox(height: 6),
+              Text(
+                'Total: ${_currencyFormatter.format(total)}',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2563EB),
+                ),
               ),
-            ),
+              const SizedBox(height: 20),
+
+              // Payment options
+              Row(
+                children: [
+                  _PayOption(
+                    label: 'Tunai',
+                    icon: Icons.payments_outlined,
+                    selected: _selected == 'Tunai',
+                    onTap: () => setState(() => _selected = 'Tunai'),
+                  ),
+                  const SizedBox(width: 12),
+                  _PayOption(
+                    label: 'Kartu',
+                    icon: Icons.credit_card_outlined,
+                    selected: _selected == 'Kartu',
+                    onTap: () => setState(() => _selected = 'Kartu'),
+                  ),
+                  const SizedBox(width: 12),
+                  _PayOption(
+                    label: 'E-Wallet',
+                    icon: Icons.account_balance_wallet_outlined,
+                    selected: _selected == 'E-Wallet',
+                    onTap: () => setState(() => _selected = 'E-Wallet'),
+                  ),
+                ],
+              ),
+
+              // Cash input field (only for Tunai)
+              if (_selected == 'Tunai') ...[
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _cashController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Jumlah Uang Diterima',
+                    prefixText: 'Rp ',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF2563EB),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: _selected.isEmpty
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                          showReceiptDialog(context, _selected);
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: const Color(0xFFE2E8F0),
+                    disabledForegroundColor: const Color(0xFF94A3B8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Konfirmasi Pembayaran',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

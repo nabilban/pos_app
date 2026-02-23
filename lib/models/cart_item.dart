@@ -1,10 +1,18 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'product.dart';
 
-class CartItem {
-  final Product product;
-  int quantity;
+part 'cart_item.freezed.dart';
+part 'cart_item.g.dart';
 
-  CartItem({required this.product, this.quantity = 1});
+@freezed
+class CartItem with _$CartItem {
+  const factory CartItem({required Product product, @Default(1) int quantity}) =
+      _CartItem;
+
+  const CartItem._();
 
   double get subtotal => product.price * quantity;
+
+  factory CartItem.fromJson(Map<String, dynamic> json) =>
+      _$CartItemFromJson(json);
 }

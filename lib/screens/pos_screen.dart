@@ -1,150 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/product.dart';
-import '../providers/cart_provider.dart';
+import '../cubits/cart_cubit.dart';
+import '../cubits/cart_state.dart';
+import '../data/product_data.dart';
 import '../widgets/pos_header.dart';
 import '../widgets/category_bar.dart';
 import '../widgets/product_card.dart';
 import '../widgets/cart_sidebar.dart';
 import '../widgets/settings_drawer.dart';
 import '../widgets/payment_modal.dart';
-
-const List<Product> _allProducts = [
-  Product(
-    id: 'p1',
-    name: 'Nasi Goreng',
-    price: 25000,
-    category: 'Makanan',
-    iconLabel: '🍳',
-  ),
-  Product(
-    id: 'p2',
-    name: 'Mie Ayam',
-    price: 20000,
-    category: 'Makanan',
-    iconLabel: '🍜',
-  ),
-  Product(
-    id: 'p3',
-    name: 'Ayam Bakar',
-    price: 35000,
-    category: 'Makanan',
-    iconLabel: '🍗',
-  ),
-  Product(
-    id: 'p4',
-    name: 'Gado-Gado',
-    price: 18000,
-    category: 'Makanan',
-    iconLabel: '🥗',
-  ),
-  Product(
-    id: 'p5',
-    name: 'Soto Ayam',
-    price: 22000,
-    category: 'Makanan',
-    iconLabel: '🍲',
-  ),
-  Product(
-    id: 'p6',
-    name: 'Nasi Uduk',
-    price: 17000,
-    category: 'Makanan',
-    iconLabel: '🍚',
-  ),
-  Product(
-    id: 'p7',
-    name: 'Es Teh Manis',
-    price: 5000,
-    category: 'Minuman',
-    iconLabel: '🧋',
-  ),
-  Product(
-    id: 'p8',
-    name: 'Jus Alpukat',
-    price: 15000,
-    category: 'Minuman',
-    iconLabel: '🥤',
-  ),
-  Product(
-    id: 'p9',
-    name: 'Kopi Susu',
-    price: 18000,
-    category: 'Minuman',
-    iconLabel: '☕',
-  ),
-  Product(
-    id: 'p10',
-    name: 'Es Jeruk',
-    price: 8000,
-    category: 'Minuman',
-    iconLabel: '🍊',
-  ),
-  Product(
-    id: 'p11',
-    name: 'Air Mineral',
-    price: 4000,
-    category: 'Minuman',
-    iconLabel: '💧',
-  ),
-  Product(
-    id: 'p12',
-    name: 'Keripik Singkong',
-    price: 10000,
-    category: 'Snack',
-    iconLabel: '🍟',
-  ),
-  Product(
-    id: 'p13',
-    name: 'Gorengan',
-    price: 5000,
-    category: 'Snack',
-    iconLabel: '🥠',
-  ),
-  Product(
-    id: 'p14',
-    name: 'Pisang Goreng',
-    price: 8000,
-    category: 'Snack',
-    iconLabel: '🍌',
-  ),
-  Product(
-    id: 'p15',
-    name: 'Tempeh Goreng',
-    price: 6000,
-    category: 'Snack',
-    iconLabel: '🟫',
-  ),
-  Product(
-    id: 'p16',
-    name: 'Teh Botol',
-    price: 7000,
-    category: 'Lainnya',
-    iconLabel: '🫖',
-  ),
-  Product(
-    id: 'p17',
-    name: 'Rokok',
-    price: 30000,
-    category: 'Lainnya',
-    iconLabel: '🚬',
-  ),
-  Product(
-    id: 'p18',
-    name: 'Permen',
-    price: 2000,
-    category: 'Lainnya',
-    iconLabel: '🍬',
-  ),
-];
-
-const List<String> _categories = [
-  'Semua',
-  'Makanan',
-  'Minuman',
-  'Snack',
-  'Lainnya',
-];
 
 class PosScreen extends StatefulWidget {
   const PosScreen({super.key});
@@ -158,8 +23,8 @@ class _PosScreenState extends State<PosScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Product> get _filteredProducts {
-    if (_selectedCategory == 'Semua') return _allProducts;
-    return _allProducts.where((p) => p.category == _selectedCategory).toList();
+    if (_selectedCategory == 'Semua') return allProducts;
+    return allProducts.where((p) => p.category == _selectedCategory).toList();
   }
 
   @override
@@ -181,7 +46,7 @@ class _PosScreenState extends State<PosScreen> {
                 onSettingsTap: () => _scaffoldKey.currentState?.openDrawer(),
               ),
               CategoryBar(
-                categories: _categories,
+                categories: productCategories,
                 selected: _selectedCategory,
                 onSelect: (cat) => setState(() => _selectedCategory = cat),
               ),
@@ -243,17 +108,17 @@ class _PosScreenState extends State<PosScreen> {
         final product = products[index];
         return ProductCard(
           product: product,
-          index: _allProducts.indexOf(product),
-          onTap: () => context.read<CartProvider>().addProduct(product),
+          index: allProducts.indexOf(product),
+          onTap: () => context.read<CartCubit>().addProduct(product),
         );
       },
     );
   }
 
   Widget _buildMobileCartBar(BuildContext context) {
-    return Consumer<CartProvider>(
-      builder: (context, cart, _) {
-        if (cart.items.isEmpty) return const SizedBox.shrink();
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (context, state) {
+        if (state.items.isEmpty) return const SizedBox.shrink();
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: const BoxDecoration(
@@ -288,7 +153,7 @@ class _PosScreenState extends State<PosScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            '${cart.itemCount}',
+                            '${state.itemCount}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -303,7 +168,7 @@ class _PosScreenState extends State<PosScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    '${cart.itemCount} item',
+                    '${state.itemCount} item',
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,

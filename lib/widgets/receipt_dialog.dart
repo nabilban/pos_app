@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import '../providers/cart_provider.dart';
+import '../cubits/cart_cubit.dart';
+import '../models/cart_item.dart';
 import '../services/receipt_printer.dart';
 
 final _currencyFormatter = NumberFormat.currency(
@@ -11,12 +12,13 @@ final _currencyFormatter = NumberFormat.currency(
 );
 
 Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
-  final cart = context.read<CartProvider>();
-  final items = List.of(cart.items);
-  final total = cart.total;
+  final cubit = context.read<CartCubit>();
+  final state = cubit.state;
+  final items = state.items;
+  final total = state.total;
 
   // Clear cart after capturing state
-  cart.clear();
+  cubit.clear();
 
   final now = DateTime.now();
   final dateStr =
@@ -30,27 +32,21 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
       total: total,
       paymentMethod: paymentMethod,
       dateStr: dateStr,
-      rawItems: items.cast(),
-      rawTotal: total,
     ),
   );
 }
 
 class _ReceiptDialog extends StatelessWidget {
-  final List<dynamic> items;
+  final List<CartItem> items;
   final double total;
   final String paymentMethod;
   final String dateStr;
-  final List rawItems;
-  final double rawTotal;
 
   const _ReceiptDialog({
     required this.items,
     required this.total,
     required this.paymentMethod,
     required this.dateStr,
-    required this.rawItems,
-    required this.rawTotal,
   });
 
   @override
@@ -71,7 +67,6 @@ class _ReceiptDialog extends StatelessWidget {
           ],
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
             // Header
             Container(
@@ -109,7 +104,7 @@ class _ReceiptDialog extends StatelessWidget {
             ),
 
             // Receipt body
-            Flexible(
+            Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -252,66 +247,42 @@ class _ReceiptDialog extends StatelessWidget {
 
             // Action buttons
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  // Print button
                   Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          ReceiptPrinter.printReceipt(
-                            items: rawItems.cast(),
-                            total: rawTotal,
-                            paymentMethod: paymentMethod,
-                            dateStr: dateStr,
-                          );
-                        },
-                        icon: const Icon(Icons.print_outlined, size: 18),
-                        label: const Text(
-                          'Cetak Struk',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF2563EB),
-                          side: const BorderSide(
-                            color: Color(0xFF2563EB),
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        ReceiptPrinter.printReceipt(
+                          items: items,
+                          total: total,
+                          paymentMethod: paymentMethod,
+                          dateStr: dateStr,
+                        );
+                      },
+                      icon: const Icon(Icons.print, size: 20),
+                      label: const Text('Cetak'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Close button
                   Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2563EB),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Tutup',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                          ),
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2563EB),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
+                      child: const Text('Tutup'),
                     ),
                   ),
                 ],

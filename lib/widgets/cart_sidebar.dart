@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import '../providers/cart_provider.dart';
+import '../cubits/cart_cubit.dart';
+import '../cubits/cart_state.dart';
 
 final _currencyFormatter = NumberFormat.currency(
   locale: 'id_ID',
@@ -16,8 +17,8 @@ class CartSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CartProvider>(
-      builder: (context, cart, _) {
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (context, state) {
         return Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -59,9 +60,9 @@ class CartSidebar extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    if (cart.items.isNotEmpty)
+                    if (state.items.isNotEmpty)
                       GestureDetector(
-                        onTap: () => _confirmClear(context, cart),
+                        onTap: () => _confirmClear(context),
                         child: const Text(
                           'Hapus Semua',
                           style: TextStyle(
@@ -77,7 +78,7 @@ class CartSidebar extends StatelessWidget {
 
               // Cart items
               Expanded(
-                child: cart.items.isEmpty
+                child: state.items.isEmpty
                     ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -100,11 +101,11 @@ class CartSidebar extends StatelessWidget {
                       )
                     : ListView.separated(
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemCount: cart.items.length,
+                        itemCount: state.items.length,
                         separatorBuilder: (_, _) =>
                             const Divider(height: 1, color: Color(0xFFF1F5F9)),
                         itemBuilder: (context, index) {
-                          final item = cart.items[index];
+                          final item = state.items[index];
                           return Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -146,8 +147,9 @@ class CartSidebar extends StatelessWidget {
                                   children: [
                                     _QtyButton(
                                       icon: Icons.remove,
-                                      onTap: () =>
-                                          cart.decrement(item.product.id),
+                                      onTap: () => context
+                                          .read<CartCubit>()
+                                          .decrement(item.product.id),
                                     ),
                                     SizedBox(
                                       width: 28,
@@ -163,12 +165,15 @@ class CartSidebar extends StatelessWidget {
                                     ),
                                     _QtyButton(
                                       icon: Icons.add,
-                                      onTap: () =>
-                                          cart.increment(item.product.id),
+                                      onTap: () => context
+                                          .read<CartCubit>()
+                                          .increment(item.product.id),
                                     ),
                                     const SizedBox(width: 4),
                                     GestureDetector(
-                                      onTap: () => cart.remove(item.product.id),
+                                      onTap: () => context
+                                          .read<CartCubit>()
+                                          .remove(item.product.id),
                                       child: const Icon(
                                         Icons.delete_outline,
                                         color: Color(0xFFEF4444),
@@ -205,7 +210,7 @@ class CartSidebar extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _currencyFormatter.format(cart.total),
+                          _currencyFormatter.format(state.total),
                           style: const TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 18,
@@ -219,7 +224,7 @@ class CartSidebar extends StatelessWidget {
                       width: double.infinity,
                       height: 48,
                       child: ElevatedButton.icon(
-                        onPressed: cart.items.isEmpty ? null : onCheckout,
+                        onPressed: state.items.isEmpty ? null : onCheckout,
                         icon: const Icon(Icons.payment, size: 18),
                         label: const Text(
                           'Checkout',
@@ -250,7 +255,7 @@ class CartSidebar extends StatelessWidget {
     );
   }
 
-  Future<void> _confirmClear(BuildContext context, CartProvider cart) async {
+  Future<void> _confirmClear(BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -271,7 +276,9 @@ class CartSidebar extends StatelessWidget {
         ],
       ),
     );
-    if (confirm == true) cart.clear();
+    if (confirm == true && context.mounted) {
+      context.read<CartCubit>().clear();
+    }
   }
 }
 

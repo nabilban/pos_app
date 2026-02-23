@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'providers/cart_provider.dart';
+import 'cubits/cart_cubit.dart';
+import 'cubits/settings_cubit.dart';
 import 'screens/pos_screen.dart';
 
 void main() {
@@ -13,8 +14,11 @@ class PosApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => CartProvider(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => CartCubit()),
+        BlocProvider(create: (_) => SettingsCubit()),
+      ],
       child: MaterialApp(
         title: 'Point of Sale',
         debugShowCheckedModeBanner: false,
