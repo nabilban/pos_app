@@ -4,6 +4,8 @@ import '../models/product.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
 import '../data/product_data.dart';
+import '../cubits/pos_cubit.dart';
+import '../cubits/pos_state.dart';
 import '../widgets/pos_header.dart';
 import '../widgets/category_bar.dart';
 import '../widgets/product_card.dart';
@@ -11,76 +13,83 @@ import '../widgets/cart_sidebar.dart';
 import '../widgets/settings_drawer.dart';
 import '../widgets/payment_modal.dart';
 
-class PosScreen extends StatefulWidget {
+class PosScreen extends StatelessWidget {
   const PosScreen({super.key});
 
   @override
-  State<PosScreen> createState() => _PosScreenState();
-}
-
-class _PosScreenState extends State<PosScreen> {
-  String _selectedCategory = 'Semua';
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  List<Product> get _filteredProducts {
-    if (_selectedCategory == 'Semua') return allProducts;
-    return allProducts.where((p) => p.category == _selectedCategory).toList();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 600;
-        final cartWidth = isWide
-            ? constraints.maxWidth * 0.30
-            : constraints.maxWidth;
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-        return Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: const Color(0xFFF8FAFC),
-          drawer: const SettingsDrawer(),
-          body: SafeArea(
-            child: Column(
-              children: [
-                PosHeader(
-                  onSettingsTap: () => _scaffoldKey.currentState?.openDrawer(),
+    return BlocProvider(
+      create: (context) => PosCubit(),
+      child: BlocBuilder<PosCubit, PosState>(
+        builder: (context, posState) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 600;
+              final cartWidth = isWide
+                  ? constraints.maxWidth * 0.30
+                  : constraints.maxWidth;
+
+              final List<Product> filteredProducts =
+                  posState.selectedCategory == 'Semua'
+                  ? allProducts
+                  : allProducts
+                        .where((p) => p.category == posState.selectedCategory)
+                        .toList();
+
+              return Scaffold(
+                key: scaffoldKey,
+                backgroundColor: const Color(0xFFF8FAFC),
+                drawer: const SettingsDrawer(),
+                body: SafeArea(
+                  child: Column(
+                    children: [
+                      PosHeader(
+                        onSettingsTap: () =>
+                            scaffoldKey.currentState?.openDrawer(),
+                      ),
+                      CategoryBar(
+                        categories: productCategories,
+                        selected: posState.selectedCategory,
+                        onSelect: (cat) =>
+                            context.read<PosCubit>().setCategory(cat),
+                      ),
+                      Expanded(
+                        child: isWide
+                            ? Row(
+                                children: [
+                                  // Product grid
+                                  Expanded(
+                                    child: _buildProductGrid(filteredProducts),
+                                  ),
+                                  // Cart sidebar
+                                  SizedBox(
+                                    width: cartWidth,
+                                    child: CartSidebar(
+                                      onCheckout: () =>
+                                          showPaymentModal(context),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : _buildProductGrid(filteredProducts),
+                      ),
+                      // Mobile: cart is a floating bottom bar
+                      if (!isWide) _buildMobileCartBar(context),
+                    ],
+                  ),
                 ),
-                CategoryBar(
-                  categories: productCategories,
-                  selected: _selectedCategory,
-                  onSelect: (cat) => setState(() => _selectedCategory = cat),
-                ),
-                Expanded(
-                  child: isWide
-                      ? Row(
-                          children: [
-                            // Product grid
-                            Expanded(child: _buildProductGrid()),
-                            // Cart sidebar
-                            SizedBox(
-                              width: cartWidth,
-                              child: CartSidebar(
-                                onCheckout: () => showPaymentModal(context),
-                              ),
-                            ),
-                          ],
-                        )
-                      : _buildProductGrid(),
-                ),
-                // Mobile: cart is a floating bottom bar
-                if (!isWide) _buildMobileCartBar(context),
-              ],
-            ),
-          ),
-          bottomNavigationBar: null,
-        );
-      },
+                bottomNavigationBar: null,
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildProductGrid() {
-    final products = _filteredProducts;
+  Widget _buildProductGrid(List<Product> products) {
     if (products.isEmpty) {
       return const Center(
         child: Column(
