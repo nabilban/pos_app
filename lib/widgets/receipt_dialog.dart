@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
+import '../services/receipt_printer.dart';
 
 final _currencyFormatter = NumberFormat.currency(
   locale: 'id_ID',
@@ -29,6 +30,8 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
       total: total,
       paymentMethod: paymentMethod,
       dateStr: dateStr,
+      rawItems: items.cast(),
+      rawTotal: total,
     ),
   );
 }
@@ -38,12 +41,16 @@ class _ReceiptDialog extends StatelessWidget {
   final double total;
   final String paymentMethod;
   final String dateStr;
+  final List rawItems;
+  final double rawTotal;
 
   const _ReceiptDialog({
     required this.items,
     required this.total,
     required this.paymentMethod,
     required this.dateStr,
+    required this.rawItems,
+    required this.rawTotal,
   });
 
   @override
@@ -243,27 +250,71 @@ class _ReceiptDialog extends StatelessWidget {
               ),
             ),
 
-            // Close button
+            // Action buttons
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              child: Row(
+                children: [
+                  // Print button
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          ReceiptPrinter.printReceipt(
+                            items: rawItems.cast(),
+                            total: rawTotal,
+                            paymentMethod: paymentMethod,
+                            dateStr: dateStr,
+                          );
+                        },
+                        icon: const Icon(Icons.print_outlined, size: 18),
+                        label: const Text(
+                          'Cetak Struk',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF2563EB),
+                          side: const BorderSide(
+                            color: Color(0xFF2563EB),
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
                     ),
-                    elevation: 0,
                   ),
-                  child: const Text(
-                    'Tutup',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  const SizedBox(width: 12),
+                  // Close button
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2563EB),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Tutup',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],

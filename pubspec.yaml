@@ -44,6 +44,10 @@ dependencies:
   # Internationalization (IDR formatting)
   intl: ^0.20.1
 
+  # PDF generation and printing
+  pdf: ^3.11.1
+  printing: ^5.13.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
