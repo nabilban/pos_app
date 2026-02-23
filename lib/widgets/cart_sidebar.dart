@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
-
-final _currencyFormatter = NumberFormat.currency(
-  locale: 'id_ID',
-  symbol: 'Rp ',
-  decimalDigits: 0,
-);
 
 class CartSidebar extends StatelessWidget {
   final VoidCallback onCheckout;
@@ -129,9 +123,7 @@ class CartSidebar extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        _currencyFormatter.format(
-                                          item.subtotal,
-                                        ),
+                                        CurrencyUtil.format(item.subtotal),
                                         style: const TextStyle(
                                           fontSize: 12,
                                           color: Color(0xFF2563EB),
@@ -210,7 +202,7 @@ class CartSidebar extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _currencyFormatter.format(state.total),
+                          CurrencyUtil.format(state.total),
                           style: const TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 18,

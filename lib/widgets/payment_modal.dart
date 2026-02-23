@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
 import 'receipt_dialog.dart';
-
-final _currencyFormatter = NumberFormat.currency(
-  locale: 'id_ID',
-  symbol: 'Rp ',
-  decimalDigits: 0,
-);
 
 Future<void> showPaymentModal(BuildContext context) {
   return showModalBottomSheet(
@@ -80,7 +74,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Total: ${_currencyFormatter.format(total)}',
+                'Total: ${CurrencyUtil.format(total)}',
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

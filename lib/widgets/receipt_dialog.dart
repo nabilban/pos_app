@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
 import '../models/cart_item.dart';
 import '../services/receipt_printer.dart';
-
-final _currencyFormatter = NumberFormat.currency(
-  locale: 'id_ID',
-  symbol: 'Rp ',
-  decimalDigits: 0,
-);
 
 Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
   final cubit = context.read<CartCubit>();
@@ -146,7 +140,7 @@ class _ReceiptDialog extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    '${item.quantity} x ${_currencyFormatter.format(item.product.price)}',
+                                    '${item.quantity} x ${CurrencyUtil.format(item.product.price)}',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Color(0xFF94A3B8),
@@ -156,7 +150,7 @@ class _ReceiptDialog extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              _currencyFormatter.format(item.subtotal),
+                              CurrencyUtil.format(item.subtotal),
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
@@ -185,7 +179,7 @@ class _ReceiptDialog extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _currencyFormatter.format(total),
+                          CurrencyUtil.format(total),
                           style: const TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 18,

@@ -1,6 +1,7 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../utils/currency_util.dart';
 import '../models/cart_item.dart';
 
 class ReceiptPrinter {
@@ -90,7 +91,7 @@ class ReceiptPrinter {
 
               // ── Itemized list ──
               ...items.map((item) {
-                final subtotal = _formatRp(item.subtotal);
+                final subtotal = CurrencyUtil.format(item.subtotal);
                 final line =
                     '${item.product.name} x${item.quantity} = $subtotal';
                 return pw.Padding(
@@ -108,7 +109,7 @@ class ReceiptPrinter {
               pw.Align(
                 alignment: pw.Alignment.centerRight,
                 child: pw.Text(
-                  'Total: ${_formatRp(total)}',
+                  'Total: ${CurrencyUtil.format(total)}',
                   style: pw.TextStyle(
                     font: ttfBold,
                     fontSize: 11,
@@ -159,17 +160,5 @@ class ReceiptPrinter {
       onLayout: (_) async => doc.save(),
       name: 'Struk Pembayaran',
     );
-  }
-
-  static String _formatRp(double amount) {
-    // Format as "Rp 25.000"
-    final formatted = amount.toStringAsFixed(0);
-    final buffer = StringBuffer();
-    final chars = formatted.split('').reversed.toList();
-    for (int i = 0; i < chars.length; i++) {
-      if (i > 0 && i % 3 == 0) buffer.write('.');
-      buffer.write(chars[i]);
-    }
-    return 'Rp ${buffer.toString().split('').reversed.join()}';
   }
 }

@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../utils/currency_util.dart';
 import '../models/product.dart';
-
-final _currencyFormatter = NumberFormat.currency(
-  locale: 'id_ID',
-  symbol: 'Rp ',
-  decimalDigits: 0,
-);
 
 final List<Color> _cardColors = [
   const Color(0xFFEEF2FF),
@@ -91,7 +85,7 @@ class ProductCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                _currencyFormatter.format(product.price),
+                CurrencyUtil.format(product.price),
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
