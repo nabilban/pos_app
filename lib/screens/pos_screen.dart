@@ -40,36 +40,38 @@ class _PosScreenState extends State<PosScreen> {
           key: _scaffoldKey,
           backgroundColor: const Color(0xFFF8FAFC),
           drawer: const SettingsDrawer(),
-          body: Column(
-            children: [
-              PosHeader(
-                onSettingsTap: () => _scaffoldKey.currentState?.openDrawer(),
-              ),
-              CategoryBar(
-                categories: productCategories,
-                selected: _selectedCategory,
-                onSelect: (cat) => setState(() => _selectedCategory = cat),
-              ),
-              Expanded(
-                child: isWide
-                    ? Row(
-                        children: [
-                          // Product grid
-                          Expanded(child: _buildProductGrid()),
-                          // Cart sidebar
-                          SizedBox(
-                            width: cartWidth,
-                            child: CartSidebar(
-                              onCheckout: () => showPaymentModal(context),
+          body: SafeArea(
+            child: Column(
+              children: [
+                PosHeader(
+                  onSettingsTap: () => _scaffoldKey.currentState?.openDrawer(),
+                ),
+                CategoryBar(
+                  categories: productCategories,
+                  selected: _selectedCategory,
+                  onSelect: (cat) => setState(() => _selectedCategory = cat),
+                ),
+                Expanded(
+                  child: isWide
+                      ? Row(
+                          children: [
+                            // Product grid
+                            Expanded(child: _buildProductGrid()),
+                            // Cart sidebar
+                            SizedBox(
+                              width: cartWidth,
+                              child: CartSidebar(
+                                onCheckout: () => showPaymentModal(context),
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                    : _buildProductGrid(),
-              ),
-              // Mobile: cart is a floating bottom bar
-              if (!isWide) _buildMobileCartBar(context),
-            ],
+                          ],
+                        )
+                      : _buildProductGrid(),
+                ),
+                // Mobile: cart is a floating bottom bar
+                if (!isWide) _buildMobileCartBar(context),
+              ],
+            ),
           ),
           bottomNavigationBar: null,
         );
