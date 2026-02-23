@@ -9,10 +9,10 @@ class CartItem with _$CartItem {
   const factory CartItem({required Product product, @Default(1) int quantity}) =
       _CartItem;
 
-  const CartItem._();
-
-  double get subtotal => product.price * quantity;
-
   factory CartItem.fromJson(Map<String, dynamic> json) =>
       _$CartItemFromJson(json);
+}
+
+extension CartItemX on CartItem {
+  double get subtotal => product.price * quantity;
 }

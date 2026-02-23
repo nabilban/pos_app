@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pos_app/models/cart_item.dart';
 import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
