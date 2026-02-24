@@ -18,6 +18,9 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$PosState {
   String get selectedCategory => throw _privateConstructorUsedError;
+  List<Product> get products => throw _privateConstructorUsedError;
+  List<String> get categories => throw _privateConstructorUsedError;
+  bool get isLoading => throw _privateConstructorUsedError;
 
   /// Create a copy of PosState
   /// with the given fields replaced by the non-null parameter values.
@@ -31,7 +34,12 @@ abstract class $PosStateCopyWith<$Res> {
   factory $PosStateCopyWith(PosState value, $Res Function(PosState) then) =
       _$PosStateCopyWithImpl<$Res, PosState>;
   @useResult
-  $Res call({String selectedCategory});
+  $Res call({
+    String selectedCategory,
+    List<Product> products,
+    List<String> categories,
+    bool isLoading,
+  });
 }
 
 /// @nodoc
@@ -48,13 +56,30 @@ class _$PosStateCopyWithImpl<$Res, $Val extends PosState>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? selectedCategory = null}) {
+  $Res call({
+    Object? selectedCategory = null,
+    Object? products = null,
+    Object? categories = null,
+    Object? isLoading = null,
+  }) {
     return _then(
       _value.copyWith(
             selectedCategory: null == selectedCategory
                 ? _value.selectedCategory
                 : selectedCategory // ignore: cast_nullable_to_non_nullable
                       as String,
+            products: null == products
+                ? _value.products
+                : products // ignore: cast_nullable_to_non_nullable
+                      as List<Product>,
+            categories: null == categories
+                ? _value.categories
+                : categories // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            isLoading: null == isLoading
+                ? _value.isLoading
+                : isLoading // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -70,7 +95,12 @@ abstract class _$$PosStateImplCopyWith<$Res>
   ) = __$$PosStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String selectedCategory});
+  $Res call({
+    String selectedCategory,
+    List<Product> products,
+    List<String> categories,
+    bool isLoading,
+  });
 }
 
 /// @nodoc
@@ -86,13 +116,30 @@ class __$$PosStateImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? selectedCategory = null}) {
+  $Res call({
+    Object? selectedCategory = null,
+    Object? products = null,
+    Object? categories = null,
+    Object? isLoading = null,
+  }) {
     return _then(
       _$PosStateImpl(
         selectedCategory: null == selectedCategory
             ? _value.selectedCategory
             : selectedCategory // ignore: cast_nullable_to_non_nullable
                   as String,
+        products: null == products
+            ? _value._products
+            : products // ignore: cast_nullable_to_non_nullable
+                  as List<Product>,
+        categories: null == categories
+            ? _value._categories
+            : categories // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        isLoading: null == isLoading
+            ? _value.isLoading
+            : isLoading // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -101,15 +148,42 @@ class __$$PosStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$PosStateImpl implements _PosState {
-  const _$PosStateImpl({this.selectedCategory = 'Semua'});
+  const _$PosStateImpl({
+    this.selectedCategory = 'Semua',
+    final List<Product> products = const [],
+    final List<String> categories = const [],
+    this.isLoading = false,
+  }) : _products = products,
+       _categories = categories;
 
   @override
   @JsonKey()
   final String selectedCategory;
+  final List<Product> _products;
+  @override
+  @JsonKey()
+  List<Product> get products {
+    if (_products is EqualUnmodifiableListView) return _products;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_products);
+  }
+
+  final List<String> _categories;
+  @override
+  @JsonKey()
+  List<String> get categories {
+    if (_categories is EqualUnmodifiableListView) return _categories;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_categories);
+  }
+
+  @override
+  @JsonKey()
+  final bool isLoading;
 
   @override
   String toString() {
-    return 'PosState(selectedCategory: $selectedCategory)';
+    return 'PosState(selectedCategory: $selectedCategory, products: $products, categories: $categories, isLoading: $isLoading)';
   }
 
   @override
@@ -118,11 +192,24 @@ class _$PosStateImpl implements _PosState {
         (other.runtimeType == runtimeType &&
             other is _$PosStateImpl &&
             (identical(other.selectedCategory, selectedCategory) ||
-                other.selectedCategory == selectedCategory));
+                other.selectedCategory == selectedCategory) &&
+            const DeepCollectionEquality().equals(other._products, _products) &&
+            const DeepCollectionEquality().equals(
+              other._categories,
+              _categories,
+            ) &&
+            (identical(other.isLoading, isLoading) ||
+                other.isLoading == isLoading));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, selectedCategory);
+  int get hashCode => Object.hash(
+    runtimeType,
+    selectedCategory,
+    const DeepCollectionEquality().hash(_products),
+    const DeepCollectionEquality().hash(_categories),
+    isLoading,
+  );
 
   /// Create a copy of PosState
   /// with the given fields replaced by the non-null parameter values.
@@ -134,10 +221,21 @@ class _$PosStateImpl implements _PosState {
 }
 
 abstract class _PosState implements PosState {
-  const factory _PosState({final String selectedCategory}) = _$PosStateImpl;
+  const factory _PosState({
+    final String selectedCategory,
+    final List<Product> products,
+    final List<String> categories,
+    final bool isLoading,
+  }) = _$PosStateImpl;
 
   @override
   String get selectedCategory;
+  @override
+  List<Product> get products;
+  @override
+  List<String> get categories;
+  @override
+  bool get isLoading;
 
   /// Create a copy of PosState
   /// with the given fields replaced by the non-null parameter values.

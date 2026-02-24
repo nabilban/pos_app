@@ -3,19 +3,16 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../utils/currency_util.dart';
 import '../models/cart_item.dart';
+import '../models/store_info.dart';
 
 class ReceiptPrinter {
-  static const _restaurantName = 'RESTORAN';
-  static const _address = 'Jl. Contoh No. 123';
-  static const _phone = 'Telp: 021-1234567';
-  static const _cashierName = 'Kasir';
-
   /// Generates a thermal-style PDF receipt and opens the native print dialog.
   static Future<void> printReceipt({
     required List<CartItem> items,
     required double total,
     required String paymentMethod,
     required String dateStr,
+    required StoreInfo storeInfo,
   }) async {
     final doc = pw.Document();
 
@@ -57,7 +54,7 @@ class ReceiptPrinter {
               // ── Restaurant name (bold, centered) ──
               pw.Center(
                 child: pw.Text(
-                  _restaurantName,
+                  storeInfo.name,
                   style: pw.TextStyle(
                     font: ttfBold,
                     fontSize: 16,
@@ -70,7 +67,7 @@ class ReceiptPrinter {
               // ── Address ──
               pw.Center(
                 child: pw.Text(
-                  _address,
+                  storeInfo.address,
                   style: pw.TextStyle(font: ttf, fontSize: 10),
                 ),
               ),
@@ -79,7 +76,7 @@ class ReceiptPrinter {
               // ── Phone ──
               pw.Center(
                 child: pw.Text(
-                  _phone,
+                  storeInfo.phone,
                   style: pw.TextStyle(font: ttf, fontSize: 10),
                 ),
               ),
@@ -130,7 +127,7 @@ class ReceiptPrinter {
 
               // ── Cashier name ──
               pw.Text(
-                'Kasir: $_cashierName',
+                'Kasir: ${storeInfo.cashierName}',
                 style: pw.TextStyle(font: ttf, fontSize: 10),
               ),
 

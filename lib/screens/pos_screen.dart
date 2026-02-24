@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/product.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
-import '../data/product_data.dart';
 import '../cubits/pos_cubit.dart';
 import '../cubits/pos_state.dart';
+import '../repositories/pos_repository.dart';
 import '../widgets/pos_header.dart';
 import '../widgets/category_bar.dart';
 import '../widgets/product_card.dart';
@@ -21,9 +21,16 @@ class PosScreen extends StatelessWidget {
     final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
     return BlocProvider(
-      create: (context) => PosCubit(),
+      create: (context) =>
+          PosCubit(RepositoryProvider.of<PosRepository>(context)),
       child: BlocBuilder<PosCubit, PosState>(
         builder: (context, posState) {
+          if (posState.isLoading) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
           return LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 600;
@@ -33,8 +40,8 @@ class PosScreen extends StatelessWidget {
 
               final List<Product> filteredProducts =
                   posState.selectedCategory == 'Semua'
-                  ? allProducts
-                  : allProducts
+                  ? posState.products
+                  : posState.products
                         .where((p) => p.category == posState.selectedCategory)
                         .toList();
 
@@ -50,7 +57,7 @@ class PosScreen extends StatelessWidget {
                             scaffoldKey.currentState?.openDrawer(),
                       ),
                       CategoryBar(
-                        categories: productCategories,
+                        categories: posState.categories,
                         selected: posState.selectedCategory,
                         onSelect: (cat) =>
                             context.read<PosCubit>().setCategory(cat),
@@ -61,7 +68,10 @@ class PosScreen extends StatelessWidget {
                                 children: [
                                   // Product grid
                                   Expanded(
-                                    child: _buildProductGrid(filteredProducts),
+                                    child: _buildProductGrid(
+                                      filteredProducts,
+                                      posState.products,
+                                    ),
                                   ),
                                   // Cart sidebar
                                   SizedBox(
@@ -73,7 +83,10 @@ class PosScreen extends StatelessWidget {
                                   ),
                                 ],
                               )
-                            : _buildProductGrid(filteredProducts),
+                            : _buildProductGrid(
+                                filteredProducts,
+                                posState.products,
+                              ),
                       ),
                       // Mobile: cart is a floating bottom bar
                       if (!isWide) _buildMobileCartBar(context),
@@ -89,7 +102,7 @@ class PosScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductGrid(List<Product> products) {
+  Widget _buildProductGrid(List<Product> products, List<Product> allProducts) {
     if (products.isEmpty) {
       return const Center(
         child: Column(

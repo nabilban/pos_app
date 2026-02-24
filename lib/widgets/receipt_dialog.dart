@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_app/cubits/cart_state.dart';
+import 'package:pos_app/cubits/settings_cubit.dart';
 import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
 import '../models/cart_item.dart';
+import '../models/store_info.dart';
 import '../services/receipt_printer.dart';
 
 Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
@@ -19,6 +21,9 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
   final dateStr =
       '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}  ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
+  // Read store info from SettingsCubit
+  final storeInfo = context.read<SettingsCubit>().state.storeInfo;
+
   return showDialog(
     context: context,
     barrierDismissible: false,
@@ -27,6 +32,7 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
       total: total,
       paymentMethod: paymentMethod,
       dateStr: dateStr,
+      storeInfo: storeInfo,
     ),
   );
 }
@@ -36,12 +42,14 @@ class _ReceiptDialog extends StatelessWidget {
   final double total;
   final String paymentMethod;
   final String dateStr;
+  final StoreInfo storeInfo;
 
   const _ReceiptDialog({
     required this.items,
     required this.total,
     required this.paymentMethod,
     required this.dateStr,
+    required this.storeInfo,
   });
 
   @override
@@ -73,26 +81,26 @@ class _ReceiptDialog extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   Icon(Icons.receipt_long, color: Colors.white, size: 36),
                   SizedBox(height: 8),
                   Text(
-                    'Struk Pembayaran',
-                    style: TextStyle(
+                    storeInfo.name,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'TEST Restaurant',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                    storeInfo.address,
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                   Text(
-                    'Jl. Sudirman No. 123, Surabaya',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                    'Telp: ${storeInfo.phone}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),
@@ -253,6 +261,7 @@ class _ReceiptDialog extends StatelessWidget {
                           total: total,
                           paymentMethod: paymentMethod,
                           dateStr: dateStr,
+                          storeInfo: storeInfo,
                         );
                       },
                       icon: const Icon(Icons.print, size: 20),
