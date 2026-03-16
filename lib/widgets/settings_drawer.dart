@@ -63,34 +63,64 @@ class SettingsDrawer extends StatelessWidget {
                       BlocBuilder<AuthCubit, AuthState>(
                         builder: (context, authState) {
                           return authState.maybeWhen(
-                            authenticated: (token, user) => Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            authenticated: (token, user) => Row(
                               children: [
-                                Text(
-                                  user.name,
-                                  style: const TextStyle(
+                                const CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor: Colors.white24,
+                                  child: Icon(
+                                    Icons.person,
                                     color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                    size: 24,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.storefront,
-                                      color: Colors.white70,
-                                      size: 14,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      user.outlet?.name ?? 'No Outlet',
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 13,
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        user.name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                  ],
+                                      Text(
+                                        user.role.name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.storefront,
+                                            color: Colors.white70,
+                                            size: 11,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Flexible(
+                                            child: Text(
+                                              user.outlet?.name ?? 'No Outlet',
+                                              style: const TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 11,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

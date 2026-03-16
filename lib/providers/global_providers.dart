@@ -53,20 +53,23 @@ class GlobalProviders extends StatelessWidget {
         RepositoryProvider<IPosRepository>(
           create: (context) => PosRepository(context.read<ApiClient>()),
         ),
-        RepositoryProvider<IUserRepository>(create: (_) => UserRepository()),
+        RepositoryProvider<IUserRepository>(
+          create: (context) => UserRepository(context.read<TokenManager>()),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthCubit>(
             create: (context) => AuthCubit(
               context.read<IAuthRepository>(),
+              context.read<IUserRepository>(),
               context.read<TokenManager>(),
             )..checkAuthStatus(),
           ),
           BlocProvider(create: (_) => CartCubit()),
           BlocProvider(
             create: (context) =>
-                SettingsCubit(context.read<IPosRepository>()),
+                SettingsCubit(context.read<IUserRepository>()),
           ),
         ],
         child: child,

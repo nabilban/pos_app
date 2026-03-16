@@ -1,18 +1,27 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../data/repositories/pos_repository.dart';
+import '../data/repositories/user_repository.dart';
+import '../data/models/store_info.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
-  final IPosRepository _repository;
+  final IUserRepository _userRepository;
 
-  SettingsCubit(this._repository) : super(const SettingsState()) {
+  SettingsCubit(this._userRepository) : super(const SettingsState()) {
     loadStoreInfo();
   }
 
   Future<void> loadStoreInfo() async {
     try {
-      final storeInfo = await _repository.getStoreInfo();
-      emit(state.copyWith(storeInfo: storeInfo));
+      final user = await _userRepository.getCurrentUser();
+      if (user != null) {
+        final storeInfo = StoreInfo(
+          name: user.outlet?.name ?? 'FIESTO POS',
+          address: user.outlet?.address ?? '',
+          phone: user.outlet?.phone ?? '',
+          cashierName: user.name,
+        );
+        emit(state.copyWith(storeInfo: storeInfo));
+      }
     } catch (e) {
       // Handle error
     }

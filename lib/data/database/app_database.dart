@@ -14,25 +14,67 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
-  // Retrieve the single active token (we assume there's only one)
-  Future<String?> getActiveToken() async {
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(tokens, tokens.userName);
+            await m.addColumn(tokens, tokens.roleName);
+            await m.addColumn(tokens, tokens.outletName);
+          }
+        },
+      );
+
+  // Retrieve auth data including token and user info
+  Future<Map<String, String?>> getAuthData() async {
     final t = await (select(tokens)..limit(1)).getSingleOrNull();
-    return t?.token;
+    return {
+      'token': t?.token,
+      'userName': t?.userName,
+      'roleName': t?.roleName,
+      'outletName': t?.outletName,
+    };
   }
 
-  // Save a token (clearing any existing tokens first)
-  Future<void> saveToken(String newToken) async {
+  // Retrieve the single active token (legacy support if needed)
+  Future<String?> getActiveToken() async {
+    final data = await getAuthData();
+    return data['token'];
+  }
+
+  // Save auth data (clearing any existing tokens first)
+  Future<void> saveAuthData({
+    required String token,
+    String? userName,
+    String? roleName,
+    String? outletName,
+  }) async {
     transaction(() async {
       await delete(tokens).go();
-      await into(tokens).insert(TokensCompanion.insert(token: newToken));
+      await into(tokens).insert(TokensCompanion.insert(
+        token: token,
+        userName: Value(userName),
+        roleName: Value(roleName),
+        outletName: Value(outletName),
+      ));
     });
   }
 
-  // Delete token
-  Future<void> clearToken() async {
+  // Save a token (legacy support)
+  Future<void> saveToken(String newToken) async {
+    await saveAuthData(token: newToken);
+  }
+
+  // Delete all auth data
+  Future<void> clearAuthData() async {
     await delete(tokens).go();
+  }
+
+  // Delete token (legacy support)
+  Future<void> clearToken() async {
+    await clearAuthData();
   }
 }
 

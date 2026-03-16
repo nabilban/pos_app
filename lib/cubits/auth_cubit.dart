@@ -1,39 +1,24 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pos_app/data/models/role.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/datasource/local/token_manager.dart';
-import '../data/models/auth_response.dart';
+import '../data/repositories/user_repository.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final IAuthRepository _authRepository;
+  final IUserRepository _userRepository;
   final TokenManager _tokenManager;
 
-  AuthCubit(this._authRepository, this._tokenManager)
+  AuthCubit(this._authRepository, this._userRepository, this._tokenManager)
     : super(const AuthState.initial());
 
   /// Checks if a token already exists on app startup
   Future<void> checkAuthStatus() async {
+    final user = await _userRepository.getCurrentUser();
     final token = await _tokenManager.getToken();
-    if (token != null && token.isNotEmpty) {
-      // TODO: Fetch user profile from repository/local database
-      // For now, emit a dummy User so the app still functions
-      emit(
-        AuthState.authenticated(
-          token: token,
-          user: const User(
-            id: 0,
-            name: 'Loading...',
-            username: '',
-            email: '',
-            roleId: 0,
-            canAccessCenter: false,
-            role: Role(id: 0, name: '', createdAt: '', updatedAt: ''),
-            createdAt: '',
-            updatedAt: '',
-          ),
-        ),
-      );
+
+    if (token != null && token.isNotEmpty && user != null) {
+      emit(AuthState.authenticated(token: token, user: user));
     } else {
       emit(const AuthState.unauthenticated());
     }

@@ -1,14 +1,13 @@
 import '../models/product.dart';
 import '../models/category.dart';
 import '../models/brand.dart';
-import '../models/store_info.dart';
 import '../datasource/remote/api_client.dart';
 
 abstract class IPosRepository {
   Future<List<Product>> getProducts();
   Future<List<Category>> getCategories();
   Future<List<Brand>> getBrands();
-  Future<StoreInfo> getStoreInfo();
+  // Future<StoreInfo> getStoreInfo();
 }
 
 class PosRepository implements IPosRepository {
@@ -61,10 +60,10 @@ class PosRepository implements IPosRepository {
     }
   }
 
-  @override
-  Future<StoreInfo> getStoreInfo() async {
-    // Keep this as is for now or update if there's an API for it
-    await Future.delayed(const Duration(milliseconds: 200));
-    return currentUser;
-  }
+  // @override
+  // Future<StoreInfo> getStoreInfo() async {
+  //   // Keep this as is for now or update if there's an API for it
+  //   await Future.delayed(const Duration(milliseconds: 200));
+  //   return currentUser;
+  // }
 }

@@ -5,9 +5,19 @@ class TokenManager {
 
   TokenManager(this._db);
 
-  /// Saves the token to the local SQLite database
-  Future<void> saveToken(String token) async {
-    await _db.saveToken(token);
+  /// Saves the token and user info to the local SQLite database
+  Future<void> saveAuthData({
+    required String token,
+    String? userName,
+    String? roleName,
+    String? outletName,
+  }) async {
+    await _db.saveAuthData(
+      token: token,
+      userName: userName,
+      roleName: roleName,
+      outletName: outletName,
+    );
   }
 
   /// Retrieves the current token from the database
@@ -15,9 +25,14 @@ class TokenManager {
     return _db.getActiveToken();
   }
 
-  /// Deletes the currently stored token
+  /// Retrieves all auth data
+  Future<Map<String, String?>> getAuthData() async {
+    return _db.getAuthData();
+  }
+
+  /// Deletes the currently stored token and user info
   Future<void> deleteToken() async {
-    await _db.clearToken();
+    await _db.clearAuthData();
   }
 
   /// Synchronous check if a token might exist (optional usefulness if we async load)

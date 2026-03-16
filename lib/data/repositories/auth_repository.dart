@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../models/auth_response.dart';
 import '../datasource/remote/api_client.dart';
 import '../datasource/local/token_manager.dart';
@@ -25,16 +24,17 @@ class AuthRepository implements IAuthRepository {
       // Parse the response into our Freezed model
       final authResponse = AuthResponse.fromJson(response.data);
 
-      // Store the newly retrieved token securely
-      await _tokenManager.saveToken(authResponse.token);
+      // Save token and user info locally
+      await _tokenManager.saveAuthData(
+        token: authResponse.token,
+        userName: authResponse.user.name,
+        roleName: authResponse.user.role.name,
+        outletName: authResponse.user.outlet?.name,
+      );
 
       return authResponse;
-    } on DioException catch (e) {
-      // Improve error handling based on actual API error structure
-      final message = e.response?.data['message'] ?? e.message;
-      throw Exception('Login failed: $message');
     } catch (e) {
-      throw Exception('An unexpected error occurred.');
+      rethrow;
     }
   }
 
