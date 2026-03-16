@@ -4,8 +4,8 @@ import 'package:pos_app/cubits/cart_state.dart';
 import 'package:pos_app/cubits/settings_cubit.dart';
 import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
-import '../models/cart_item.dart';
-import '../models/store_info.dart';
+import '../data/models/cart_item.dart';
+import '../data/models/store_info.dart';
 import '../services/receipt_printer.dart';
 
 Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {

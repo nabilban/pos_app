@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
-import '../models/cart_item.dart';
+import '../data/models/cart_item.dart';
 import 'receipt_dialog.dart';
 
 Future<void> showPaymentModal(BuildContext context) {

@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../repositories/pos_repository.dart';
+import '../data/repositories/pos_repository.dart';
 import 'pos_state.dart';
 
 class PosCubit extends Cubit<PosState> {
-  final PosRepository _repository;
+  final IPosRepository _repository;
 
   PosCubit(this._repository) : super(const PosState()) {
     loadData();

@@ -1,4 +1,4 @@
-import '../models/store_info.dart';
+import '../data/models/store_info.dart';
 
 const StoreInfo currentUser = StoreInfo(
   name: 'POS APP',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/settings_cubit.dart';
 import '../cubits/settings_state.dart';
+import '../cubits/auth_cubit.dart';
 
 class SettingsDrawer extends StatelessWidget {
   const SettingsDrawer({super.key});
@@ -131,7 +132,7 @@ class SettingsDrawer extends StatelessWidget {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () => _confirmLogout(context),
                       icon: const Icon(Icons.logout, size: 18),
                       label: const Text(
                         'Logout',
@@ -157,6 +158,33 @@ class SettingsDrawer extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _confirmLogout(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Color(0xFFEF4444)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      context.read<AuthCubit>().logout();
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import '../models/product.dart';
+import '../data/models/product.dart';
 
 const List<Product> allProducts = [
   Product(

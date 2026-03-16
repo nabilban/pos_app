@@ -18,37 +18,29 @@ trigger: always_on
 lib/
 ├── main.dart              # App entry point with BLoC providers setup
 ├── cubits/                # State management (BLoC/Cubit pattern)
-│   ├── cart_cubit.dart    # Shopping cart logic
-│   ├── cart_state.dart    # Cart state with Freezed
-│   ├── settings_cubit.dart # App settings logic
-│   ├── settings_state.dart # Settings state with Freezed
-│   ├── pos_cubit.dart     # POS screen logic (categories, products)
-│   ├── pos_state.dart     # POS state with Freezed
-│   ├── checkout_cubit.dart # Checkout flow logic
-│   └── checkout_state.dart # Checkout state with Freezed
-├── models/                # Data models with Freezed + JSON serialization
-│   ├── product.dart       # Product model
-│   ├── cart_item.dart     # Cart item model
-│   └── store_info.dart    # Store information model
-├── data/                  # Static/mock data
-│   ├── product_data.dart  # Product catalog
-│   └── user_data.dart     # User/store info
-├── repositories/          # Data layer abstraction
-│   └── pos_repository.dart
+├── data/                  # Data Layer (Database + Sources + Models + Repositories)
+│   ├── database/          # DBMS / ORM setup (Drift)
+│   │   └── app_database.dart
+│   ├── datasource/        # Data sources (Local & Remote)
+│   │   ├── local/         # Local segmented data sources (TokenManager, etc.)
+│   │   │   └── token_manager.dart
+│   │   └── remote/        # Remote data sources (API Client)
+│   │       └── api_client.dart
+│   ├── models/            # Data models (Freezed)
+│   │   ├── product.dart
+│   │   └── auth_response.dart
+│   └── repositories/      # Repository Interface + Implementation
+│       ├── auth_repository.dart
+│       └── pos_repository.dart
 ├── screens/               # Full-page screens
 │   └── pos_screen.dart    # Main POS screen
 ├── widgets/               # Reusable UI components
-│   ├── pos_header.dart    # Header with title + settings icon
-│   ├── category_bar.dart  # Horizontal category filter
-│   ├── product_card.dart  # Product grid card
-│   ├── cart_sidebar.dart  # Right-side cart panel
-│   ├── settings_drawer.dart # Left-side settings drawer
-│   ├── payment_modal.dart # Payment method bottom sheet
-│   └── receipt_dialog.dart # Receipt preview dialog
-├── services/              # Business logic services
-│   └── receipt_printer.dart # PDF receipt generation
+│   ├── pos_header.dart
+│   └── ...
+├── services/              # Business logic services (Printer, etc.)
+│   └── receipt_printer.dart
 └── utils/                 # Helper utilities
-    └── currency_util.dart # IDR currency formatting
+    └── currency_util.dart
 ```
 
 ---

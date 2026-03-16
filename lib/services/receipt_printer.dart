@@ -2,8 +2,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../utils/currency_util.dart';
-import '../models/cart_item.dart';
-import '../models/store_info.dart';
+import '../data/models/cart_item.dart';
+import '../data/models/store_info.dart';
 
 class ReceiptPrinter {
   /// Generates a thermal-style PDF receipt and opens the native print dialog.

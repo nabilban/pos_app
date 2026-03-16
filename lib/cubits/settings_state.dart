@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../models/store_info.dart';
+import '../data/models/store_info.dart';
 
 part 'settings_state.freezed.dart';
 part 'settings_state.g.dart';

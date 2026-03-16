@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/product.dart';
+import '../data/models/product.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
 import '../cubits/pos_cubit.dart';
 import '../cubits/pos_state.dart';
-import '../repositories/pos_repository.dart';
+import '../data/repositories/pos_repository.dart';
 import '../widgets/pos_header.dart';
 import '../widgets/category_bar.dart';
 import '../widgets/product_card.dart';
@@ -22,7 +22,7 @@ class PosScreen extends StatelessWidget {
 
     return BlocProvider(
       create: (context) =>
-          PosCubit(RepositoryProvider.of<PosRepository>(context)),
+          PosCubit(RepositoryProvider.of<IPosRepository>(context)),
       child: BlocBuilder<PosCubit, PosState>(
         builder: (context, posState) {
           if (posState.isLoading) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/currency_util.dart';
-import '../models/product.dart';
+import '../data/models/product.dart';
 
 final List<Color> _cardColors = [
   const Color(0xFFEEF2FF),

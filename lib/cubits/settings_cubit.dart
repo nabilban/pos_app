@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../repositories/pos_repository.dart';
+import '../data/repositories/pos_repository.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
-  final PosRepository _repository;
+  final IPosRepository _repository;
 
   SettingsCubit(this._repository) : super(const SettingsState()) {
     loadStoreInfo();
