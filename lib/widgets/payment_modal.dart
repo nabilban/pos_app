@@ -125,7 +125,9 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    item.product.iconLabel,
+                                    item.product.name.isNotEmpty
+                                        ? item.product.name[0].toUpperCase()
+                                        : '?',
                                     style: const TextStyle(fontSize: 18),
                                   ),
                                 ),

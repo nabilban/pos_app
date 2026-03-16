@@ -20,7 +20,7 @@ class CartCubit extends Cubit<CartState> {
     emit(state.copyWith(items: items));
   }
 
-  void increment(String productId) {
+  void increment(int productId) {
     final items = List<CartItem>.from(state.items);
     final index = items.indexWhere((i) => i.product.id == productId);
     if (index >= 0) {
@@ -32,7 +32,7 @@ class CartCubit extends Cubit<CartState> {
     }
   }
 
-  void decrement(String productId) {
+  void decrement(int productId) {
     final items = List<CartItem>.from(state.items);
     final index = items.indexWhere((i) => i.product.id == productId);
     if (index >= 0) {
@@ -48,7 +48,7 @@ class CartCubit extends Cubit<CartState> {
     }
   }
 
-  void remove(String productId) {
+  void remove(int productId) {
     final items = List<CartItem>.from(state.items)
       ..removeWhere((i) => i.product.id == productId);
     emit(state.copyWith(items: items));

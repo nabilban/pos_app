@@ -12,6 +12,7 @@ import '../widgets/product_card.dart';
 import '../widgets/cart_sidebar.dart';
 import '../widgets/settings_drawer.dart';
 import '../widgets/payment_modal.dart';
+import '../widgets/search_filter_bar.dart';
 
 class PosScreen extends StatelessWidget {
   const PosScreen({super.key});
@@ -38,12 +39,7 @@ class PosScreen extends StatelessWidget {
                   ? constraints.maxWidth * 0.30
                   : constraints.maxWidth;
 
-              final List<Product> filteredProducts =
-                  posState.selectedCategory == 'Semua'
-                  ? posState.products
-                  : posState.products
-                        .where((p) => p.category == posState.selectedCategory)
-                        .toList();
+              final List<Product> filteredProducts = context.read<PosCubit>().filteredProducts;
 
               return Scaffold(
                 key: scaffoldKey,
@@ -56,13 +52,14 @@ class PosScreen extends StatelessWidget {
                         onSettingsTap: () =>
                             scaffoldKey.currentState?.openDrawer(),
                       ),
-                      CategoryBar(
-                        categories: posState.categories,
-                        selected: posState.selectedCategory,
-                        onSelect: (cat) =>
-                            context.read<PosCubit>().setCategory(cat),
-                      ),
-                      Expanded(
+                        CategoryBar(
+                          categories: posState.categories,
+                          selected: posState.selectedCategory,
+                          onSelect: (cat) =>
+                              context.read<PosCubit>().setCategory(cat),
+                        ),
+                        const SearchFilterBar(),
+                        Expanded(
                         child: isWide
                             ? Row(
                                 children: [

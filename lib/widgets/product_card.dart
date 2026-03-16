@@ -63,13 +63,17 @@ class ProductCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text(
-                    product.iconLabel,
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: _iconColors[colorIndex],
-                    ),
-                  ),
+                  child: product.image != null && product.image!.isNotEmpty
+                      ? Image.asset(product.image!)
+                      : Text(
+                          product.name.isNotEmpty
+                              ? product.name[0].toUpperCase()
+                              : '?',
+                          style: TextStyle(
+                            fontSize: 28,
+                            color: _iconColors[colorIndex],
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 10),

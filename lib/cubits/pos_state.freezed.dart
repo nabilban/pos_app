@@ -17,9 +17,12 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$PosState {
-  String get selectedCategory => throw _privateConstructorUsedError;
+  Category? get selectedCategory => throw _privateConstructorUsedError;
+  Brand? get selectedBrand => throw _privateConstructorUsedError;
+  String get searchQuery => throw _privateConstructorUsedError;
   List<Product> get products => throw _privateConstructorUsedError;
-  List<String> get categories => throw _privateConstructorUsedError;
+  List<Category> get categories => throw _privateConstructorUsedError;
+  List<Brand> get brands => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
 
   /// Create a copy of PosState
@@ -35,11 +38,17 @@ abstract class $PosStateCopyWith<$Res> {
       _$PosStateCopyWithImpl<$Res, PosState>;
   @useResult
   $Res call({
-    String selectedCategory,
+    Category? selectedCategory,
+    Brand? selectedBrand,
+    String searchQuery,
     List<Product> products,
-    List<String> categories,
+    List<Category> categories,
+    List<Brand> brands,
     bool isLoading,
   });
+
+  $CategoryCopyWith<$Res>? get selectedCategory;
+  $BrandCopyWith<$Res>? get selectedBrand;
 }
 
 /// @nodoc
@@ -57,16 +66,27 @@ class _$PosStateCopyWithImpl<$Res, $Val extends PosState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? selectedCategory = null,
+    Object? selectedCategory = freezed,
+    Object? selectedBrand = freezed,
+    Object? searchQuery = null,
     Object? products = null,
     Object? categories = null,
+    Object? brands = null,
     Object? isLoading = null,
   }) {
     return _then(
       _value.copyWith(
-            selectedCategory: null == selectedCategory
+            selectedCategory: freezed == selectedCategory
                 ? _value.selectedCategory
                 : selectedCategory // ignore: cast_nullable_to_non_nullable
+                      as Category?,
+            selectedBrand: freezed == selectedBrand
+                ? _value.selectedBrand
+                : selectedBrand // ignore: cast_nullable_to_non_nullable
+                      as Brand?,
+            searchQuery: null == searchQuery
+                ? _value.searchQuery
+                : searchQuery // ignore: cast_nullable_to_non_nullable
                       as String,
             products: null == products
                 ? _value.products
@@ -75,7 +95,11 @@ class _$PosStateCopyWithImpl<$Res, $Val extends PosState>
             categories: null == categories
                 ? _value.categories
                 : categories // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
+                      as List<Category>,
+            brands: null == brands
+                ? _value.brands
+                : brands // ignore: cast_nullable_to_non_nullable
+                      as List<Brand>,
             isLoading: null == isLoading
                 ? _value.isLoading
                 : isLoading // ignore: cast_nullable_to_non_nullable
@@ -83,6 +107,34 @@ class _$PosStateCopyWithImpl<$Res, $Val extends PosState>
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of PosState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CategoryCopyWith<$Res>? get selectedCategory {
+    if (_value.selectedCategory == null) {
+      return null;
+    }
+
+    return $CategoryCopyWith<$Res>(_value.selectedCategory!, (value) {
+      return _then(_value.copyWith(selectedCategory: value) as $Val);
+    });
+  }
+
+  /// Create a copy of PosState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $BrandCopyWith<$Res>? get selectedBrand {
+    if (_value.selectedBrand == null) {
+      return null;
+    }
+
+    return $BrandCopyWith<$Res>(_value.selectedBrand!, (value) {
+      return _then(_value.copyWith(selectedBrand: value) as $Val);
+    });
   }
 }
 
@@ -96,11 +148,19 @@ abstract class _$$PosStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    String selectedCategory,
+    Category? selectedCategory,
+    Brand? selectedBrand,
+    String searchQuery,
     List<Product> products,
-    List<String> categories,
+    List<Category> categories,
+    List<Brand> brands,
     bool isLoading,
   });
+
+  @override
+  $CategoryCopyWith<$Res>? get selectedCategory;
+  @override
+  $BrandCopyWith<$Res>? get selectedBrand;
 }
 
 /// @nodoc
@@ -117,16 +177,27 @@ class __$$PosStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? selectedCategory = null,
+    Object? selectedCategory = freezed,
+    Object? selectedBrand = freezed,
+    Object? searchQuery = null,
     Object? products = null,
     Object? categories = null,
+    Object? brands = null,
     Object? isLoading = null,
   }) {
     return _then(
       _$PosStateImpl(
-        selectedCategory: null == selectedCategory
+        selectedCategory: freezed == selectedCategory
             ? _value.selectedCategory
             : selectedCategory // ignore: cast_nullable_to_non_nullable
+                  as Category?,
+        selectedBrand: freezed == selectedBrand
+            ? _value.selectedBrand
+            : selectedBrand // ignore: cast_nullable_to_non_nullable
+                  as Brand?,
+        searchQuery: null == searchQuery
+            ? _value.searchQuery
+            : searchQuery // ignore: cast_nullable_to_non_nullable
                   as String,
         products: null == products
             ? _value._products
@@ -135,7 +206,11 @@ class __$$PosStateImplCopyWithImpl<$Res>
         categories: null == categories
             ? _value._categories
             : categories // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
+                  as List<Category>,
+        brands: null == brands
+            ? _value._brands
+            : brands // ignore: cast_nullable_to_non_nullable
+                  as List<Brand>,
         isLoading: null == isLoading
             ? _value.isLoading
             : isLoading // ignore: cast_nullable_to_non_nullable
@@ -149,16 +224,24 @@ class __$$PosStateImplCopyWithImpl<$Res>
 
 class _$PosStateImpl implements _PosState {
   const _$PosStateImpl({
-    this.selectedCategory = 'Semua',
+    this.selectedCategory,
+    this.selectedBrand,
+    this.searchQuery = '',
     final List<Product> products = const [],
-    final List<String> categories = const [],
+    final List<Category> categories = const [],
+    final List<Brand> brands = const [],
     this.isLoading = false,
   }) : _products = products,
-       _categories = categories;
+       _categories = categories,
+       _brands = brands;
 
   @override
+  final Category? selectedCategory;
+  @override
+  final Brand? selectedBrand;
+  @override
   @JsonKey()
-  final String selectedCategory;
+  final String searchQuery;
   final List<Product> _products;
   @override
   @JsonKey()
@@ -168,13 +251,22 @@ class _$PosStateImpl implements _PosState {
     return EqualUnmodifiableListView(_products);
   }
 
-  final List<String> _categories;
+  final List<Category> _categories;
   @override
   @JsonKey()
-  List<String> get categories {
+  List<Category> get categories {
     if (_categories is EqualUnmodifiableListView) return _categories;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_categories);
+  }
+
+  final List<Brand> _brands;
+  @override
+  @JsonKey()
+  List<Brand> get brands {
+    if (_brands is EqualUnmodifiableListView) return _brands;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_brands);
   }
 
   @override
@@ -183,7 +275,7 @@ class _$PosStateImpl implements _PosState {
 
   @override
   String toString() {
-    return 'PosState(selectedCategory: $selectedCategory, products: $products, categories: $categories, isLoading: $isLoading)';
+    return 'PosState(selectedCategory: $selectedCategory, selectedBrand: $selectedBrand, searchQuery: $searchQuery, products: $products, categories: $categories, brands: $brands, isLoading: $isLoading)';
   }
 
   @override
@@ -193,11 +285,16 @@ class _$PosStateImpl implements _PosState {
             other is _$PosStateImpl &&
             (identical(other.selectedCategory, selectedCategory) ||
                 other.selectedCategory == selectedCategory) &&
+            (identical(other.selectedBrand, selectedBrand) ||
+                other.selectedBrand == selectedBrand) &&
+            (identical(other.searchQuery, searchQuery) ||
+                other.searchQuery == searchQuery) &&
             const DeepCollectionEquality().equals(other._products, _products) &&
             const DeepCollectionEquality().equals(
               other._categories,
               _categories,
             ) &&
+            const DeepCollectionEquality().equals(other._brands, _brands) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading));
   }
@@ -206,8 +303,11 @@ class _$PosStateImpl implements _PosState {
   int get hashCode => Object.hash(
     runtimeType,
     selectedCategory,
+    selectedBrand,
+    searchQuery,
     const DeepCollectionEquality().hash(_products),
     const DeepCollectionEquality().hash(_categories),
+    const DeepCollectionEquality().hash(_brands),
     isLoading,
   );
 
@@ -222,18 +322,27 @@ class _$PosStateImpl implements _PosState {
 
 abstract class _PosState implements PosState {
   const factory _PosState({
-    final String selectedCategory,
+    final Category? selectedCategory,
+    final Brand? selectedBrand,
+    final String searchQuery,
     final List<Product> products,
-    final List<String> categories,
+    final List<Category> categories,
+    final List<Brand> brands,
     final bool isLoading,
   }) = _$PosStateImpl;
 
   @override
-  String get selectedCategory;
+  Category? get selectedCategory;
+  @override
+  Brand? get selectedBrand;
+  @override
+  String get searchQuery;
   @override
   List<Product> get products;
   @override
-  List<String> get categories;
+  List<Category> get categories;
+  @override
+  List<Brand> get brands;
   @override
   bool get isLoading;
 

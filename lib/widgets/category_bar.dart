@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../data/models/category.dart';
 
 class CategoryBar extends StatelessWidget {
-  final List<String> categories;
-  final String selected;
-  final ValueChanged<String> onSelect;
+  final List<Category> categories;
+  final Category? selected;
+  final ValueChanged<Category?> onSelect;
 
   const CategoryBar({
     super.key,
@@ -20,11 +21,14 @@ class CategoryBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
+        itemCount: categories.length + 1,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final cat = categories[index];
-          final isSelected = cat == selected;
+          final isSemua = index == 0;
+          final cat = isSemua ? null : categories[index - 1];
+          final isSelected = selected == cat;
+          final label = isSemua ? 'Semua' : cat!.name;
+
           return GestureDetector(
             onTap: () => onSelect(cat),
             child: AnimatedContainer(
@@ -37,7 +41,7 @@ class CategoryBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                cat,
+                label,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,

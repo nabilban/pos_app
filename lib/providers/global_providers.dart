@@ -50,7 +50,9 @@ class GlobalProviders extends StatelessWidget {
             context.read<TokenManager>(),
           ),
         ),
-        RepositoryProvider<IPosRepository>(create: (_) => PosRepository()),
+        RepositoryProvider<IPosRepository>(
+          create: (context) => PosRepository(context.read<ApiClient>()),
+        ),
         RepositoryProvider<IUserRepository>(create: (_) => UserRepository()),
       ],
       child: MultiBlocProvider(
