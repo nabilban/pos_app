@@ -21,7 +21,8 @@ PaymentMethod _$PaymentMethodFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PaymentMethod {
-  int get ID => throw _privateConstructorUsedError;
+  @JsonKey(name: 'ID')
+  int get paymentMethodId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   @JsonKey(name: 'show_in_sale')
   bool get showInSale => throw _privateConstructorUsedError;
@@ -49,7 +50,7 @@ abstract class $PaymentMethodCopyWith<$Res> {
   ) = _$PaymentMethodCopyWithImpl<$Res, PaymentMethod>;
   @useResult
   $Res call({
-    int ID,
+    @JsonKey(name: 'ID') int paymentMethodId,
     String name,
     @JsonKey(name: 'show_in_sale') bool showInSale,
     @JsonKey(name: 'show_in_purchase') bool showInPurchase,
@@ -75,7 +76,7 @@ class _$PaymentMethodCopyWithImpl<$Res, $Val extends PaymentMethod>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? ID = null,
+    Object? paymentMethodId = null,
     Object? name = null,
     Object? showInSale = null,
     Object? showInPurchase = null,
@@ -84,9 +85,9 @@ class _$PaymentMethodCopyWithImpl<$Res, $Val extends PaymentMethod>
   }) {
     return _then(
       _value.copyWith(
-            ID: null == ID
-                ? _value.ID
-                : ID // ignore: cast_nullable_to_non_nullable
+            paymentMethodId: null == paymentMethodId
+                ? _value.paymentMethodId
+                : paymentMethodId // ignore: cast_nullable_to_non_nullable
                       as int,
             name: null == name
                 ? _value.name
@@ -138,7 +139,7 @@ abstract class _$$PaymentMethodImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    int ID,
+    @JsonKey(name: 'ID') int paymentMethodId,
     String name,
     @JsonKey(name: 'show_in_sale') bool showInSale,
     @JsonKey(name: 'show_in_purchase') bool showInPurchase,
@@ -164,7 +165,7 @@ class __$$PaymentMethodImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? ID = null,
+    Object? paymentMethodId = null,
     Object? name = null,
     Object? showInSale = null,
     Object? showInPurchase = null,
@@ -173,9 +174,9 @@ class __$$PaymentMethodImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$PaymentMethodImpl(
-        ID: null == ID
-            ? _value.ID
-            : ID // ignore: cast_nullable_to_non_nullable
+        paymentMethodId: null == paymentMethodId
+            ? _value.paymentMethodId
+            : paymentMethodId // ignore: cast_nullable_to_non_nullable
                   as int,
         name: null == name
             ? _value.name
@@ -206,7 +207,7 @@ class __$$PaymentMethodImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PaymentMethodImpl implements _PaymentMethod {
   const _$PaymentMethodImpl({
-    required this.ID,
+    @JsonKey(name: 'ID') required this.paymentMethodId,
     required this.name,
     @JsonKey(name: 'show_in_sale') required this.showInSale,
     @JsonKey(name: 'show_in_purchase') required this.showInPurchase,
@@ -218,7 +219,8 @@ class _$PaymentMethodImpl implements _PaymentMethod {
       _$$PaymentMethodImplFromJson(json);
 
   @override
-  final int ID;
+  @JsonKey(name: 'ID')
+  final int paymentMethodId;
   @override
   final String name;
   @override
@@ -235,7 +237,7 @@ class _$PaymentMethodImpl implements _PaymentMethod {
 
   @override
   String toString() {
-    return 'PaymentMethod(ID: $ID, name: $name, showInSale: $showInSale, showInPurchase: $showInPurchase, outletId: $outletId, outlet: $outlet)';
+    return 'PaymentMethod(paymentMethodId: $paymentMethodId, name: $name, showInSale: $showInSale, showInPurchase: $showInPurchase, outletId: $outletId, outlet: $outlet)';
   }
 
   @override
@@ -243,7 +245,8 @@ class _$PaymentMethodImpl implements _PaymentMethod {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PaymentMethodImpl &&
-            (identical(other.ID, ID) || other.ID == ID) &&
+            (identical(other.paymentMethodId, paymentMethodId) ||
+                other.paymentMethodId == paymentMethodId) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.showInSale, showInSale) ||
                 other.showInSale == showInSale) &&
@@ -258,7 +261,7 @@ class _$PaymentMethodImpl implements _PaymentMethod {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    ID,
+    paymentMethodId,
     name,
     showInSale,
     showInPurchase,
@@ -282,7 +285,7 @@ class _$PaymentMethodImpl implements _PaymentMethod {
 
 abstract class _PaymentMethod implements PaymentMethod {
   const factory _PaymentMethod({
-    required final int ID,
+    @JsonKey(name: 'ID') required final int paymentMethodId,
     required final String name,
     @JsonKey(name: 'show_in_sale') required final bool showInSale,
     @JsonKey(name: 'show_in_purchase') required final bool showInPurchase,
@@ -294,7 +297,8 @@ abstract class _PaymentMethod implements PaymentMethod {
       _$PaymentMethodImpl.fromJson;
 
   @override
-  int get ID;
+  @JsonKey(name: 'ID')
+  int get paymentMethodId;
   @override
   String get name;
   @override

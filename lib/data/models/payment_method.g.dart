@@ -8,7 +8,7 @@ part of 'payment_method.dart';
 
 _$PaymentMethodImpl _$$PaymentMethodImplFromJson(Map<String, dynamic> json) =>
     _$PaymentMethodImpl(
-      ID: (json['ID'] as num).toInt(),
+      paymentMethodId: (json['ID'] as num).toInt(),
       name: json['name'] as String,
       showInSale: json['show_in_sale'] as bool,
       showInPurchase: json['show_in_purchase'] as bool,
@@ -20,7 +20,7 @@ _$PaymentMethodImpl _$$PaymentMethodImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$PaymentMethodImplToJson(_$PaymentMethodImpl instance) =>
     <String, dynamic>{
-      'ID': instance.ID,
+      'ID': instance.paymentMethodId,
       'name': instance.name,
       'show_in_sale': instance.showInSale,
       'show_in_purchase': instance.showInPurchase,

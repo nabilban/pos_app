@@ -7,7 +7,7 @@ part 'promo.g.dart';
 @freezed
 class Promo with _$Promo {
   const factory Promo({
-    required int ID,
+    @JsonKey(name: 'ID') required int promoId,
     required String name,
     @JsonKey(name: 'promo_type') required String promoType,
     @JsonKey(name: 'applies_to') required String appliesTo,

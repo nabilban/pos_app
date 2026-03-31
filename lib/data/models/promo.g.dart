@@ -7,7 +7,7 @@ part of 'promo.dart';
 // **************************************************************************
 
 _$PromoImpl _$$PromoImplFromJson(Map<String, dynamic> json) => _$PromoImpl(
-  ID: (json['ID'] as num).toInt(),
+  promoId: (json['ID'] as num).toInt(),
   name: json['name'] as String,
   promoType: json['promo_type'] as String,
   appliesTo: json['applies_to'] as String,
@@ -24,7 +24,7 @@ _$PromoImpl _$$PromoImplFromJson(Map<String, dynamic> json) => _$PromoImpl(
 
 Map<String, dynamic> _$$PromoImplToJson(_$PromoImpl instance) =>
     <String, dynamic>{
-      'ID': instance.ID,
+      'ID': instance.promoId,
       'name': instance.name,
       'promo_type': instance.promoType,
       'applies_to': instance.appliesTo,

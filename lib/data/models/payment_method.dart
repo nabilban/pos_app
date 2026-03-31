@@ -8,7 +8,7 @@ part 'payment_method.g.dart';
 @freezed
 class PaymentMethod with _$PaymentMethod {
   const factory PaymentMethod({
-    required int ID,
+    @JsonKey(name: 'ID') required int paymentMethodId,
     required String name,
     @JsonKey(name: 'show_in_sale') required bool showInSale,
     @JsonKey(name: 'show_in_purchase') required bool showInPurchase,

@@ -5,6 +5,7 @@ import '../models/payment_method.dart';
 import '../models/promo.dart';
 import '../models/promo_check_response.dart';
 import '../models/cart_item.dart';
+import '../models/sale_request.dart';
 import '../datasource/remote/api_client.dart';
 
 abstract class IPosRepository {
@@ -14,6 +15,7 @@ abstract class IPosRepository {
   Future<List<PaymentMethod>> getPaymentMethods();
   Future<List<Promo>> getPromos();
   Future<PromoCheckResponse> checkVoucher(String code, List<CartItem> items);
+  Future<void> createSale(SaleRequest request);
 }
 
 class PosRepository implements IPosRepository {
@@ -117,6 +119,18 @@ class PosRepository implements IPosRepository {
         },
       );
       return PromoCheckResponse.fromJson(response.data['data']);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> createSale(SaleRequest request) async {
+    try {
+      await _apiClient.authenticatedDio.post(
+        '/sales',
+        data: request.toJson(),
+      );
     } catch (e) {
       rethrow;
     }

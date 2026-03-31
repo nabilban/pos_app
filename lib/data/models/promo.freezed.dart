@@ -21,7 +21,8 @@ Promo _$PromoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Promo {
-  int get ID => throw _privateConstructorUsedError;
+  @JsonKey(name: 'ID')
+  int get promoId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   @JsonKey(name: 'promo_type')
   String get promoType => throw _privateConstructorUsedError;
@@ -59,7 +60,7 @@ abstract class $PromoCopyWith<$Res> {
       _$PromoCopyWithImpl<$Res, Promo>;
   @useResult
   $Res call({
-    int ID,
+    @JsonKey(name: 'ID') int promoId,
     String name,
     @JsonKey(name: 'promo_type') String promoType,
     @JsonKey(name: 'applies_to') String appliesTo,
@@ -90,7 +91,7 @@ class _$PromoCopyWithImpl<$Res, $Val extends Promo>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? ID = null,
+    Object? promoId = null,
     Object? name = null,
     Object? promoType = null,
     Object? appliesTo = null,
@@ -106,9 +107,9 @@ class _$PromoCopyWithImpl<$Res, $Val extends Promo>
   }) {
     return _then(
       _value.copyWith(
-            ID: null == ID
-                ? _value.ID
-                : ID // ignore: cast_nullable_to_non_nullable
+            promoId: null == promoId
+                ? _value.promoId
+                : promoId // ignore: cast_nullable_to_non_nullable
                       as int,
             name: null == name
                 ? _value.name
@@ -173,7 +174,7 @@ abstract class _$$PromoImplCopyWith<$Res> implements $PromoCopyWith<$Res> {
   @override
   @useResult
   $Res call({
-    int ID,
+    @JsonKey(name: 'ID') int promoId,
     String name,
     @JsonKey(name: 'promo_type') String promoType,
     @JsonKey(name: 'applies_to') String appliesTo,
@@ -203,7 +204,7 @@ class __$$PromoImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? ID = null,
+    Object? promoId = null,
     Object? name = null,
     Object? promoType = null,
     Object? appliesTo = null,
@@ -219,9 +220,9 @@ class __$$PromoImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$PromoImpl(
-        ID: null == ID
-            ? _value.ID
-            : ID // ignore: cast_nullable_to_non_nullable
+        promoId: null == promoId
+            ? _value.promoId
+            : promoId // ignore: cast_nullable_to_non_nullable
                   as int,
         name: null == name
             ? _value.name
@@ -280,7 +281,7 @@ class __$$PromoImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PromoImpl implements _Promo {
   const _$PromoImpl({
-    required this.ID,
+    @JsonKey(name: 'ID') required this.promoId,
     required this.name,
     @JsonKey(name: 'promo_type') required this.promoType,
     @JsonKey(name: 'applies_to') required this.appliesTo,
@@ -299,7 +300,8 @@ class _$PromoImpl implements _Promo {
       _$$PromoImplFromJson(json);
 
   @override
-  final int ID;
+  @JsonKey(name: 'ID')
+  final int promoId;
   @override
   final String name;
   @override
@@ -336,7 +338,7 @@ class _$PromoImpl implements _Promo {
 
   @override
   String toString() {
-    return 'Promo(ID: $ID, name: $name, promoType: $promoType, appliesTo: $appliesTo, condition: $condition, minQty: $minQty, minTotal: $minTotal, discountPct: $discountPct, maxDiscount: $maxDiscount, cutPrice: $cutPrice, voucherType: $voucherType, voucherCode: $voucherCode, status: $status)';
+    return 'Promo(promoId: $promoId, name: $name, promoType: $promoType, appliesTo: $appliesTo, condition: $condition, minQty: $minQty, minTotal: $minTotal, discountPct: $discountPct, maxDiscount: $maxDiscount, cutPrice: $cutPrice, voucherType: $voucherType, voucherCode: $voucherCode, status: $status)';
   }
 
   @override
@@ -344,7 +346,7 @@ class _$PromoImpl implements _Promo {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PromoImpl &&
-            (identical(other.ID, ID) || other.ID == ID) &&
+            (identical(other.promoId, promoId) || other.promoId == promoId) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.promoType, promoType) ||
                 other.promoType == promoType) &&
@@ -372,7 +374,7 @@ class _$PromoImpl implements _Promo {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    ID,
+    promoId,
     name,
     promoType,
     appliesTo,
@@ -403,7 +405,7 @@ class _$PromoImpl implements _Promo {
 
 abstract class _Promo implements Promo {
   const factory _Promo({
-    required final int ID,
+    @JsonKey(name: 'ID') required final int promoId,
     required final String name,
     @JsonKey(name: 'promo_type') required final String promoType,
     @JsonKey(name: 'applies_to') required final String appliesTo,
@@ -421,7 +423,8 @@ abstract class _Promo implements Promo {
   factory _Promo.fromJson(Map<String, dynamic> json) = _$PromoImpl.fromJson;
 
   @override
-  int get ID;
+  @JsonKey(name: 'ID')
+  int get promoId;
   @override
   String get name;
   @override
