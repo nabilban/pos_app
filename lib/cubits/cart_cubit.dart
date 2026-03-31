@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/models/cart_item.dart';
 import '../data/models/product.dart';
 import '../data/models/variant.dart';
+import '../data/models/promo_check_response.dart';
 import 'cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
@@ -63,10 +64,50 @@ class CartCubit extends Cubit<CartState> {
     }
   }
 
+  void updateItemOptions(CartItem oldItem, List<VariantOption> newOptions) {
+    final items = List<CartItem>.from(state.items);
+    final oldIndex = items.indexOf(oldItem);
+    if (oldIndex < 0) return;
+
+    // Remove old item
+    items.removeAt(oldIndex);
+
+    // Check if item with same product AND new options already exists
+    final targetIndex = items.indexWhere((i) {
+      if (i.product.id != oldItem.product.id) return false;
+      if (i.selectedOptions.length != newOptions.length) return false;
+      
+      final existingIds = i.selectedOptions.map((o) => o.id).toSet();
+      final newIds = newOptions.map((o) => o.id).toSet();
+      return existingIds.containsAll(newIds);
+    });
+
+    if (targetIndex >= 0) {
+      // Merge with existing item
+      items[targetIndex] = items[targetIndex].copyWith(
+        quantity: items[targetIndex].quantity + oldItem.quantity,
+      );
+    } else {
+      // Create new item entry with same quantity
+      items.add(oldItem.copyWith(
+        selectedOptions: newOptions,
+      ));
+    }
+    emit(state.copyWith(items: items));
+  }
+
   void remove(CartItem item) {
     final items = List<CartItem>.from(state.items)..remove(item);
     emit(state.copyWith(items: items));
   }
 
   void clear() => emit(const CartState());
+
+  void applyPromo(PromoCheckResponse promo) {
+    emit(state.copyWith(appliedPromo: promo));
+  }
+
+  void removePromo() {
+    emit(state.copyWith(appliedPromo: null));
+  }
 }

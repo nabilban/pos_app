@@ -22,6 +22,7 @@ CartState _$CartStateFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$CartState {
   List<CartItem> get items => throw _privateConstructorUsedError;
+  PromoCheckResponse? get appliedPromo => throw _privateConstructorUsedError;
 
   /// Serializes this CartState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -38,7 +39,9 @@ abstract class $CartStateCopyWith<$Res> {
   factory $CartStateCopyWith(CartState value, $Res Function(CartState) then) =
       _$CartStateCopyWithImpl<$Res, CartState>;
   @useResult
-  $Res call({List<CartItem> items});
+  $Res call({List<CartItem> items, PromoCheckResponse? appliedPromo});
+
+  $PromoCheckResponseCopyWith<$Res>? get appliedPromo;
 }
 
 /// @nodoc
@@ -55,16 +58,34 @@ class _$CartStateCopyWithImpl<$Res, $Val extends CartState>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? items = null}) {
+  $Res call({Object? items = null, Object? appliedPromo = freezed}) {
     return _then(
       _value.copyWith(
             items: null == items
                 ? _value.items
                 : items // ignore: cast_nullable_to_non_nullable
                       as List<CartItem>,
+            appliedPromo: freezed == appliedPromo
+                ? _value.appliedPromo
+                : appliedPromo // ignore: cast_nullable_to_non_nullable
+                      as PromoCheckResponse?,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of CartState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $PromoCheckResponseCopyWith<$Res>? get appliedPromo {
+    if (_value.appliedPromo == null) {
+      return null;
+    }
+
+    return $PromoCheckResponseCopyWith<$Res>(_value.appliedPromo!, (value) {
+      return _then(_value.copyWith(appliedPromo: value) as $Val);
+    });
   }
 }
 
@@ -77,7 +98,10 @@ abstract class _$$CartStateImplCopyWith<$Res>
   ) = __$$CartStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<CartItem> items});
+  $Res call({List<CartItem> items, PromoCheckResponse? appliedPromo});
+
+  @override
+  $PromoCheckResponseCopyWith<$Res>? get appliedPromo;
 }
 
 /// @nodoc
@@ -93,13 +117,17 @@ class __$$CartStateImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? items = null}) {
+  $Res call({Object? items = null, Object? appliedPromo = freezed}) {
     return _then(
       _$CartStateImpl(
         items: null == items
             ? _value._items
             : items // ignore: cast_nullable_to_non_nullable
                   as List<CartItem>,
+        appliedPromo: freezed == appliedPromo
+            ? _value.appliedPromo
+            : appliedPromo // ignore: cast_nullable_to_non_nullable
+                  as PromoCheckResponse?,
       ),
     );
   }
@@ -108,8 +136,10 @@ class __$$CartStateImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$CartStateImpl implements _CartState {
-  const _$CartStateImpl({final List<CartItem> items = const []})
-    : _items = items;
+  const _$CartStateImpl({
+    final List<CartItem> items = const [],
+    this.appliedPromo,
+  }) : _items = items;
 
   factory _$CartStateImpl.fromJson(Map<String, dynamic> json) =>
       _$$CartStateImplFromJson(json);
@@ -124,8 +154,11 @@ class _$CartStateImpl implements _CartState {
   }
 
   @override
+  final PromoCheckResponse? appliedPromo;
+
+  @override
   String toString() {
-    return 'CartState(items: $items)';
+    return 'CartState(items: $items, appliedPromo: $appliedPromo)';
   }
 
   @override
@@ -133,13 +166,18 @@ class _$CartStateImpl implements _CartState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CartStateImpl &&
-            const DeepCollectionEquality().equals(other._items, _items));
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.appliedPromo, appliedPromo) ||
+                other.appliedPromo == appliedPromo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_items));
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(_items),
+    appliedPromo,
+  );
 
   /// Create a copy of CartState
   /// with the given fields replaced by the non-null parameter values.
@@ -156,13 +194,18 @@ class _$CartStateImpl implements _CartState {
 }
 
 abstract class _CartState implements CartState {
-  const factory _CartState({final List<CartItem> items}) = _$CartStateImpl;
+  const factory _CartState({
+    final List<CartItem> items,
+    final PromoCheckResponse? appliedPromo,
+  }) = _$CartStateImpl;
 
   factory _CartState.fromJson(Map<String, dynamic> json) =
       _$CartStateImpl.fromJson;
 
   @override
   List<CartItem> get items;
+  @override
+  PromoCheckResponse? get appliedPromo;
 
   /// Create a copy of CartState
   /// with the given fields replaced by the non-null parameter values.

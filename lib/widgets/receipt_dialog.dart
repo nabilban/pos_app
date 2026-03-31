@@ -13,6 +13,8 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
   final state = cubit.state;
   final items = state.items;
   final total = state.total;
+  final subtotal = state.subtotal;
+  final discount = state.discount;
 
   // Clear cart after capturing state
   cubit.clear();
@@ -30,6 +32,8 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
     builder: (_) => _ReceiptDialog(
       items: items,
       total: total,
+      subtotal: subtotal,
+      discount: discount,
       paymentMethod: paymentMethod,
       dateStr: dateStr,
       storeInfo: storeInfo,
@@ -40,6 +44,8 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
 class _ReceiptDialog extends StatelessWidget {
   final List<CartItem> items;
   final double total;
+  final double subtotal;
+  final double discount;
   final String paymentMethod;
   final String dateStr;
   final StoreInfo storeInfo;
@@ -47,6 +53,8 @@ class _ReceiptDialog extends StatelessWidget {
   const _ReceiptDialog({
     required this.items,
     required this.total,
+    required this.subtotal,
+    required this.discount,
     required this.paymentMethod,
     required this.dateStr,
     required this.storeInfo,
@@ -113,8 +121,8 @@ class _ReceiptDialog extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _ReceiptRow(label: 'Tanggal', value: dateStr),
-                    _ReceiptRow(label: 'Metode Bayar', value: paymentMethod),
+                    _TotalRow(label: 'Tanggal', value: dateStr),
+                    _TotalRow(label: 'Metode Bayar', value: paymentMethod),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(color: Color(0xFFE2E8F0)),
@@ -186,26 +194,26 @@ class _ReceiptDialog extends StatelessWidget {
                       child: Divider(color: Color(0xFFE2E8F0)),
                     ),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'TOTAL',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                            color: Color(0xFF1A1A2E),
-                          ),
-                        ),
-                        Text(
-                          CurrencyUtil.format(total),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 18,
-                            color: Color(0xFF2563EB),
-                          ),
-                        ),
-                      ],
+                    if (discount > 0) ...[
+                      _TotalRow(
+                        label: 'Subtotal',
+                        value: CurrencyUtil.format(subtotal),
+                        isBold: false,
+                      ),
+                      _TotalRow(
+                        label: 'Diskon',
+                        value: '-${CurrencyUtil.format(discount)}',
+                        isBold: false,
+                        color: const Color(0xFFEF4444),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+
+                    _TotalRow(
+                      label: 'TOTAL',
+                      value: CurrencyUtil.format(total),
+                      isBold: true,
+                      isTotal: true,
                     ),
                     const SizedBox(height: 16),
 
@@ -269,6 +277,8 @@ class _ReceiptDialog extends StatelessWidget {
                         ReceiptPrinter.printReceipt(
                           items: items,
                           total: total,
+                          subtotal: subtotal,
+                          discount: discount,
                           paymentMethod: paymentMethod,
                           dateStr: dateStr,
                           storeInfo: storeInfo,
@@ -309,29 +319,42 @@ class _ReceiptDialog extends StatelessWidget {
   }
 }
 
-class _ReceiptRow extends StatelessWidget {
+class _TotalRow extends StatelessWidget {
   final String label;
   final String value;
+  final bool isBold;
+  final bool isTotal;
+  final Color? color;
 
-  const _ReceiptRow({required this.label, required this.value});
+  const _TotalRow({
+    required this.label,
+    required this.value,
+    this.isBold = false,
+    this.isTotal = false,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+            style: TextStyle(
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
+              fontSize: isTotal ? 16 : 13,
+              color: color ?? const Color(0xFF1A1A2E),
+            ),
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1A1A2E),
+            style: TextStyle(
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
+              fontSize: isTotal ? 18 : 13,
+              color: isTotal ? const Color(0xFF2563EB) : (color ?? const Color(0xFF1A1A2E)),
             ),
           ),
         ],

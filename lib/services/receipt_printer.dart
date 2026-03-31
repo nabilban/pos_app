@@ -10,6 +10,8 @@ class ReceiptPrinter {
   static Future<void> printReceipt({
     required List<CartItem> items,
     required double total,
+    required double subtotal,
+    required double discount,
     required String paymentMethod,
     required String dateStr,
     required StoreInfo storeInfo,
@@ -130,16 +132,31 @@ class ReceiptPrinter {
 
               pw.SizedBox(height: 8),
 
-              // ── Total (right-aligned, bold) ──
+              // ── Totals (right-aligned, bold) ──
               pw.Align(
                 alignment: pw.Alignment.centerRight,
-                child: pw.Text(
-                  'Total: ${CurrencyUtil.format(total)}',
-                  style: pw.TextStyle(
-                    font: ttfBold,
-                    fontSize: 11,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    if (discount > 0) ...[
+                      pw.Text(
+                        'Subtotal: ${CurrencyUtil.format(subtotal)}',
+                        style: pw.TextStyle(font: ttf, fontSize: 10),
+                      ),
+                      pw.Text(
+                        'Diskon: -${CurrencyUtil.format(discount)}',
+                        style: pw.TextStyle(font: ttf, fontSize: 10),
+                      ),
+                    ],
+                    pw.Text(
+                      'Total: ${CurrencyUtil.format(total)}',
+                      style: pw.TextStyle(
+                        font: ttfBold,
+                        fontSize: 11,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
 

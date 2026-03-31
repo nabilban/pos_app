@@ -4,6 +4,7 @@ import 'package:pos_app/data/models/cart_item.dart';
 import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
+import 'variant_selection_modal.dart';
 
 class CartSidebar extends StatelessWidget {
   final VoidCallback onCheckout;
@@ -105,96 +106,109 @@ class CartSidebar extends StatelessWidget {
                           ),
                           itemBuilder: (context, index) {
                             final item = state.items[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          item.product.name,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13,
-                                            color: Color(0xFF1A1A2E),
+                            return InkWell(
+                              onTap: () {
+                                if (item.product.variants.isNotEmpty) {
+                                  VariantSelectionModal.show(
+                                    context,
+                                    item.product,
+                                    initialOptions: item.selectedOptions,
+                                    cartItem: item,
+                                  );
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item.product.name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                              color: Color(0xFF1A1A2E),
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        if (item.selectedOptions.isNotEmpty)
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 2),
-                                            child: Text(
-                                              item.selectedOptions
-                                                  .map((o) => o.name)
-                                                  .join(', '),
-                                              style: const TextStyle(
-                                                fontSize: 10,
-                                                color: Color(0xFF64748B),
+                                          if (item.selectedOptions.isNotEmpty)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(top: 2),
+                                              child: Text(
+                                                item.selectedOptions
+                                                    .map((o) => o.name)
+                                                    .join(', '),
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Color(0xFF64748B),
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          Text(
+                                            CurrencyUtil.format(item.subtotal),
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xFF2563EB),
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                        Text(
-                                          CurrencyUtil.format(item.subtotal),
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Color(0xFF2563EB),
-                                            fontWeight: FontWeight.w600,
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    // Quantity controls
+                                    Row(
+                                      children: [
+                                        _QtyButton(
+                                          icon: Icons.remove,
+                                          onTap: () => context
+                                              .read<CartCubit>()
+                                              .decrement(item),
+                                        ),
+                                        SizedBox(
+                                          width: 28,
+                                          child: Center(
+                                            child: Text(
+                                              '${item.quantity}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        _QtyButton(
+                                          icon: Icons.add,
+                                          onTap: () => context
+                                              .read<CartCubit>()
+                                              .increment(item),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        GestureDetector(
+                                          onTap: () => context
+                                              .read<CartCubit>()
+                                              .remove(item),
+                                          child: const Icon(
+                                            Icons.delete_outline,
+                                            color: Color(0xFFEF4444),
+                                            size: 18,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  // Quantity controls
-                                  Row(
-                                    children: [
-                                      _QtyButton(
-                                        icon: Icons.remove,
-                                        onTap: () => context
-                                            .read<CartCubit>()
-                                            .decrement(item),
-                                      ),
-                                      SizedBox(
-                                        width: 28,
-                                        child: Center(
-                                          child: Text(
-                                            '${item.quantity}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      _QtyButton(
-                                        icon: Icons.add,
-                                        onTap: () => context
-                                            .read<CartCubit>()
-                                            .increment(item),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      GestureDetector(
-                                        onTap: () => context
-                                            .read<CartCubit>()
-                                            .remove(item),
-                                        child: const Icon(
-                                          Icons.delete_outline,
-                                          color: Color(0xFFEF4444),
-                                          size: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },

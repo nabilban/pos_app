@@ -2,20 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/models/product.dart';
 import '../data/models/variant.dart';
+import '../data/models/cart_item.dart';
 import '../cubits/cart_cubit.dart';
 import '../utils/currency_util.dart';
 
 class VariantSelectionModal extends StatefulWidget {
   final Product product;
+  final List<VariantOption>? initialOptions;
+  final CartItem? cartItem; // Optional: only for edit mode
 
-  const VariantSelectionModal({super.key, required this.product});
+  const VariantSelectionModal({
+    super.key,
+    required this.product,
+    this.initialOptions,
+    this.cartItem,
+  });
 
-  static Future<void> show(BuildContext context, Product product) {
+  static Future<void> show(
+    BuildContext context,
+    Product product, {
+    List<VariantOption>? initialOptions,
+    CartItem? cartItem,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => VariantSelectionModal(product: product),
+      builder: (context) => VariantSelectionModal(
+        product: product,
+        initialOptions: initialOptions,
+        cartItem: cartItem,
+      ),
     );
   }
 
@@ -29,9 +46,24 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
   @override
   void initState() {
     super.initState();
-    // Initialize with default/required selections if any
+    // Initialize variant slots
     for (var variant in widget.product.variants) {
       _selectedOptions[variant.id] = [];
+    }
+
+    // Pre-fill if editing
+    if (widget.initialOptions != null) {
+      for (var option in widget.initialOptions!) {
+        // Find which variant category this option belongs to
+        for (var v in widget.product.variants) {
+          if (v.options.any((o) => o.id == option.id)) {
+            if (!_selectedOptions[v.id]!.any((o) => o.id == option.id)) {
+              _selectedOptions[v.id]?.add(option);
+            }
+            break;
+          }
+        }
+      }
     }
   }
 
@@ -73,8 +105,6 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
         } else {
           if (selected.length < variant.maxSelect) {
             _selectedOptions[variant.id] = [...selected, option];
-          } else {
-            // Optional: show limit reached warning
           }
         }
       }
@@ -83,6 +113,8 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
 
   @override
   Widget build(BuildContext context) {
+    final isEdit = widget.cartItem != null;
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -168,7 +200,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
             ),
           ),
 
-          // Footer / Add to cart
+          // Footer / Action
           Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
@@ -201,9 +233,17 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
                             final allSelected = _selectedOptions.values
                                 .expand((e) => e)
                                 .toList();
-                            context
-                                .read<CartCubit>()
-                                .addProduct(widget.product, selectedOptions: allSelected);
+                            if (isEdit) {
+                              context.read<CartCubit>().updateItemOptions(
+                                    widget.cartItem!,
+                                    allSelected,
+                                  );
+                            } else {
+                              context.read<CartCubit>().addProduct(
+                                    widget.product,
+                                    selectedOptions: allSelected,
+                                  );
+                            }
                             Navigator.pop(context);
                           }
                         : null,
@@ -217,9 +257,9 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Tambah ke Keranjang',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                    child: Text(
+                      isEdit ? 'Simpan Perubahan' : 'Tambah ke Keranjang',
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                     ),
                   ),
                 ),
