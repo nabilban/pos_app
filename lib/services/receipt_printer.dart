@@ -89,13 +89,41 @@ class ReceiptPrinter {
               // ── Itemized list ──
               ...items.map((item) {
                 final subtotal = CurrencyUtil.format(item.subtotal);
-                final line =
-                    '${item.product.name} x${item.quantity} = $subtotal';
+                final unitPrice = CurrencyUtil.format(item.subtotal / item.quantity);
+                
                 return pw.Padding(
-                  padding: const pw.EdgeInsets.only(bottom: 4),
-                  child: pw.Text(
-                    line,
-                    style: pw.TextStyle(font: ttf, fontSize: 10),
+                  padding: const pw.EdgeInsets.only(bottom: 6),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          pw.Expanded(
+                            child: pw.Text(
+                              item.product.name,
+                              style: pw.TextStyle(font: ttfBold, fontSize: 10),
+                            ),
+                          ),
+                          pw.Text(
+                            subtotal,
+                            style: pw.TextStyle(font: ttfBold, fontSize: 10),
+                          ),
+                        ],
+                      ),
+                      if (item.selectedOptions.isNotEmpty)
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.only(left: 4),
+                          child: pw.Text(
+                            '(${item.selectedOptions.map((o) => o.name).join(', ')})',
+                            style: pw.TextStyle(font: ttf, fontSize: 8),
+                          ),
+                        ),
+                      pw.Text(
+                        '${item.quantity} x $unitPrice',
+                        style: pw.TextStyle(font: ttf, fontSize: 9),
+                      ),
+                    ],
                   ),
                 );
               }),

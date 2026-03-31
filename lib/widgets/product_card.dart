@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../utils/currency_util.dart';
 import '../data/models/product.dart';
+import '../utils/currency_util.dart';
+import '../utils/image_util.dart';
 
 final List<Color> _cardColors = [
   const Color(0xFFEEF2FF),
@@ -64,16 +65,12 @@ class ProductCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: product.image != null && product.image!.isNotEmpty
-                      ? Image.asset(product.image!)
-                      : Text(
-                          product.name.isNotEmpty
-                              ? product.name[0].toUpperCase()
-                              : '?',
-                          style: TextStyle(
-                            fontSize: 28,
-                            color: _iconColors[colorIndex],
-                          ),
-                        ),
+                      ? ImageUtil.buildImage(
+                          product.image!,
+                          fit: BoxFit.contain,
+                          errorWidget: _buildPlaceholder(colorIndex),
+                        )
+                      : _buildPlaceholder(colorIndex),
                 ),
               ),
               const SizedBox(height: 10),
@@ -111,6 +108,16 @@ class ProductCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder(int colorIndex) {
+    return Text(
+      product.name.isNotEmpty ? product.name[0].toUpperCase() : '?',
+      style: TextStyle(
+        fontSize: 28,
+        color: _iconColors[colorIndex],
       ),
     );
   }

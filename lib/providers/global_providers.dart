@@ -30,7 +30,7 @@ class GlobalProviders extends StatelessWidget {
           create: (_) => Dio(
             BaseOptions(
               baseUrl:
-                  dotenv.env['local_backend'] ?? 'http://localhost:8080/api/',
+                  dotenv.env['local_backend'] ?? 'http://localhost:8080/api',
               connectTimeout: const Duration(seconds: 10),
               receiveTimeout: const Duration(seconds: 10),
               headers: {
@@ -68,8 +68,7 @@ class GlobalProviders extends StatelessWidget {
           ),
           BlocProvider(create: (_) => CartCubit()),
           BlocProvider(
-            create: (context) =>
-                SettingsCubit(context.read<IUserRepository>()),
+            create: (context) => SettingsCubit(context.read<IUserRepository>()),
           ),
         ],
         child: child,

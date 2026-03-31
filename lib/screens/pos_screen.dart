@@ -13,6 +13,7 @@ import '../widgets/cart_sidebar.dart';
 import '../widgets/settings_drawer.dart';
 import '../widgets/payment_modal.dart';
 import '../widgets/search_filter_bar.dart';
+import '../widgets/variant_selection_modal.dart';
 
 class PosScreen extends StatelessWidget {
   const PosScreen({super.key});
@@ -130,7 +131,13 @@ class PosScreen extends StatelessWidget {
         return ProductCard(
           product: product,
           index: allProducts.indexOf(product),
-          onTap: () => context.read<CartCubit>().addProduct(product),
+          onTap: () {
+            if (product.variants.isNotEmpty) {
+              VariantSelectionModal.show(context, product);
+            } else {
+              context.read<CartCubit>().addProduct(product);
+            }
+          },
         );
       },
     );

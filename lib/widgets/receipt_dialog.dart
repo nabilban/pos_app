@@ -136,28 +136,38 @@ class _ReceiptDialog extends StatelessWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.product.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                      color: Color(0xFF1A1A2E),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.product.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                            color: Color(0xFF1A1A2E),
+                                          ),
+                                        ),
+                                        if (item.selectedOptions.isNotEmpty)
+                                          Text(
+                                            item.selectedOptions
+                                                .map((o) => o.name)
+                                                .join(', '),
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Color(0xFF94A3B8),
+                                            ),
+                                          ),
+                                        Text(
+                                          '${item.quantity} x ${CurrencyUtil.format(item.subtotal / item.quantity)}',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF94A3B8),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Text(
-                                    '${item.quantity} x ${CurrencyUtil.format(item.product.price)}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF94A3B8),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
                             Text(
                               CurrencyUtil.format(item.subtotal),
                               style: const TextStyle(

@@ -127,6 +127,21 @@ class CartSidebar extends StatelessWidget {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
+                                        if (item.selectedOptions.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 2),
+                                            child: Text(
+                                              item.selectedOptions
+                                                  .map((o) => o.name)
+                                                  .join(', '),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: Color(0xFF64748B),
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
                                         Text(
                                           CurrencyUtil.format(item.subtotal),
                                           style: const TextStyle(
@@ -146,7 +161,7 @@ class CartSidebar extends StatelessWidget {
                                         icon: Icons.remove,
                                         onTap: () => context
                                             .read<CartCubit>()
-                                            .decrement(item.product.id),
+                                            .decrement(item),
                                       ),
                                       SizedBox(
                                         width: 28,
@@ -164,13 +179,13 @@ class CartSidebar extends StatelessWidget {
                                         icon: Icons.add,
                                         onTap: () => context
                                             .read<CartCubit>()
-                                            .increment(item.product.id),
+                                            .increment(item),
                                       ),
                                       const SizedBox(width: 4),
                                       GestureDetector(
                                         onTap: () => context
                                             .read<CartCubit>()
-                                            .remove(item.product.id),
+                                            .remove(item),
                                         child: const Icon(
                                           Icons.delete_outline,
                                           color: Color(0xFFEF4444),
