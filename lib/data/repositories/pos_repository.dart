@@ -69,8 +69,9 @@ class PosRepository implements IPosRepository {
   @override
   Future<List<PaymentMethod>> getPaymentMethods() async {
     try {
-      final response =
-          await _apiClient.authenticatedDio.get('/payment-methods');
+      final response = await _apiClient.authenticatedDio.get(
+        '/payment-methods',
+      );
       final List<dynamic> data = response.data['data'] ?? [];
       return data.map((json) => PaymentMethod.fromJson(json)).toList();
     } catch (e) {
@@ -91,21 +92,28 @@ class PosRepository implements IPosRepository {
 
   @override
   Future<PromoCheckResponse> checkVoucher(
-      String code, List<CartItem> items) async {
+    String code,
+    List<CartItem> items,
+  ) async {
     try {
       final response = await _apiClient.authenticatedDio.post(
         '/promos/check-voucher',
         data: {
           'code': code,
           'items': items
-              .map((item) => {
-                    'product_id': item.product.id,
-                    'category_id': item.product.categoryId,
-                    'brand_id': item.product.brandId,
-                    'quantity': item.quantity,
-                    'price': item.product.price,
-                  })
+              .map(
+                (item) => {
+                  'product_id': item.product.id,
+                  'category_id': item.product.categoryId,
+                  'brand_id': item.product.brandId,
+                  'quantity': item.quantity,
+                  'price': item.subtotal / item.quantity,
+                },
+              )
               .toList(),
+          "subtotal": items
+              .map((item) => item.subtotal)
+              .reduce((a, b) => a + b),
         },
       );
       return PromoCheckResponse.fromJson(response.data['data']);

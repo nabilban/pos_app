@@ -7,8 +7,8 @@ import '../cubits/cart_state.dart';
 import '../data/models/cart_item.dart';
 import '../data/models/payment_method.dart';
 import '../data/repositories/pos_repository.dart';
+import '../data/models/promo.dart';
 import 'receipt_dialog.dart';
-import 'variant_selection_modal.dart';
 
 Future<void> showPaymentModal(BuildContext context) {
   return showModalBottomSheet(
@@ -33,13 +33,24 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   final _buyerController = TextEditingController();
   
   List<PaymentMethod> _paymentMethods = [];
-  bool _isLoadingMethods = true;
+  List<Promo> _promos = [];
   bool _isCheckingVoucher = false;
+  int _currentStep = 0; // 0: Confirmation, 1: Payment
+  String _selectedPriceLevel = 'Normal';
 
   @override
   void initState() {
     super.initState();
     _fetchPaymentMethods();
+    _fetchPromos();
+  }
+
+  Future<void> _fetchPromos() async {
+    try {
+      final repo = context.read<IPosRepository>();
+      final promos = await repo.getPromos();
+      if (mounted) setState(() => _promos = promos);
+    } catch (_) {}
   }
 
   Future<void> _fetchPaymentMethods() async {
@@ -49,7 +60,6 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       if (mounted) {
         setState(() {
           _paymentMethods = methods.where((m) => m.showInSale).toList();
-          _isLoadingMethods = false;
           if (_paymentMethods.isNotEmpty) {
             _selected = _paymentMethods.first.name;
           }
@@ -57,7 +67,6 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoadingMethods = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal mengambil metode pembayaran: $e')),
         );
@@ -113,527 +122,687 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
-
-        return SafeArea(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            padding: EdgeInsets.only(
-              left: 24,
-              right: 24,
-              top: 20,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Handle
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Pilih Metode Pembayaran',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1A1A2E),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: _buyerController,
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    labelText: 'Nama Pembeli',
-                    hintText: 'Contoh: Ahmad',
-                    isDense: true,
-                    prefixIcon: const Icon(Icons.person_outline, size: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF2563EB),
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                BlocBuilder<CartCubit, CartState>(
-                  builder: (context, state) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (state.discount > 0) ...[
-                          Text(
-                            'Subtotal: ${CurrencyUtil.format(state.subtotal)}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF64748B),
-                            ),
-                          ),
-                          Text(
-                            'Diskon: -${CurrencyUtil.format(state.discount)}',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFFEF4444),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                        Text(
-                          'Total: ${CurrencyUtil.format(state.total)}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF2563EB),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Item Summary List
-                if (state.items.isNotEmpty) ...[
-                  const Text(
-                    'Ringkasan Pesanan',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.3,
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                      ),
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.all(12),
-                        itemCount: state.items.length,
-                        separatorBuilder: (context, index) =>
-                            const Divider(height: 16, color: Color(0xFFE2E8F0)),
-                        itemBuilder: (context, index) {
-                          final CartItem item = state.items[index];
-                          return InkWell(
-                            onTap: () {
-                              if (item.product.variants.isNotEmpty) {
-                                VariantSelectionModal.show(
-                                  context,
-                                  item.product,
-                                  initialOptions: item.selectedOptions,
-                                  cartItem: item,
-                                );
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      item.product.name.isNotEmpty
-                                          ? item.product.name[0].toUpperCase()
-                                          : '?',
-                                      style: const TextStyle(fontSize: 18),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.product.name,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13,
-                                          color: Color(0xFF1A1A2E),
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      if (item.selectedOptions.isNotEmpty)
-                                        Text(
-                                          item.selectedOptions
-                                              .map((o) => o.name)
-                                              .join(', '),
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Color(0xFF94A3B8),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      Text(
-                                        CurrencyUtil.format(
-                                            item.subtotal / item.quantity),
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF94A3B8),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    _QtyBtn(
-                                      icon: Icons.remove,
-                                      onTap: () => context
-                                          .read<CartCubit>()
-                                          .decrement(item),
-                                    ),
-                                    Container(
-                                      width: 30,
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        '${item.quantity}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
-                                    _QtyBtn(
-                                      icon: Icons.add,
-                                      onTap: () => context
-                                          .read<CartCubit>()
-                                          .increment(item),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    GestureDetector(
-                                      onTap: () => context
-                                          .read<CartCubit>()
-                                          .remove(item),
-                                      child: const Icon(
-                                        Icons.delete_outline,
-                                        color: Color(0xFFEF4444),
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-
-                // Voucher Section
-                const Text(
-                  'Voucher & Promo',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+                child: Row(
                   children: [
+                    if (_currentStep == 1)
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios, size: 20),
+                        onPressed: () => setState(() => _currentStep = 0),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    if (_currentStep == 1) const SizedBox(width: 12),
                     Expanded(
-                      child: TextField(
-                        controller: _voucherController,
-                        textCapitalization: TextCapitalization.characters,
-                        decoration: InputDecoration(
-                          hintText: 'Punya kode promo?',
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _currentStep == 0 ? 'Keranjang' : 'Pembayaran',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1A1A2E),
+                            ),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                        ),
+                          if (_currentStep == 0)
+                            Text(
+                              '${state.items.length} produk',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                          if (_currentStep == 1)
+                            Text(
+                              'Atas nama: ${_buyerController.text}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      height: 42,
-                      child: ElevatedButton(
-                        onPressed: _isCheckingVoucher
-                            ? null
-                            : () => _checkVoucher(state),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E293B),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: _isCheckingVoucher
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text('Cek'),
+                    if (_currentStep == 0)
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, size: 28),
+                        onPressed: () => Navigator.pop(context),
+                        color: const Color(0xFF94A3B8),
                       ),
-                    ),
                   ],
                 ),
-                if (state.appliedPromo != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.check_circle,
-                            color: Color(0xFF10B981), size: 16),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            'Promo ${state.appliedPromo!.name} digunakan',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF10B981),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => context.read<CartCubit>().removePromo(),
-                          child: const Text(
-                            'Batal',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFFEF4444),
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
+              ),
+              const Divider(height: 1),
+
+              // Content
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    top: 20,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_currentStep == 0) ...[
+                        _buildCartStep(state),
+                      ] else ...[
+                        _buildPaymentStep(state),
                       ],
-                    ),
-                  ),
-                const SizedBox(height: 24),
-
-                // Payment options
-                const Text(
-                  'Metode Pembayaran',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF64748B),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                if (_isLoadingMethods)
-                  const Center(child: CircularProgressIndicator())
-                else if (_paymentMethods.isEmpty)
-                  const Text('Tidak ada metode pembayaran yang tersedia')
-                else
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: _paymentMethods.map((method) {
-                      IconData icon = Icons.payments_outlined;
-                      if (method.name.toLowerCase().contains('qris')) {
-                        icon = Icons.qr_code_scanner_outlined;
-                      } else if (method.name.toLowerCase().contains('bank') ||
-                          method.name.toLowerCase().contains('transfer')) {
-                        icon = Icons.account_balance_outlined;
-                      }
+              ),
 
-                      return SizedBox(
-                        width: (MediaQuery.of(context).size.width - 60) / 3,
-                        child: _PayOption(
-                          label: method.name,
-                          icon: icon,
-                          selected: _selected == method.name,
-                          onTap: () => setState(() => _selected = method.name),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-
-                // Cash input field (only for Tunai)
-                if (_selected == 'Tunai') ...[
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _cashController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: 'Jumlah Uang Diterima',
-                      prefixText: 'Rp ',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF2563EB),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: (_selected.isEmpty || _buyerController.text.trim().isEmpty)
-                        ? null
-                        : () {
-                            Navigator.pop(context);
-                            showReceiptDialog(
-                              context,
-                              _selected,
-                              buyerName: _buyerController.text.trim(),
-                            );
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: const Color(0xFFE2E8F0),
-                      disabledForegroundColor: const Color(0xFF94A3B8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Konfirmasi Pembayaran',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
+              // Footer Button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: _GreenPrimaryButton(
+                  label: _currentStep == 0
+                      ? 'Lanjut Pembayaran'
+                      : 'Proses Transaksi',
+                  icon: _currentStep == 0 ? Icons.arrow_forward : Icons.check,
+                  onPressed: (_currentStep == 0 &&
+                          _buyerController.text.trim().isEmpty)
+                      ? null
+                      : (_currentStep == 0
+                          ? () => setState(() => _currentStep = 1)
+                          : () {
+                              Navigator.pop(context);
+                              showReceiptDialog(
+                                context,
+                                _selected,
+                                buyerName: _buyerController.text.trim(),
+                              );
+                            }),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
     );
   }
-}
 
-class _PayOption extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _PayOption({
-    required this.label,
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: selected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
-            border: Border.all(
-              color: selected
-                  ? const Color(0xFF2563EB)
-                  : const Color(0xFFE2E8F0),
-              width: selected ? 2 : 1,
+  Widget _buildCartStep(CartState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _LabelWithAsterisk(label: 'Nama Pembeli'),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _buyerController,
+          onChanged: (_) => setState(() {}),
+          decoration: InputDecoration(
+            hintText: 'Contoh: Ahmad',
+            isDense: true,
+            prefixIcon: const Icon(Icons.person_outline, size: 24),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Product List
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.items.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            final item = state.items[index];
+            return _CartItemRow(item: item);
+          },
+        ),
+        const SizedBox(height: 24),
+
+        // Price Level Dropdown
+        const _SectionLabel(icon: Icons.monetization_on, label: 'Tingkat Harga'),
+        const SizedBox(height: 8),
+        _buildDropdownSelector(
+          value: _selectedPriceLevel,
+          items: ['Normal', 'Gojek', 'Grab', 'Take Away'],
+          onChanged: (val) => setState(() => _selectedPriceLevel = val!),
+        ),
+        const SizedBox(height: 20),
+
+        // Promos Available
+        const _SectionLabel(icon: Icons.sell, label: 'Promo Tersedia'),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Text(
+            _promos.isEmpty
+                ? 'Tidak ada promo untuk keranjang ini'
+                : _promos.map((p) => p.name).join(', '),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Voucher Input
+        const _SectionLabel(icon: Icons.confirmation_number, label: 'Kode Voucher'),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFE2E8F0)),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(
+          child: Row(
             children: [
-              Icon(
-                icon,
-                size: 28,
-                color: selected
-                    ? const Color(0xFF2563EB)
-                    : const Color(0xFF94A3B8),
+              Expanded(
+                child: TextField(
+                  controller: _voucherController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    hintText: 'Masukkan kode voucher',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                  color: selected
-                      ? const Color(0xFF2563EB)
-                      : const Color(0xFF64748B),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: ElevatedButton(
+                  onPressed: _isCheckingVoucher ? null : () => _checkVoucher(state),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: const Text('Pakai'),
                 ),
               ),
             ],
           ),
+        ),
+        if (state.appliedPromo != null) ...[
+          const SizedBox(height: 8),
+          _AppliedPromoRow(promoName: state.appliedPromo!.name),
+        ],
+        const SizedBox(height: 24),
+
+        // Summary
+        _SummaryRow(label: 'Subtotal', value: CurrencyUtil.format(state.subtotal)),
+        if (state.discount > 0)
+          _SummaryRow(
+            label: 'Diskon',
+            value: '-${CurrencyUtil.format(state.discount)}',
+            valueColor: const Color(0xFFEF4444),
+          ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Total',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            Text(
+              CurrencyUtil.format(state.total),
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF10B981)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+  Widget _buildPaymentStep(CartState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Total Tagihan Card
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0FDF4),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              const Text('Total Tagihan',
+                  style: TextStyle(fontSize: 14, color: Color(0xFF10B981))),
+              const SizedBox(height: 8),
+              Text(
+                CurrencyUtil.format(state.total),
+                style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF065F46)),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        const Text('Metode Pembayaran',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 12),
+        _buildDropdownSelector(
+          value: _selected,
+          items: _paymentMethods.map((e) => e.name).toList(),
+          onChanged: (val) => setState(() => _selected = val!),
+        ),
+        const SizedBox(height: 16),
+
+        const Text('Nominal Dibayar',
+            style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _cashController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            prefixText: 'Rp ',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 12),
+
+        // Quick amount chips
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildAmountChip(state.total),
+              _buildAmountChip(50000),
+              _buildAmountChip(100000),
+              _buildAmountChip(150000),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Split Payment Button UI
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFE2E8F0), style: BorderStyle.none),
+            // Custom dashed border logic if needed, or just standard rounded with dash effect
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: OutlinedButton(
+            onPressed: () {},
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFFE2E8F0), style: BorderStyle.solid),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            child: const Text('+ Tambah Metode Pembayaran (Split)',
+                style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Summary Change
+        _SummaryRow(label: 'Total Dibayar', value: CurrencyUtil.format(_getPaidAmount())),
+        const Divider(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Kembalian',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            Text(
+              CurrencyUtil.format(_getChange(state.total)),
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF10B981)),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  double _getPaidAmount() {
+    return double.tryParse(_cashController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+        0;
+  }
+
+  double _getChange(double total) {
+    final paid = _getPaidAmount();
+    return paid > total ? paid - total : 0;
+  }
+
+  Widget _buildAmountChip(double amount) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ActionChip(
+        label: Text(CurrencyUtil.format(amount)),
+        onPressed: () {
+          setState(() {
+            _cashController.text = amount.toInt().toString();
+          });
+        },
+        backgroundColor: Colors.white,
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+    );
+  }
+
+  Widget _buildDropdownSelector({
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: items.contains(value) ? value : (items.isNotEmpty ? items.first : null),
+          isExpanded: true,
+          onChanged: onChanged,
+          items: items.map((String val) {
+            return DropdownMenuItem<String>(
+              value: val,
+              child: Text(val),
+            );
+          }).toList(),
         ),
       ),
     );
   }
 }
 
-class _QtyBtn extends StatelessWidget {
+class _SectionLabel extends StatelessWidget {
   final IconData icon;
-  final VoidCallback onTap;
+  final String label;
+  const _SectionLabel({required this.icon, required this.label});
 
-  const _QtyBtn({required this.icon, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFFF59E0B)),
+        const SizedBox(width: 6),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1A1A2E))),
+      ],
+    );
+  }
+}
+
+class _LabelWithAsterisk extends StatelessWidget {
+  final String label;
+  const _LabelWithAsterisk({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(label,
+            style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1A1A2E))),
+        const Text(' *', style: TextStyle(color: Color(0xFFEF4444))),
+      ],
+    );
+  }
+}
+
+class _GreenPrimaryButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  const _GreenPrimaryButton({
+    required this.label,
+    required this.icon,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF10B981),
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: const Color(0xFFE2E8F0),
+          disabledForegroundColor: const Color(0xFF94A3B8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(label,
+                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            const SizedBox(width: 8),
+            Icon(icon, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CartItemRow extends StatelessWidget {
+  final CartItem item;
+  const _CartItemRow({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4))
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.icecream_outlined, color: Color(0xFF94A3B8)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(item.product.name,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 14)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline,
+                          color: Color(0xFFEF4444), size: 20),
+                      onPressed: () => context.read<CartCubit>().remove(item),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                if (item.selectedOptions.isNotEmpty)
+                  Text(item.selectedOptions.map((o) => o.name).join(', '),
+                      style: const TextStyle(
+                          fontSize: 12, color: Color(0xFF94A3B8))),
+                const SizedBox(height: 4),
+                Text(CurrencyUtil.format(item.subtotal / item.quantity),
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF10B981))),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        _QtyActionBtn(
+                          icon: Icons.remove,
+                          onPressed: () =>
+                              context.read<CartCubit>().decrement(item),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text('${item.quantity}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w800, fontSize: 14)),
+                        ),
+                        _QtyActionBtn(
+                          icon: Icons.add,
+                          onPressed: () =>
+                              context.read<CartCubit>().increment(item),
+                          isAdd: true,
+                        ),
+                      ],
+                    ),
+                    Text(CurrencyUtil.format(item.subtotal),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 14)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QtyActionBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+  final bool isAdd;
+
+  const _QtyActionBtn({
+    required this.icon,
+    required this.onPressed,
+    this.isAdd = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onPressed,
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          color: isAdd ? const Color(0xFF10B981) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+              color: isAdd ? const Color(0xFF10B981) : const Color(0xFFE2E8F0)),
         ),
-        child: Icon(icon, size: 14, color: const Color(0xFF64748B)),
+        child: Icon(icon, size: 18, color: isAdd ? Colors.white : const Color(0xFF64748B)),
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  const _SummaryRow({required this.label, required this.value, this.valueColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF64748B))),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: valueColor ?? const Color(0xFF1A1A2E))),
+        ],
+      ),
+    );
+  }
+}
+
+class _AppliedPromoRow extends StatelessWidget {
+  final String promoName;
+  const _AppliedPromoRow({required this.promoName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 16),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text('Promo $promoName digunakan',
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF10B981),
+                    fontWeight: FontWeight.w600)),
+          ),
+          GestureDetector(
+            onTap: () => context.read<CartCubit>().removePromo(),
+            child: const Text('Batal',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFFEF4444),
+                    decoration: TextDecoration.underline)),
+          ),
+        ],
       ),
     );
   }
