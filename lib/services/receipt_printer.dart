@@ -13,6 +13,7 @@ class ReceiptPrinter {
     required double subtotal,
     required double discount,
     required String paymentMethod,
+    required String buyerName,
     required String dateStr,
     required StoreInfo storeInfo,
   }) async {
@@ -165,6 +166,10 @@ class ReceiptPrinter {
               // ── Payment method ──
               pw.Text(
                 'Metode: $paymentMethod',
+                style: pw.TextStyle(font: ttf, fontSize: 10),
+              ),
+              pw.Text(
+                'Pembeli: $buyerName',
                 style: pw.TextStyle(font: ttf, fontSize: 10),
               ),
 

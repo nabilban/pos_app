@@ -8,7 +8,8 @@ import '../data/models/cart_item.dart';
 import '../data/models/store_info.dart';
 import '../services/receipt_printer.dart';
 
-Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
+Future<void> showReceiptDialog(BuildContext context, String paymentMethod,
+    {required String buyerName}) {
   final cubit = context.read<CartCubit>();
   final state = cubit.state;
   final items = state.items;
@@ -35,6 +36,7 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod) {
       subtotal: subtotal,
       discount: discount,
       paymentMethod: paymentMethod,
+      buyerName: buyerName,
       dateStr: dateStr,
       storeInfo: storeInfo,
     ),
@@ -47,6 +49,7 @@ class _ReceiptDialog extends StatelessWidget {
   final double subtotal;
   final double discount;
   final String paymentMethod;
+  final String buyerName;
   final String dateStr;
   final StoreInfo storeInfo;
 
@@ -56,6 +59,7 @@ class _ReceiptDialog extends StatelessWidget {
     required this.subtotal,
     required this.discount,
     required this.paymentMethod,
+    required this.buyerName,
     required this.dateStr,
     required this.storeInfo,
   });
@@ -123,6 +127,7 @@ class _ReceiptDialog extends StatelessWidget {
                   children: [
                     _TotalRow(label: 'Tanggal', value: dateStr),
                     _TotalRow(label: 'Metode Bayar', value: paymentMethod),
+                    _TotalRow(label: 'Nama Pembeli', value: buyerName),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(color: Color(0xFFE2E8F0)),
@@ -280,6 +285,7 @@ class _ReceiptDialog extends StatelessWidget {
                           subtotal: subtotal,
                           discount: discount,
                           paymentMethod: paymentMethod,
+                          buyerName: buyerName,
                           dateStr: dateStr,
                           storeInfo: storeInfo,
                         );
