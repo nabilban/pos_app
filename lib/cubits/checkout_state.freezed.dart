@@ -24,6 +24,7 @@ mixin _$CheckoutState {
   double get cashAmount => throw _privateConstructorUsedError;
   bool get isProcessing => throw _privateConstructorUsedError;
   bool get success => throw _privateConstructorUsedError;
+  String? get invoiceNumber => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
   /// Create a copy of CheckoutState
@@ -47,6 +48,7 @@ abstract class $CheckoutStateCopyWith<$Res> {
     double cashAmount,
     bool isProcessing,
     bool success,
+    String? invoiceNumber,
     String? error,
   });
 }
@@ -72,6 +74,7 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
     Object? cashAmount = null,
     Object? isProcessing = null,
     Object? success = null,
+    Object? invoiceNumber = freezed,
     Object? error = freezed,
   }) {
     return _then(
@@ -100,6 +103,10 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
                 ? _value.success
                 : success // ignore: cast_nullable_to_non_nullable
                       as bool,
+            invoiceNumber: freezed == invoiceNumber
+                ? _value.invoiceNumber
+                : invoiceNumber // ignore: cast_nullable_to_non_nullable
+                      as String?,
             error: freezed == error
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
@@ -126,6 +133,7 @@ abstract class _$$CheckoutStateImplCopyWith<$Res>
     double cashAmount,
     bool isProcessing,
     bool success,
+    String? invoiceNumber,
     String? error,
   });
 }
@@ -150,6 +158,7 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
     Object? cashAmount = null,
     Object? isProcessing = null,
     Object? success = null,
+    Object? invoiceNumber = freezed,
     Object? error = freezed,
   }) {
     return _then(
@@ -178,6 +187,10 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
             ? _value.success
             : success // ignore: cast_nullable_to_non_nullable
                   as bool,
+        invoiceNumber: freezed == invoiceNumber
+            ? _value.invoiceNumber
+            : invoiceNumber // ignore: cast_nullable_to_non_nullable
+                  as String?,
         error: freezed == error
             ? _value.error
             : error // ignore: cast_nullable_to_non_nullable
@@ -192,11 +205,12 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
 class _$CheckoutStateImpl implements _CheckoutState {
   const _$CheckoutStateImpl({
     this.currentStep = 0,
-    this.selectedMethod = 'Tunai',
+    this.selectedMethod = 'Cash',
     this.buyerName = '',
     this.cashAmount = 0.0,
     this.isProcessing = false,
     this.success = false,
+    this.invoiceNumber,
     this.error,
   });
 
@@ -220,11 +234,13 @@ class _$CheckoutStateImpl implements _CheckoutState {
   @JsonKey()
   final bool success;
   @override
+  final String? invoiceNumber;
+  @override
   final String? error;
 
   @override
   String toString() {
-    return 'CheckoutState(currentStep: $currentStep, selectedMethod: $selectedMethod, buyerName: $buyerName, cashAmount: $cashAmount, isProcessing: $isProcessing, success: $success, error: $error)';
+    return 'CheckoutState(currentStep: $currentStep, selectedMethod: $selectedMethod, buyerName: $buyerName, cashAmount: $cashAmount, isProcessing: $isProcessing, success: $success, invoiceNumber: $invoiceNumber, error: $error)';
   }
 
   @override
@@ -243,6 +259,8 @@ class _$CheckoutStateImpl implements _CheckoutState {
             (identical(other.isProcessing, isProcessing) ||
                 other.isProcessing == isProcessing) &&
             (identical(other.success, success) || other.success == success) &&
+            (identical(other.invoiceNumber, invoiceNumber) ||
+                other.invoiceNumber == invoiceNumber) &&
             (identical(other.error, error) || other.error == error));
   }
 
@@ -255,6 +273,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
     cashAmount,
     isProcessing,
     success,
+    invoiceNumber,
     error,
   );
 
@@ -275,6 +294,7 @@ abstract class _CheckoutState implements CheckoutState {
     final double cashAmount,
     final bool isProcessing,
     final bool success,
+    final String? invoiceNumber,
     final String? error,
   }) = _$CheckoutStateImpl;
 
@@ -290,6 +310,8 @@ abstract class _CheckoutState implements CheckoutState {
   bool get isProcessing;
   @override
   bool get success;
+  @override
+  String? get invoiceNumber;
   @override
   String? get error;
 

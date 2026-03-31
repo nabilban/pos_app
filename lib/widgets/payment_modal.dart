@@ -132,6 +132,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             context,
             checkoutState.selectedMethod,
             buyerName: checkoutState.buyerName,
+            invoiceNumber: checkoutState.invoiceNumber,
           );
           context.read<CartCubit>().clear();
         }
@@ -147,118 +148,136 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       builder: (context, checkoutState) {
         return BlocBuilder<CartCubit, CartState>(
           builder: (context, cartState) {
-            return Container(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.9,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Header
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
-                      child: Row(
-                        children: [
-                          if (checkoutState.currentStep == 1)
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back_ios, size: 20),
-                              onPressed: () => context.read<CheckoutCubit>().setStep(0),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
+            return Stack(
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.9,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                  ),
+                  child: SafeArea(
+                    bottom: false,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Header
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+                          child: Row(
+                            children: [
+                              if (checkoutState.currentStep == 1)
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back_ios, size: 20),
+                                  onPressed: () => context.read<CheckoutCubit>().setStep(0),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              if (checkoutState.currentStep == 1) const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      checkoutState.currentStep == 0 ? 'Keranjang' : 'Pembayaran',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF1A1A2E),
+                                      ),
+                                    ),
+                                    if (checkoutState.currentStep == 0)
+                                      Text(
+                                        '${cartState.items.length} produk',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Color(0xFF94A3B8),
+                                        ),
+                                      ),
+                                    if (checkoutState.currentStep == 1)
+                                      Text(
+                                        'Atas nama: ${checkoutState.buyerName}',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Color(0xFF94A3B8),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              if (checkoutState.currentStep == 0)
+                                IconButton(
+                                  icon: const Icon(Icons.close_rounded, size: 28),
+                                  onPressed: () => Navigator.pop(context),
+                                  color: const Color(0xFF94A3B8),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const Divider(height: 1),
+
+                        // Content
+                        Flexible(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.only(
+                              left: 24,
+                              right: 24,
+                              top: 20,
+                              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                             ),
-                          if (checkoutState.currentStep == 1) const SizedBox(width: 12),
-                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  checkoutState.currentStep == 0 ? 'Keranjang' : 'Pembayaran',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF1A1A2E),
-                                  ),
-                                ),
-                                if (checkoutState.currentStep == 0)
-                                  Text(
-                                    '${cartState.items.length} produk',
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Color(0xFF94A3B8),
-                                    ),
-                                  ),
-                                if (checkoutState.currentStep == 1)
-                                  Text(
-                                    'Atas nama: ${checkoutState.buyerName}',
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Color(0xFF94A3B8),
-                                    ),
-                                  ),
+                                if (checkoutState.currentStep == 0) ...[
+                                  _buildCartStep(cartState, checkoutState),
+                                ] else ...[
+                                  _buildPaymentStep(cartState, checkoutState),
+                                ],
                               ],
                             ),
                           ),
-                          if (checkoutState.currentStep == 0)
-                            IconButton(
-                              icon: const Icon(Icons.close_rounded, size: 28),
-                              onPressed: () => Navigator.pop(context),
-                              color: const Color(0xFF94A3B8),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const Divider(height: 1),
-
-                    // Content
-                    Flexible(
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.only(
-                          left: 24,
-                          right: 24,
-                          top: 20,
-                          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (checkoutState.currentStep == 0) ...[
-                              _buildCartStep(cartState, checkoutState),
-                            ] else ...[
-                              _buildPaymentStep(cartState, checkoutState),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
 
-                    // Footer Button
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                      child: _GreenPrimaryButton(
-                        label: checkoutState.isProcessing
-                            ? 'Memproses...'
-                            : (checkoutState.currentStep == 0 ? 'Lanjut Pembayaran' : 'Proses Transaksi'),
-                        icon: checkoutState.currentStep == 0 ? Icons.arrow_forward : Icons.check,
-                        onPressed: (checkoutState.isProcessing ||
-                                (checkoutState.currentStep == 0 && checkoutState.buyerName.trim().isEmpty) ||
-                                (checkoutState.currentStep == 1 &&
-                                    checkoutState.selectedMethod == 'Tunai' &&
-                                    checkoutState.cashAmount < cartState.total))
-                            ? null
-                            : (checkoutState.currentStep == 0
-                                ? () => context.read<CheckoutCubit>().setStep(1)
-                                : () => context.read<CheckoutCubit>().processCheckout(cartState)),
-                      ),
+                        // Footer Button
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                          child: _PrimaryButton(
+                            label: checkoutState.isProcessing
+                                ? 'Memproses...'
+                                : (checkoutState.currentStep == 0 ? 'Lanjut Pembayaran' : 'Proses Transaksi'),
+                            icon: checkoutState.currentStep == 0 ? Icons.arrow_forward : Icons.check,
+                            onPressed: (checkoutState.isProcessing ||
+                                    (checkoutState.currentStep == 0 && checkoutState.buyerName.trim().isEmpty) ||
+                                    (checkoutState.currentStep == 1 &&
+                                        (['cash', 'tunai'].contains(checkoutState.selectedMethod.toLowerCase())) &&
+                                        checkoutState.cashAmount < cartState.total))
+                                ? null
+                                : (checkoutState.currentStep == 0
+                                    ? () => context.read<CheckoutCubit>().setStep(1)
+                                    : () => context.read<CheckoutCubit>().processCheckout(cartState)),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                if (checkoutState.isProcessing)
+                  Positioned.fill(
+                    child: AbsorbPointer(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.5),
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                        ),
+                        child: const Center(
+                          child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             );
           },
         );
@@ -356,7 +375,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 child: ElevatedButton(
                   onPressed: _isCheckingVoucher ? null : () => _checkVoucher(cartState),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
+                    backgroundColor: const Color(0xFF2563EB),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     elevation: 0,
@@ -392,7 +411,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF10B981)),
+                  color: Color(0xFF2563EB)),
             ),
           ],
         ),
@@ -410,13 +429,13 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 24),
           decoration: BoxDecoration(
-            color: const Color(0xFFF0FDF4),
+            color: const Color(0xFFEFF6FF),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             children: [
               const Text('Total Tagihan',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF10B981))),
+                  style: TextStyle(fontSize: 14, color: Color(0xFF2563EB))),
               const SizedBox(height: 8),
               Text(
                 CurrencyUtil.format(cartState.total),
@@ -440,7 +459,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
         ),
         const SizedBox(height: 16),
 
-        if (checkoutState.selectedMethod == 'Tunai') ...[
+        if (['cash', 'tunai'].contains(checkoutState.selectedMethod.toLowerCase())) ...[
           const Text('Nominal Dibayar',
               style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
           const SizedBox(height: 8),
@@ -452,7 +471,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF10B981), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF2563EB), width: 2),
               ),
             ),
             onChanged: (val) {
@@ -515,7 +534,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF10B981)),
+                    color: Color(0xFF2563EB)),
               ),
             ],
           ),
@@ -613,12 +632,12 @@ class _LabelWithAsterisk extends StatelessWidget {
   }
 }
 
-class _GreenPrimaryButton extends StatelessWidget {
+class _PrimaryButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback? onPressed;
 
-  const _GreenPrimaryButton({
+  const _PrimaryButton({
     required this.label,
     required this.icon,
     this.onPressed,
@@ -632,7 +651,7 @@ class _GreenPrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF10B981),
+          backgroundColor: const Color(0xFF2563EB),
           foregroundColor: Colors.white,
           disabledBackgroundColor: const Color(0xFFE2E8F0),
           disabledForegroundColor: const Color(0xFF94A3B8),
@@ -732,7 +751,7 @@ class _CartItemRow extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF10B981))),
+                        color: Color(0xFF2563EB))),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -791,7 +810,7 @@ class _QtyActionBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: isAdd ? const Color(0xFF10B981) : Colors.white,
+          color: isAdd ? const Color(0xFF2563EB) : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: isAdd ? null : Border.all(color: const Color(0xFFE2E8F0)),
         ),
@@ -845,14 +864,14 @@ class _AppliedPromoRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
+        color: const Color(0xFFEFF6FF),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFBBF7D0)),
       ),
       child: Row(
         children: [
           const Icon(Icons.check_circle_rounded,
-              color: Color(0xFF10B981), size: 16),
+              color: Color(0xFF2563EB), size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

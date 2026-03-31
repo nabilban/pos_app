@@ -16,6 +16,7 @@ class ReceiptPrinter {
     required String buyerName,
     required String dateStr,
     required StoreInfo storeInfo,
+    String? invoiceNumber,
   }) async {
     final doc = pw.Document();
 
@@ -33,7 +34,7 @@ class ReceiptPrinter {
         build: (pw.Context ctx) {
           final now = DateTime.now();
           final headerDate =
-              '${now.month}/${now.day}/${now.year}, ${now.hour.toString().padLeft(2, '0')}.${now.minute.toString().padLeft(2, '0')} AM';
+              '${now.month}/${now.day}/${now.year}, ${now.hour.toString().padLeft(2, '0')}.${now.minute.toString().padLeft(2, '0')}';
 
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -52,6 +53,14 @@ class ReceiptPrinter {
                   ),
                 ],
               ),
+              if (invoiceNumber != null)
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(top: 2),
+                  child: pw.Text(
+                    'ID: $invoiceNumber',
+                    style: pw.TextStyle(font: ttfBold, fontSize: 9),
+                  ),
+                ),
               pw.SizedBox(height: 12),
 
               // ── Restaurant name (bold, centered) ──
@@ -205,7 +214,7 @@ class ReceiptPrinter {
 
     await Printing.layoutPdf(
       onLayout: (_) async => doc.save(),
-      name: 'Struk Pembayaran',
+      name: 'Struk ${invoiceNumber ?? "Pembayaran"}',
     );
   }
 }

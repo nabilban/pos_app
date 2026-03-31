@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pos_app/cubits/cart_state.dart';
-import 'package:pos_app/cubits/settings_cubit.dart';
+import '../cubits/cart_state.dart';
 import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
+import '../cubits/settings_cubit.dart';
 import '../data/models/cart_item.dart';
 import '../data/models/store_info.dart';
 import '../services/receipt_printer.dart';
 
 Future<void> showReceiptDialog(BuildContext context, String paymentMethod,
-    {required String buyerName}) {
+    {required String buyerName, String? invoiceNumber}) {
   final cubit = context.read<CartCubit>();
   final state = cubit.state;
   final items = state.items;
@@ -17,15 +17,12 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod,
   final subtotal = state.subtotal;
   final discount = state.discount;
 
-  // Clear cart after capturing state
-  cubit.clear();
-
+  // Read store info from SettingsCubit
+  final storeInfo = context.read<SettingsCubit>().state.storeInfo;
+  
   final now = DateTime.now();
   final dateStr =
       '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}  ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-
-  // Read store info from SettingsCubit
-  final storeInfo = context.read<SettingsCubit>().state.storeInfo;
 
   return showDialog(
     context: context,
@@ -37,8 +34,13 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod,
       discount: discount,
       paymentMethod: paymentMethod,
       buyerName: buyerName,
+      invoiceNumber: invoiceNumber,
       dateStr: dateStr,
       storeInfo: storeInfo,
+      onClose: () {
+        cubit.clear();
+        Navigator.pop(context);
+      },
     ),
   );
 }
@@ -50,8 +52,10 @@ class _ReceiptDialog extends StatelessWidget {
   final double discount;
   final String paymentMethod;
   final String buyerName;
+  final String? invoiceNumber;
   final String dateStr;
   final StoreInfo storeInfo;
+  final VoidCallback onClose;
 
   const _ReceiptDialog({
     required this.items,
@@ -60,24 +64,28 @@ class _ReceiptDialog extends StatelessWidget {
     required this.discount,
     required this.paymentMethod,
     required this.buyerName,
+    this.invoiceNumber,
     required this.dateStr,
     required this.storeInfo,
+    required this.onClose,
   });
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
+      elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: Container(
+        constraints: const BoxConstraints(maxWidth: 450),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
             BoxShadow(
-              color: Color(0x33000000),
-              blurRadius: 32,
-              offset: Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -86,182 +94,170 @@ class _ReceiptDialog extends StatelessWidget {
             // Header
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                  colors: [Color(0xFF2563EB), Color(0xFF1E40AF)],
                 ),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
                 children: [
-                  Icon(Icons.receipt_long, color: Colors.white, size: 36),
-                  SizedBox(height: 8),
+                  const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 36),
+                  const SizedBox(height: 12),
                   Text(
                     storeInfo.name,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     storeInfo.address,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.white70, fontSize: 13),
                   ),
-                  Text(
-                    'Telp: ${storeInfo.phone}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
+                  if (storeInfo.phone.isNotEmpty)
+                    Text(
+                      'Telp: ${storeInfo.phone}',
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
                 ],
               ),
             ),
 
-            // Receipt body
+            // Receipt Body
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _TotalRow(label: 'Tanggal', value: dateStr),
-                    _TotalRow(label: 'Metode Bayar', value: paymentMethod),
-                    _TotalRow(label: 'Nama Pembeli', value: buyerName),
+                    if (invoiceNumber != null)
+                      _Row(label: 'Invoice ID', value: invoiceNumber!, isBold: true),
+                    _Row(label: 'Tanggal', value: dateStr),
+                    _Row(label: 'Metode Bayar', value: paymentMethod),
+                    _Row(label: 'Nama Pembeli', value: buyerName.isEmpty ? '-' : buyerName),
+                    
                     const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(color: Color(0xFFE2E8F0)),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: _DottedDivider(),
                     ),
 
                     const Text(
-                      'Pesanan',
+                      'DETAIL PESANAN',
                       style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        color: Color(0xFF64748B),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11,
+                        color: Color(0xFF94A3B8),
+                        letterSpacing: 1.0,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
 
-                    ...items.map(
-                      (item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          item.product.name,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13,
-                                            color: Color(0xFF1A1A2E),
-                                          ),
-                                        ),
-                                        if (item.selectedOptions.isNotEmpty)
-                                          Text(
-                                            item.selectedOptions
-                                                .map((o) => o.name)
-                                                .join(', '),
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              color: Color(0xFF94A3B8),
-                                            ),
-                                          ),
-                                        Text(
-                                          '${item.quantity} x ${CurrencyUtil.format(item.subtotal / item.quantity)}',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Color(0xFF94A3B8),
-                                          ),
-                                        ),
-                                      ],
+                    ...items.map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.product.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: Color(0xFF1E293B),
+                                  ),
+                                ),
+                                if (item.selectedOptions.isNotEmpty)
+                                  Text(
+                                    item.selectedOptions.map((o) => o.name).join(', '),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Color(0xFF64748B),
                                     ),
                                   ),
-                            Text(
-                              CurrencyUtil.format(item.subtotal),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF1A1A2E),
-                              ),
+                                Text(
+                                  '${item.quantity} x ${CurrencyUtil.format(item.subtotal / item.quantity)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF94A3B8),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          Text(
+                            CurrencyUtil.format(item.subtotal),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                    )),
 
                     const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(color: Color(0xFFE2E8F0)),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: _DottedDivider(),
                     ),
 
                     if (discount > 0) ...[
-                      _TotalRow(
-                        label: 'Subtotal',
-                        value: CurrencyUtil.format(subtotal),
-                        isBold: false,
-                      ),
-                      _TotalRow(
-                        label: 'Diskon',
+                      _Row(label: 'Subtotal', value: CurrencyUtil.format(subtotal)),
+                      _Row(
+                        label: 'Diskon', 
                         value: '-${CurrencyUtil.format(discount)}',
-                        isBold: false,
                         color: const Color(0xFFEF4444),
                       ),
                       const SizedBox(height: 4),
                     ],
 
-                    _TotalRow(
+                    _Row(
                       label: 'TOTAL',
                       value: CurrencyUtil.format(total),
                       isBold: true,
                       isTotal: true,
                     ),
-                    const SizedBox(height: 16),
+                    
+                    const SizedBox(height: 32),
 
-                    // Thank you note
+                    // Success Badge
                     Center(
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF0FDF4),
-                              borderRadius: BorderRadius.circular(20),
+                              color: const Color(0xFFEFF6FF),
+                              borderRadius: BorderRadius.circular(100),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Color(0xFF22C55E),
-                                  size: 16,
-                                ),
-                                SizedBox(width: 6),
+                                Icon(Icons.check_circle_rounded, color: Color(0xFF2563EB), size: 16),
+                                SizedBox(width: 8),
                                 Text(
                                   'Pembayaran Berhasil',
                                   style: TextStyle(
-                                    color: Color(0xFF22C55E),
-                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF2563EB),
+                                    fontWeight: FontWeight.w700,
                                     fontSize: 13,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           const Text(
                             'Terima kasih telah berkunjung!',
-                            style: TextStyle(
-                              color: Color(0xFF94A3B8),
-                              fontSize: 12,
-                            ),
+                            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
                           ),
                         ],
                       ),
@@ -271,9 +267,9 @@ class _ReceiptDialog extends StatelessWidget {
               ),
             ),
 
-            // Action buttons
+            // Action Buttons
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Row(
                 children: [
                   Expanded(
@@ -288,31 +284,29 @@ class _ReceiptDialog extends StatelessWidget {
                           buyerName: buyerName,
                           dateStr: dateStr,
                           storeInfo: storeInfo,
+                          invoiceNumber: invoiceNumber,
                         );
                       },
-                      icon: const Icon(Icons.print, size: 20),
+                      icon: const Icon(Icons.print_rounded, size: 20),
                       label: const Text('Cetak'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: onClose,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2563EB),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                      child: const Text('Tutup'),
+                      child: const Text('Tutup', style: TextStyle(fontWeight: FontWeight.w800)),
                     ),
                   ),
                 ],
@@ -325,14 +319,14 @@ class _ReceiptDialog extends StatelessWidget {
   }
 }
 
-class _TotalRow extends StatelessWidget {
+class _Row extends StatelessWidget {
   final String label;
   final String value;
   final bool isBold;
   final bool isTotal;
   final Color? color;
 
-  const _TotalRow({
+  const _Row({
     required this.label,
     required this.value,
     this.isBold = false,
@@ -343,7 +337,7 @@ class _TotalRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -352,7 +346,7 @@ class _TotalRow extends StatelessWidget {
             style: TextStyle(
               fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
               fontSize: isTotal ? 16 : 13,
-              color: color ?? const Color(0xFF1A1A2E),
+              color: color ?? const Color(0xFF64748B),
             ),
           ),
           Text(
@@ -360,10 +354,29 @@ class _TotalRow extends StatelessWidget {
             style: TextStyle(
               fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
               fontSize: isTotal ? 18 : 13,
-              color: isTotal ? const Color(0xFF2563EB) : (color ?? const Color(0xFF1A1A2E)),
+              color: isTotal ? const Color(0xFF2563EB) : (color ?? const Color(0xFF1E293B)),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DottedDivider extends StatelessWidget {
+  const _DottedDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: List.generate(
+        80,
+        (index) => Expanded(
+          child: Container(
+            color: index % 2 == 0 ? Colors.transparent : const Color(0xFFE2E8F0),
+            height: 1.5,
+          ),
+        ),
       ),
     );
   }

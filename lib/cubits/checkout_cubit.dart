@@ -57,8 +57,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         manualDiscount: cartState.discount,
       );
 
-      await _repository.createSale(request);
-      emit(state.copyWith(isProcessing: false, success: true));
+      final invoiceNumber = await _repository.createSale(request);
+      emit(state.copyWith(isProcessing: false, success: true, invoiceNumber: invoiceNumber));
     } catch (e) {
       String message = 'Gagal memproses transaksi: $e';
       if (e is DioException) {

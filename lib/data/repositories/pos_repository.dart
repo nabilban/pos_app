@@ -15,7 +15,7 @@ abstract class IPosRepository {
   Future<List<PaymentMethod>> getPaymentMethods();
   Future<List<Promo>> getPromos();
   Future<PromoCheckResponse> checkVoucher(String code, List<CartItem> items);
-  Future<void> createSale(SaleRequest request);
+  Future<String> createSale(SaleRequest request);
 }
 
 class PosRepository implements IPosRepository {
@@ -125,12 +125,13 @@ class PosRepository implements IPosRepository {
   }
 
   @override
-  Future<void> createSale(SaleRequest request) async {
+  Future<String> createSale(SaleRequest request) async {
     try {
-      await _apiClient.authenticatedDio.post(
+      final response = await _apiClient.authenticatedDio.post(
         '/sales',
         data: request.toJson(),
       );
+      return response.data['data']['invoice_number'];
     } catch (e) {
       rethrow;
     }

@@ -15,13 +15,26 @@ import '../widgets/payment_modal.dart';
 import '../widgets/search_filter_bar.dart';
 import '../widgets/variant_selection_modal.dart';
 
-class PosScreen extends StatelessWidget {
+class PosScreen extends StatefulWidget {
   const PosScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  State<PosScreen> createState() => _PosScreenState();
+}
 
+class _PosScreenState extends State<PosScreen> {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isModalShowing = false;
+
+  void _showCheckout() async {
+    if (_isModalShowing) return;
+    setState(() => _isModalShowing = true);
+    await showPaymentModal(context);
+    if (mounted) setState(() => _isModalShowing = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
           PosCubit(RepositoryProvider.of<IPosRepository>(context)),
@@ -75,8 +88,7 @@ class PosScreen extends StatelessWidget {
                                   SizedBox(
                                     width: cartWidth,
                                     child: CartSidebar(
-                                      onCheckout: () =>
-                                          showPaymentModal(context),
+                                      onCheckout: _showCheckout,
                                     ),
                                   ),
                                 ],
@@ -205,7 +217,7 @@ class PosScreen extends StatelessWidget {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () => showPaymentModal(context),
+                  onPressed: _showCheckout,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2563EB),
                     foregroundColor: Colors.white,

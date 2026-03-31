@@ -338,7 +338,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
                             '+ ${CurrencyUtil.format(option.additionalPrice)}',
                             style: const TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF10B981),
+                              color: Color(0xFF2563EB),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
