@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pos_app/screens/pos_screen.dart';
+import 'package:pos_app/screens/main_layout.dart';
 
 import 'cubits/auth_cubit.dart';
 import 'cubits/auth_state.dart';
@@ -36,7 +36,7 @@ class PosApp extends StatelessWidget {
         home: BlocBuilder<AuthCubit, AuthState>(
           builder: (context, state) {
             return state.maybeWhen(
-              authenticated: (token, user) => const PosScreen(),
+              authenticated: (token, user) => const MainLayout(),
               orElse: () => const LoginScreen(),
             );
           },

@@ -6,11 +6,10 @@ import '../cubits/cart_state.dart';
 import '../cubits/pos_cubit.dart';
 import '../cubits/pos_state.dart';
 import '../data/repositories/pos_repository.dart';
-import '../widgets/pos_header.dart';
+
 import '../widgets/category_bar.dart';
 import '../widgets/product_card.dart';
 import '../widgets/cart_sidebar.dart';
-import '../widgets/settings_drawer.dart';
 import '../widgets/payment_modal.dart';
 import '../widgets/search_filter_bar.dart';
 import '../widgets/variant_selection_modal.dart';
@@ -23,7 +22,6 @@ class PosScreen extends StatefulWidget {
 }
 
 class _PosScreenState extends State<PosScreen> {
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isModalShowing = false;
 
   void _showCheckout() async {
@@ -55,23 +53,16 @@ class _PosScreenState extends State<PosScreen> {
 
               final List<Product> filteredProducts = context.read<PosCubit>().filteredProducts;
 
-              return Scaffold(
-                key: scaffoldKey,
-                backgroundColor: const Color(0xFFF8FAFC),
-                drawer: const SettingsDrawer(),
-                body: SafeArea(
-                  child: Column(
-                    children: [
-                      PosHeader(
-                        onSettingsTap: () =>
-                            scaffoldKey.currentState?.openDrawer(),
-                      ),
-                        CategoryBar(
-                          categories: posState.categories,
-                          selected: posState.selectedCategory,
-                          onSelect: (cat) =>
-                              context.read<PosCubit>().setCategory(cat),
-                        ),
+              return ColoredBox(
+                color: const Color(0xFFF8FAFC),
+                child: Column(
+                  children: [
+                    CategoryBar(
+                      categories: posState.categories,
+                      selected: posState.selectedCategory,
+                      onSelect: (cat) =>
+                          context.read<PosCubit>().setCategory(cat),
+                    ),
                         const SearchFilterBar(),
                         Expanded(
                         child: isWide
@@ -102,10 +93,8 @@ class _PosScreenState extends State<PosScreen> {
                       if (!isWide) _buildMobileCartBar(context),
                     ],
                   ),
-                ),
-                bottomNavigationBar: null,
-              );
-            },
+                );
+              },
           );
         },
       ),

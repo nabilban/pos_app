@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 
 class PosHeader extends StatelessWidget {
-  final VoidCallback onSettingsTap;
+  final VoidCallback onMenuTap;
+  final VoidCallback? onSettingsTap;
+  final String title;
 
-  const PosHeader({super.key, required this.onSettingsTap});
+  const PosHeader({
+    super.key,
+    required this.onMenuTap,
+    this.onSettingsTap,
+    this.title = 'Point of Sale',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,24 +29,36 @@ class PosHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Text(
-            'Point of Sale',
-            style: TextStyle(
+          IconButton(
+            onPressed: onMenuTap,
+            icon: const Icon(
+              Icons.menu,
+              color: Color(0xFF64748B),
+              size: 24,
+            ),
+            tooltip: 'Menu',
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Color(0xFF1E293B),
             ),
           ),
-          const Spacer(),
-          IconButton(
-            onPressed: onSettingsTap,
-            icon: const Icon(
-              Icons.settings_outlined,
-              color: Color(0xFF64748B),
-              size: 24,
+          if (onSettingsTap != null) ...[
+            const Spacer(),
+            IconButton(
+              onPressed: onSettingsTap,
+              icon: const Icon(
+                Icons.settings_outlined,
+                color: Color(0xFF64748B),
+                size: 24,
+              ),
+              tooltip: 'Pengaturan',
             ),
-            tooltip: 'Pengaturan',
-          ),
+          ],
         ],
       ),
     );

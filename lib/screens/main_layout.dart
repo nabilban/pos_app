@@ -1,0 +1,188 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../widgets/pos_header.dart';
+import 'pos_screen.dart';
+import 'history_screen.dart';
+import 'shift_screen.dart';
+import 'settings_screen.dart';
+import '../cubits/auth_cubit.dart';
+
+class MainLayout extends StatefulWidget {
+  const MainLayout({super.key});
+
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int _selectedIndex = 0;
+
+  final List<String> _titles = [
+    'Point of Sale',
+    'Riwayat Pembayaran',
+    'Manajemen Shift',
+    'Pengaturan',
+  ];
+
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const PosScreen(),
+      const HistoryScreen(),
+      const ShiftScreen(),
+      const SettingsScreen(),
+    ];
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    Navigator.pop(context); // close the drawer
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: const Color(0xFFF8FAFC),
+      drawer: _buildDrawer(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            PosHeader(
+              title: _titles[_selectedIndex],
+              onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
+              // show the gear icon only if we are not already on the Pengaturan page
+              onSettingsTap: _selectedIndex == 3
+                  ? null
+                  : () {
+                      setState(() {
+                        _selectedIndex = 3;
+                      });
+                    },
+            ),
+            Expanded(
+              // Using IndexedStack allows preserving the state of POS screen (e.g. cart contents being visible/rebuilt efficiently)
+              // Since CartState is global it's fine either way, but IndexedStack prevents full rebuilds
+              child: IndexedStack(
+                index: _selectedIndex,
+                children: _pages,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Color(0xFF2563EB),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.storefront_outlined,
+                    color: Color(0xFF2563EB),
+                    size: 36,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Fiesto POS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildDrawerItem(
+            icon: Icons.point_of_sale,
+            title: 'Point of Sale',
+            index: 0,
+          ),
+          _buildDrawerItem(
+            icon: Icons.history,
+            title: 'Riwayat Pembayaran',
+            index: 1,
+          ),
+          _buildDrawerItem(
+            icon: Icons.event_note,
+            title: 'Manajemen Shift',
+            index: 2,
+          ),
+          const Spacer(),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Color(0xFFEF4444)),
+            title: const Text(
+              'Keluar',
+              style: TextStyle(
+                  color: Color(0xFFEF4444), fontWeight: FontWeight.w600),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              context.read<AuthCubit>().logout();
+            },
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required int index,
+  }) {
+    final isSelected = _selectedIndex == index;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: isSelected ? const Color(0xFFEFF6FF) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF64748B),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color:
+                isSelected ? const Color(0xFF2563EB) : const Color(0xFF475569),
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+        onTap: () => _onItemTapped(index),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+}
