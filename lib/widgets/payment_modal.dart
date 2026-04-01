@@ -41,6 +41,8 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   List<Promo> _promos = [];
   bool _isCheckingVoucher = false;
   String _selectedPriceLevel = 'Normal';
+  int? _selectedPromoId;
+  String? _promoWarning;
 
   @override
   void initState() {
@@ -53,7 +55,19 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     try {
       final repo = context.read<IPosRepository>();
       final promos = await repo.getPromos();
-      if (mounted) setState(() => _promos = promos);
+      if (mounted) {
+        setState(() {
+          // Only show active promos — filter out inactive or expired ones
+          _promos = promos.where((p) {
+            final s = p.status?.toLowerCase();
+            return s == null || s == 'active';
+          }).toList();
+          final applied = context.read<CartCubit>().state.appliedPromo;
+          if (applied != null) {
+            _selectedPromoId = applied.promoId;
+          }
+        });
+      }
     } catch (_) {}
   }
 
@@ -78,6 +92,46 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     }
   }
 
+  Future<void> _onPromoChanged(int? promoId, CartState cartState) async {
+    if (promoId == null) {
+      context.read<CartCubit>().removePromo();
+      setState(() => _selectedPromoId = null);
+      return;
+    }
+
+    final promo = _promos.firstWhere((p) => p.promoId == promoId);
+    
+    setState(() => _isCheckingVoucher = true);
+    try {
+      final repo = context.read<IPosRepository>();
+      // Check the promo/voucher to get calculation for the current cart
+      final result = await repo.checkVoucher(promo.voucherCode ?? promo.name, cartState.items);
+      if (mounted) {
+        context.read<CartCubit>().applyPromo(result);
+        setState(() => _selectedPromoId = promoId);
+      }
+    } catch (e) {
+      if (mounted) {
+        String message = 'Promo tidak dapat digunakan';
+        if (e is DioException) {
+          final data = e.response?.data;
+          if (data is Map && data.containsKey('message')) {
+            message = data['message'];
+          } else {
+            message = 'Syarat promo tidak terpenuhi untuk keranjang ini';
+          }
+        }
+        setState(() {
+          _selectedPromoId = null;
+          _promoWarning = message;
+        });
+        context.read<CartCubit>().removePromo();
+      }
+    } finally {
+      if (mounted) setState(() => _isCheckingVoucher = false);
+    }
+  }
+
   Future<void> _checkVoucher(CartState state) async {
     final code = _voucherController.text.trim().toUpperCase();
     if (code.isEmpty) return;
@@ -87,27 +141,53 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       final repo = context.read<IPosRepository>();
       final result = await repo.checkVoucher(code, state.items);
       if (mounted) {
+        // Add to dropdown list if not present (only if active)
+        bool exists = _promos.any((p) => p.promoId == result.promoId);
+        if (!exists) {
+          final newPromo = Promo(
+            promoId: result.promoId,
+            name: result.name,
+            promoType: result.promoType,
+            appliesTo: 'ALL',
+            condition: 'VOUCHER',
+            minQty: 0,
+            minTotal: 0,
+            discountPct: 0,
+            maxDiscount: 0,
+            cutPrice: 0,
+            voucherCode: code,
+            status: 'active',
+          );
+          setState(() {
+            _promos = [..._promos, newPromo];
+          });
+        }
+
         context.read<CartCubit>().applyPromo(result);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Voucher "${result.name}" berhasil digunakan!')),
-        );
+        setState(() {
+          _selectedPromoId = result.promoId;
+          _promoWarning = null;
+        });
+        _voucherController.clear();
       }
     } catch (e) {
       if (mounted) {
         String message = 'Voucher gagal diproses';
         if (e is DioException) {
           final data = e.response?.data;
-          if (data is Map && data.containsKey('message')) {
-            message = data['message'];
+          if (data is Map) {
+            if (data.containsKey('message')) {
+              message = data['message'];
+            } else if (data.containsKey('error')) {
+              message = data['error'];
+            }
           } else if (e.response?.statusCode == 404) {
             message = 'Voucher tidak ditemukan';
           } else if (e.response?.statusCode == 400) {
-            message = 'Voucher tidak memenuhi syarat';
+            message = 'Syarat promo belum terpenuhi atau promo sudah tidak aktif';
           }
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        setState(() => _promoWarning = message);
       }
     } finally {
       if (mounted) setState(() => _isCheckingVoucher = false);
@@ -135,14 +215,6 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             invoiceNumber: checkoutState.invoiceNumber,
           );
           context.read<CartCubit>().clear();
-        }
-        if (checkoutState.error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(checkoutState.error!),
-              backgroundColor: Colors.red,
-            ),
-          );
         }
       },
       builder: (context, checkoutState) {
@@ -263,7 +335,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                     ),
                   ),
                 ),
-                if (checkoutState.isProcessing)
+                if (checkoutState.isProcessing || _isCheckingVoucher)
                   Positioned.fill(
                     child: AbsorbPointer(
                       child: Container(
@@ -329,24 +401,60 @@ class _PaymentSheetState extends State<_PaymentSheet> {
         ),
         const SizedBox(height: 20),
 
-        // Promos Available
-        const _SectionLabel(icon: Icons.sell, label: 'Promo Tersedia'),
+        // Promos Dropdown
+        const _SectionLabel(icon: Icons.sell, label: 'Pilih Promo'),
         const SizedBox(height: 8),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
-          child: Text(
-            _promos.isEmpty
-                ? 'Tidak ada promo untuk keranjang ini'
-                : _promos.map((p) => p.name).join(', '),
-            style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int?>(
+              value: _selectedPromoId,
+              isExpanded: true,
+              hint: const Text('Pilih promo yang tersedia'),
+              items: [
+                const DropdownMenuItem<int?>(
+                  value: null,
+                  child: Text('Tanpa Promo', style: TextStyle(color: Color(0xFF64748B))),
+                ),
+                ..._promos.map((p) => DropdownMenuItem<int?>(
+                      value: p.promoId,
+                      child: Text(p.name),
+                    )),
+              ],
+              onChanged: (val) {
+                setState(() => _promoWarning = null);
+                _onPromoChanged(val, cartState);
+              },
+            ),
           ),
         ),
+        if (_promoWarning != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline, size: 14, color: Color(0xFFEF4444)),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    _promoWarning!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFFEF4444),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 20),
 
         // Voucher Input

@@ -110,4 +110,12 @@ class CartCubit extends Cubit<CartState> {
   void removePromo() {
     emit(state.copyWith(appliedPromo: null));
   }
+
+  void applyPriceCategory(Map<int, double> overrides) {
+    emit(state.copyWith(priceOverrides: overrides));
+  }
+
+  void clearPriceCategory() {
+    emit(state.copyWith(priceOverrides: {}));
+  }
 }

@@ -26,6 +26,10 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     emit(state.copyWith(cashAmount: amount));
   }
 
+  void setPriceCategoryId(int? id) {
+    emit(state.copyWith(selectedPriceCategoryId: id));
+  }
+
   Future<void> processCheckout(CartState cartState) async {
     if (state.isProcessing) return;
 
@@ -45,7 +49,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
       final request = SaleRequest(
         paymentMethodId: method.paymentMethodId,
         customerName: state.buyerName.trim(),
-        priceCategoryId: null, // As requested previously
+        priceCategoryId: state.selectedPriceCategoryId,
         promoId: cartState.appliedPromo?.promoId,
         items: cartState.items.map((item) => SaleItemRequest(
           productId: item.product.id,

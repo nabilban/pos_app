@@ -13,5 +13,6 @@ class CheckoutState with _$CheckoutState {
     @Default(false) bool success,
     String? invoiceNumber,
     String? error,
+    int? selectedPriceCategoryId,
   }) = _CheckoutState;
 }

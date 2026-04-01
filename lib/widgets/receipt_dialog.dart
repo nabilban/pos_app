@@ -91,40 +91,119 @@ class _ReceiptDialog extends StatelessWidget {
         child: Column(
           children: [
             // Header
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF2563EB), Color(0xFF1E40AF)],
+            Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF2563EB), Color(0xFF1E40AF)],
+                    ),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 32),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        storeInfo.name,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        storeInfo.address,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 13,
+                          height: 1.4,
+                        ),
+                      ),
+                      if (storeInfo.phone.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Telp: ${storeInfo.phone}',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: Column(
-                children: [
-                  const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 36),
-                  const SizedBox(height: 12),
-                  Text(
-                    storeInfo.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
+                // Close Button
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        onClose();
+                        Navigator.of(context).pop();
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    storeInfo.address,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
-                  if (storeInfo.phone.isNotEmpty)
-                    Text(
-                      'Telp: ${storeInfo.phone}',
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+                // Print Shortcut
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        ReceiptPrinter.printReceipt(
+                          items: items,
+                          total: total,
+                          subtotal: subtotal,
+                          discount: discount,
+                          paymentMethod: paymentMethod,
+                          buyerName: buyerName,
+                          dateStr: dateStr,
+                          storeInfo: storeInfo,
+                          invoiceNumber: invoiceNumber,
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.print_rounded, color: Colors.white, size: 20),
+                      ),
                     ),
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
 
             // Receipt Body

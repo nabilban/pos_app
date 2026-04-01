@@ -6,6 +6,8 @@ import '../models/promo.dart';
 import '../models/promo_check_response.dart';
 import '../models/cart_item.dart';
 import '../models/sale_request.dart';
+import '../models/price_category.dart';
+import '../models/price_category_product.dart';
 import '../datasource/remote/api_client.dart';
 
 abstract class IPosRepository {
@@ -16,6 +18,8 @@ abstract class IPosRepository {
   Future<List<Promo>> getPromos();
   Future<PromoCheckResponse> checkVoucher(String code, List<CartItem> items);
   Future<String> createSale(SaleRequest request);
+  Future<List<PriceCategory>> getPriceCategories();
+  Future<List<PriceCategoryProduct>> getPriceCategoryProducts(int categoryId);
 }
 
 class PosRepository implements IPosRepository {
@@ -143,4 +147,28 @@ class PosRepository implements IPosRepository {
   //   await Future.delayed(const Duration(milliseconds: 200));
   //   return currentUser;
   // }
+
+  @override
+  Future<List<PriceCategory>> getPriceCategories() async {
+    try {
+      final response = await _apiClient.authenticatedDio.get('/price-categories');
+      final List<dynamic> data = response.data['data'] ?? [];
+      return data.map((json) => PriceCategory.fromJson(json)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<PriceCategoryProduct>> getPriceCategoryProducts(int categoryId) async {
+    try {
+      final response = await _apiClient.authenticatedDio.get(
+        '/price-categories/$categoryId/products',
+      );
+      final List<dynamic> data = response.data['data'] ?? [];
+      return data.map((json) => PriceCategoryProduct.fromJson(json)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
