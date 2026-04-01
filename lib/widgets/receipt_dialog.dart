@@ -39,7 +39,6 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod,
       storeInfo: storeInfo,
       onClose: () {
         cubit.clear();
-        Navigator.pop(context);
       },
     ),
   );
@@ -298,7 +297,10 @@ class _ReceiptDialog extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: onClose,
+                      onPressed: () {
+                        onClose();
+                        Navigator.of(context).pop();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2563EB),
                         foregroundColor: Colors.white,
