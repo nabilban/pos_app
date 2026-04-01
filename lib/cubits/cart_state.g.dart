@@ -18,10 +18,18 @@ _$CartStateImpl _$$CartStateImplFromJson(Map<String, dynamic> json) =>
           : PromoCheckResponse.fromJson(
               json['appliedPromo'] as Map<String, dynamic>,
             ),
+      priceOverrides:
+          (json['priceOverrides'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(int.parse(k), (e as num).toDouble()),
+          ) ??
+          const {},
     );
 
 Map<String, dynamic> _$$CartStateImplToJson(_$CartStateImpl instance) =>
     <String, dynamic>{
       'items': instance.items,
       'appliedPromo': instance.appliedPromo,
+      'priceOverrides': instance.priceOverrides.map(
+        (k, e) => MapEntry(k.toString(), e),
+      ),
     };

@@ -8,6 +8,7 @@ import '../data/models/cart_item.dart';
 import '../data/models/payment_method.dart';
 import '../data/repositories/pos_repository.dart';
 import '../data/models/promo.dart';
+import '../data/models/price_category.dart';
 import '../cubits/checkout_cubit.dart';
 import '../cubits/checkout_state.dart';
 import 'variant_selection_modal.dart';
@@ -39,8 +40,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   
   List<PaymentMethod> _paymentMethods = [];
   List<Promo> _promos = [];
+  List<PriceCategory> _priceCategories = [];
   bool _isCheckingVoucher = false;
-  String _selectedPriceLevel = 'Normal';
+  bool _isClosing = false;
+  int? _selectedPriceCategoryId; // null = Normal (default prices)
   int? _selectedPromoId;
   String? _promoWarning;
 
@@ -49,6 +52,37 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     super.initState();
     _fetchPaymentMethods();
     _fetchPromos();
+    _fetchPriceCategories();
+  }
+
+  Future<void> _fetchPriceCategories() async {
+    try {
+      final repo = context.read<IPosRepository>();
+      final categories = await repo.getPriceCategories();
+      if (mounted) setState(() => _priceCategories = categories);
+    } catch (_) {}
+  }
+
+  Future<void> _onPriceCategoryChanged(int? categoryId) async {
+    setState(() => _selectedPriceCategoryId = categoryId);
+    context.read<CheckoutCubit>().setPriceCategoryId(categoryId);
+
+    if (categoryId == null) {
+      // Normal — clear overrides
+      context.read<CartCubit>().clearPriceCategory();
+      return;
+    }
+
+    try {
+      final repo = context.read<IPosRepository>();
+      final products = await repo.getPriceCategoryProducts(categoryId);
+      final overrides = <int, double>{
+        for (final p in products) p.productId: p.price,
+      };
+      if (mounted) context.read<CartCubit>().applyPriceCategory(overrides);
+    } catch (_) {
+      // On error just leave prices as-is
+    }
   }
 
   Future<void> _fetchPromos() async {
@@ -218,7 +252,16 @@ class _PaymentSheetState extends State<_PaymentSheet> {
         }
       },
       builder: (context, checkoutState) {
-        return BlocBuilder<CartCubit, CartState>(
+        return BlocConsumer<CartCubit, CartState>(
+          listener: (context, cartState) {
+            if (cartState.items.isEmpty && !_isClosing) {
+              _isClosing = true;
+              // Single clear() resets items, promo, and price overrides atomically
+              // avoiding multiple state emissions that would re-trigger this listener
+              context.read<CartCubit>().clear();
+              Navigator.pop(context);
+            }
+          },
           builder: (context, cartState) {
             return Stack(
               children: [
@@ -386,18 +429,40 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             final item = cartState.items[index];
-            return _CartItemRow(item: item);
+            return _CartItemRow(item: item, priceOverrides: cartState.priceOverrides);
           },
         ),
         const SizedBox(height: 24),
 
-        // Price Level Dropdown
+        // Price Level Dropdown (dynamic from API)
         const _SectionLabel(icon: Icons.monetization_on, label: 'Tingkat Harga'),
         const SizedBox(height: 8),
-        _buildDropdownSelector(
-          value: _selectedPriceLevel,
-          items: ['Normal', 'Gojek', 'Grab', 'Take Away'],
-          onChanged: (val) => setState(() => _selectedPriceLevel = val!),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int?>(
+              value: _selectedPriceCategoryId,
+              isExpanded: true,
+              hint: const Text('Normal (Harga Default)'),
+              items: [
+                const DropdownMenuItem<int?>(
+                  value: null,
+                  child: Text('Normal (Harga Default)', style: TextStyle(color: Color(0xFF64748B))),
+                ),
+                ..._priceCategories.map((cat) => DropdownMenuItem<int?>(
+                      value: cat.id,
+                      child: Text(cat.name),
+                    )),
+              ],
+              onChanged: (val) => _onPriceCategoryChanged(val),
+            ),
+          ),
         ),
         const SizedBox(height: 20),
 
@@ -601,29 +666,65 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               ],
             ),
           ),
+          const SizedBox(height: 10),
+
+          // Kembalian inline (shown when cash exceeds total)
+          if (checkoutState.cashAmount > cartState.total) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFECFDF5),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFF6EE7B7)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.swap_horiz_rounded, size: 16, color: Color(0xFF065F46)),
+                      SizedBox(width: 6),
+                      Text('Kembalian',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF065F46))),
+                    ],
+                  ),
+                  Text(
+                    CurrencyUtil.format(checkoutState.cashAmount - cartState.total),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF065F46)),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
         const SizedBox(height: 24),
 
-        // Split Payment Button UI
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0), style: BorderStyle.none),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFFE2E8F0), style: BorderStyle.solid),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-            ),
-            child: const Text('+ Tambah Metode Pembayaran (Split)',
-                style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
-          ),
-        ),
-        const SizedBox(height: 24),
+        // Split Payment — commented out, not mandatory
+        // Container(
+        //   width: double.infinity,
+        //   padding: const EdgeInsets.symmetric(vertical: 14),
+        //   decoration: BoxDecoration(
+        //     border: Border.all(color: const Color(0xFFE2E8F0), style: BorderStyle.none),
+        //     borderRadius: BorderRadius.circular(12),
+        //   ),
+        //   child: OutlinedButton(
+        //     onPressed: () {},
+        //     style: OutlinedButton.styleFrom(
+        //       side: const BorderSide(color: Color(0xFFE2E8F0), style: BorderStyle.solid),
+        //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        //       padding: const EdgeInsets.symmetric(vertical: 14),
+        //     ),
+        //     child: const Text('+ Tambah Metode Pembayaran (Split)',
+        //         style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+        //   ),
+        // ),
+        // const SizedBox(height: 24),
 
         // Summary Change
         _SummaryRow(
@@ -782,7 +883,17 @@ class _PrimaryButton extends StatelessWidget {
 
 class _CartItemRow extends StatelessWidget {
   final CartItem item;
-  const _CartItemRow({required this.item});
+  final Map<int, double> priceOverrides;
+  const _CartItemRow({required this.item, this.priceOverrides = const {}});
+
+  double get _unitPrice {
+    final override = priceOverrides[item.product.id];
+    final base = override ?? item.product.price;
+    final variants = item.selectedOptions.fold(0.0, (s, o) => s + o.additionalPrice);
+    return base + variants;
+  }
+
+  double get _rowTotal => _unitPrice * item.quantity;
 
   @override
   Widget build(BuildContext context) {
@@ -855,7 +966,8 @@ class _CartItemRow extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 12, color: Color(0xFF94A3B8))),
                 const SizedBox(height: 4),
-                Text(CurrencyUtil.format(item.subtotal / item.quantity),
+                Text(
+                    CurrencyUtil.format(_unitPrice),
                     style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -885,7 +997,7 @@ class _CartItemRow extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text(CurrencyUtil.format(item.subtotal),
+                    Text(CurrencyUtil.format(_rowTotal),
                         style: const TextStyle(
                             fontWeight: FontWeight.w800, fontSize: 14)),
                   ],

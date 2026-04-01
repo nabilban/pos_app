@@ -26,6 +26,7 @@ mixin _$CheckoutState {
   bool get success => throw _privateConstructorUsedError;
   String? get invoiceNumber => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
+  int? get selectedPriceCategoryId => throw _privateConstructorUsedError;
 
   /// Create a copy of CheckoutState
   /// with the given fields replaced by the non-null parameter values.
@@ -50,6 +51,7 @@ abstract class $CheckoutStateCopyWith<$Res> {
     bool success,
     String? invoiceNumber,
     String? error,
+    int? selectedPriceCategoryId,
   });
 }
 
@@ -76,6 +78,7 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
     Object? success = null,
     Object? invoiceNumber = freezed,
     Object? error = freezed,
+    Object? selectedPriceCategoryId = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -111,6 +114,10 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
                       as String?,
+            selectedPriceCategoryId: freezed == selectedPriceCategoryId
+                ? _value.selectedPriceCategoryId
+                : selectedPriceCategoryId // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -135,6 +142,7 @@ abstract class _$$CheckoutStateImplCopyWith<$Res>
     bool success,
     String? invoiceNumber,
     String? error,
+    int? selectedPriceCategoryId,
   });
 }
 
@@ -160,6 +168,7 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
     Object? success = null,
     Object? invoiceNumber = freezed,
     Object? error = freezed,
+    Object? selectedPriceCategoryId = freezed,
   }) {
     return _then(
       _$CheckoutStateImpl(
@@ -195,6 +204,10 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
             ? _value.error
             : error // ignore: cast_nullable_to_non_nullable
                   as String?,
+        selectedPriceCategoryId: freezed == selectedPriceCategoryId
+            ? _value.selectedPriceCategoryId
+            : selectedPriceCategoryId // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -212,6 +225,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
     this.success = false,
     this.invoiceNumber,
     this.error,
+    this.selectedPriceCategoryId,
   });
 
   @override
@@ -237,10 +251,12 @@ class _$CheckoutStateImpl implements _CheckoutState {
   final String? invoiceNumber;
   @override
   final String? error;
+  @override
+  final int? selectedPriceCategoryId;
 
   @override
   String toString() {
-    return 'CheckoutState(currentStep: $currentStep, selectedMethod: $selectedMethod, buyerName: $buyerName, cashAmount: $cashAmount, isProcessing: $isProcessing, success: $success, invoiceNumber: $invoiceNumber, error: $error)';
+    return 'CheckoutState(currentStep: $currentStep, selectedMethod: $selectedMethod, buyerName: $buyerName, cashAmount: $cashAmount, isProcessing: $isProcessing, success: $success, invoiceNumber: $invoiceNumber, error: $error, selectedPriceCategoryId: $selectedPriceCategoryId)';
   }
 
   @override
@@ -261,7 +277,12 @@ class _$CheckoutStateImpl implements _CheckoutState {
             (identical(other.success, success) || other.success == success) &&
             (identical(other.invoiceNumber, invoiceNumber) ||
                 other.invoiceNumber == invoiceNumber) &&
-            (identical(other.error, error) || other.error == error));
+            (identical(other.error, error) || other.error == error) &&
+            (identical(
+                  other.selectedPriceCategoryId,
+                  selectedPriceCategoryId,
+                ) ||
+                other.selectedPriceCategoryId == selectedPriceCategoryId));
   }
 
   @override
@@ -275,6 +296,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
     success,
     invoiceNumber,
     error,
+    selectedPriceCategoryId,
   );
 
   /// Create a copy of CheckoutState
@@ -296,6 +318,7 @@ abstract class _CheckoutState implements CheckoutState {
     final bool success,
     final String? invoiceNumber,
     final String? error,
+    final int? selectedPriceCategoryId,
   }) = _$CheckoutStateImpl;
 
   @override
@@ -314,6 +337,8 @@ abstract class _CheckoutState implements CheckoutState {
   String? get invoiceNumber;
   @override
   String? get error;
+  @override
+  int? get selectedPriceCategoryId;
 
   /// Create a copy of CheckoutState
   /// with the given fields replaced by the non-null parameter values.

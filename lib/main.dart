@@ -15,6 +15,9 @@ Future<void> main() async {
   runApp(const PosApp());
 }
 
+/// Global navigator key so that Dio interceptors can navigate without a BuildContext
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class PosApp extends StatelessWidget {
   const PosApp({super.key});
 
@@ -23,6 +26,7 @@ class PosApp extends StatelessWidget {
     return GlobalProviders(
       child: MaterialApp(
         title: 'Point of Sale',
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2563EB)),

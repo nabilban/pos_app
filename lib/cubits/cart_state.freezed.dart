@@ -23,6 +23,7 @@ CartState _$CartStateFromJson(Map<String, dynamic> json) {
 mixin _$CartState {
   List<CartItem> get items => throw _privateConstructorUsedError;
   PromoCheckResponse? get appliedPromo => throw _privateConstructorUsedError;
+  Map<int, double> get priceOverrides => throw _privateConstructorUsedError;
 
   /// Serializes this CartState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,7 +40,11 @@ abstract class $CartStateCopyWith<$Res> {
   factory $CartStateCopyWith(CartState value, $Res Function(CartState) then) =
       _$CartStateCopyWithImpl<$Res, CartState>;
   @useResult
-  $Res call({List<CartItem> items, PromoCheckResponse? appliedPromo});
+  $Res call({
+    List<CartItem> items,
+    PromoCheckResponse? appliedPromo,
+    Map<int, double> priceOverrides,
+  });
 
   $PromoCheckResponseCopyWith<$Res>? get appliedPromo;
 }
@@ -58,7 +63,11 @@ class _$CartStateCopyWithImpl<$Res, $Val extends CartState>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? items = null, Object? appliedPromo = freezed}) {
+  $Res call({
+    Object? items = null,
+    Object? appliedPromo = freezed,
+    Object? priceOverrides = null,
+  }) {
     return _then(
       _value.copyWith(
             items: null == items
@@ -69,6 +78,10 @@ class _$CartStateCopyWithImpl<$Res, $Val extends CartState>
                 ? _value.appliedPromo
                 : appliedPromo // ignore: cast_nullable_to_non_nullable
                       as PromoCheckResponse?,
+            priceOverrides: null == priceOverrides
+                ? _value.priceOverrides
+                : priceOverrides // ignore: cast_nullable_to_non_nullable
+                      as Map<int, double>,
           )
           as $Val,
     );
@@ -98,7 +111,11 @@ abstract class _$$CartStateImplCopyWith<$Res>
   ) = __$$CartStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<CartItem> items, PromoCheckResponse? appliedPromo});
+  $Res call({
+    List<CartItem> items,
+    PromoCheckResponse? appliedPromo,
+    Map<int, double> priceOverrides,
+  });
 
   @override
   $PromoCheckResponseCopyWith<$Res>? get appliedPromo;
@@ -117,7 +134,11 @@ class __$$CartStateImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? items = null, Object? appliedPromo = freezed}) {
+  $Res call({
+    Object? items = null,
+    Object? appliedPromo = freezed,
+    Object? priceOverrides = null,
+  }) {
     return _then(
       _$CartStateImpl(
         items: null == items
@@ -128,6 +149,10 @@ class __$$CartStateImplCopyWithImpl<$Res>
             ? _value.appliedPromo
             : appliedPromo // ignore: cast_nullable_to_non_nullable
                   as PromoCheckResponse?,
+        priceOverrides: null == priceOverrides
+            ? _value._priceOverrides
+            : priceOverrides // ignore: cast_nullable_to_non_nullable
+                  as Map<int, double>,
       ),
     );
   }
@@ -139,7 +164,9 @@ class _$CartStateImpl implements _CartState {
   const _$CartStateImpl({
     final List<CartItem> items = const [],
     this.appliedPromo,
-  }) : _items = items;
+    final Map<int, double> priceOverrides = const {},
+  }) : _items = items,
+       _priceOverrides = priceOverrides;
 
   factory _$CartStateImpl.fromJson(Map<String, dynamic> json) =>
       _$$CartStateImplFromJson(json);
@@ -155,10 +182,18 @@ class _$CartStateImpl implements _CartState {
 
   @override
   final PromoCheckResponse? appliedPromo;
+  final Map<int, double> _priceOverrides;
+  @override
+  @JsonKey()
+  Map<int, double> get priceOverrides {
+    if (_priceOverrides is EqualUnmodifiableMapView) return _priceOverrides;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_priceOverrides);
+  }
 
   @override
   String toString() {
-    return 'CartState(items: $items, appliedPromo: $appliedPromo)';
+    return 'CartState(items: $items, appliedPromo: $appliedPromo, priceOverrides: $priceOverrides)';
   }
 
   @override
@@ -168,7 +203,11 @@ class _$CartStateImpl implements _CartState {
             other is _$CartStateImpl &&
             const DeepCollectionEquality().equals(other._items, _items) &&
             (identical(other.appliedPromo, appliedPromo) ||
-                other.appliedPromo == appliedPromo));
+                other.appliedPromo == appliedPromo) &&
+            const DeepCollectionEquality().equals(
+              other._priceOverrides,
+              _priceOverrides,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -177,6 +216,7 @@ class _$CartStateImpl implements _CartState {
     runtimeType,
     const DeepCollectionEquality().hash(_items),
     appliedPromo,
+    const DeepCollectionEquality().hash(_priceOverrides),
   );
 
   /// Create a copy of CartState
@@ -197,6 +237,7 @@ abstract class _CartState implements CartState {
   const factory _CartState({
     final List<CartItem> items,
     final PromoCheckResponse? appliedPromo,
+    final Map<int, double> priceOverrides,
   }) = _$CartStateImpl;
 
   factory _CartState.fromJson(Map<String, dynamic> json) =
@@ -206,6 +247,8 @@ abstract class _CartState implements CartState {
   List<CartItem> get items;
   @override
   PromoCheckResponse? get appliedPromo;
+  @override
+  Map<int, double> get priceOverrides;
 
   /// Create a copy of CartState
   /// with the given fields replaced by the non-null parameter values.

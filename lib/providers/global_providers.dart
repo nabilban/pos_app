@@ -12,6 +12,7 @@ import '../data/datasource/remote/api_client.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/pos_repository.dart';
 import '../data/repositories/user_repository.dart';
+import '../main.dart' show navigatorKey;
 
 class GlobalProviders extends StatelessWidget {
   final Widget child;
@@ -41,8 +42,18 @@ class GlobalProviders extends StatelessWidget {
           ),
         ),
         RepositoryProvider<ApiClient>(
-          create: (context) =>
-              ApiClient(context.read<Dio>(), context.read<TokenManager>()),
+          create: (context) => ApiClient(
+            context.read<Dio>(),
+            context.read<TokenManager>(),
+            onUnauthorized: () {
+              // Navigate to login by triggering AuthCubit logout
+              // We use navigatorKey to get a valid context outside the widget tree
+              final navContext = navigatorKey.currentContext;
+              if (navContext != null) {
+                navContext.read<AuthCubit>().logout();
+              }
+            },
+          ),
         ),
         RepositoryProvider<IAuthRepository>(
           create: (context) => AuthRepository(
