@@ -241,6 +241,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     return BlocConsumer<CheckoutCubit, CheckoutState>(
       listener: (context, checkoutState) {
         if (checkoutState.success) {
+          _isClosing = true; // Prevent CartCubit listener from popping the receipt dialog
           Navigator.pop(context);
           showReceiptDialog(
             context,
