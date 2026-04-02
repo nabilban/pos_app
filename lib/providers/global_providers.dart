@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dio/dio.dart';
 
 import '../cubits/cart_cubit.dart';
+import '../cubits/history_cubit.dart';
 import '../cubits/settings_cubit.dart';
 import '../cubits/auth_cubit.dart';
 import '../data/database/app_database.dart';
@@ -12,6 +13,7 @@ import '../data/datasource/local/user_manager.dart';
 import '../data/datasource/remote/api_client.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/pos_repository.dart';
+import '../data/repositories/sales_repository.dart';
 import '../data/repositories/user_repository.dart';
 import '../main.dart' show navigatorKey;
 
@@ -73,6 +75,9 @@ class GlobalProviders extends StatelessWidget {
         RepositoryProvider<IUserRepository>(
           create: (context) => UserRepository(context.read<UserManager>()),
         ),
+        RepositoryProvider<ISalesRepository>(
+          create: (context) => SalesRepository(context.read<ApiClient>()),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -84,6 +89,11 @@ class GlobalProviders extends StatelessWidget {
             )..checkAuthStatus(),
           ),
           BlocProvider(create: (_) => CartCubit()),
+          BlocProvider(
+            create: (context) => HistoryCubit(
+              context.read<ISalesRepository>(),
+            ),
+          ),
           BlocProvider(
             create: (context) => SettingsCubit(),
           ),
