@@ -29,7 +29,7 @@ class PosApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2563EB)),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF059669)),
           textTheme: GoogleFonts.poppinsTextTheme(),
           useMaterial3: true,
         ),

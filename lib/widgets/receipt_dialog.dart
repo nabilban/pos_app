@@ -100,7 +100,7 @@ class _ReceiptDialog extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF2563EB), Color(0xFF1E40AF)],
+                      colors: [Color(0xFF059669), Color(0xFF1E40AF)],
                     ),
                     borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   ),
@@ -313,18 +313,18 @@ class _ReceiptDialog extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEFF6FF),
+                              color: const Color(0xFFECFDF5),
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.check_circle_rounded, color: Color(0xFF2563EB), size: 16),
+                                Icon(Icons.check_circle_rounded, color: Color(0xFF059669), size: 16),
                                 SizedBox(width: 8),
                                 Text(
                                   'Pembayaran Berhasil',
                                   style: TextStyle(
-                                    color: Color(0xFF2563EB),
+                                    color: Color(0xFF059669),
                                     fontWeight: FontWeight.w700,
                                     fontSize: 13,
                                   ),
@@ -381,7 +381,7 @@ class _ReceiptDialog extends StatelessWidget {
                         Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2563EB),
+                        backgroundColor: const Color(0xFF059669),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         elevation: 0,
@@ -435,7 +435,7 @@ class _Row extends StatelessWidget {
             style: TextStyle(
               fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
               fontSize: isTotal ? 18 : 13,
-              color: isTotal ? const Color(0xFF2563EB) : (color ?? const Color(0xFF1E293B)),
+              color: isTotal ? const Color(0xFF059669) : (color ?? const Color(0xFF1E293B)),
             ),
           ),
         ],

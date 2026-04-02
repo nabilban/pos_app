@@ -76,7 +76,7 @@ class SearchFilterBar extends StatelessWidget {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF2563EB)),
+        borderSide: const BorderSide(color: Color(0xFF059669)),
       ),
       filled: true,
       fillColor: Colors.white,
@@ -123,7 +123,7 @@ class SearchFilterBar extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF2563EB)),
+          borderSide: const BorderSide(color: Color(0xFF059669)),
         ),
         filled: true,
         fillColor: Colors.white,

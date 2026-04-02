@@ -167,7 +167,7 @@ class _PosScreenState extends State<PosScreen> {
                   children: [
                     const Icon(
                       Icons.shopping_cart,
-                      color: Color(0xFF2563EB),
+                      color: Color(0xFF059669),
                       size: 28,
                     ),
                     Positioned(
@@ -208,7 +208,7 @@ class _PosScreenState extends State<PosScreen> {
                 ElevatedButton(
                   onPressed: _showCheckout,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: const Color(0xFF059669),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

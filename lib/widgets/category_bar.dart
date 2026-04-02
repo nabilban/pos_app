@@ -36,7 +36,7 @@ class CategoryBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF2563EB)
+                    ? const Color(0xFF059669)
                     : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(20),
               ),

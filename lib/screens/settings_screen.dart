@@ -22,14 +22,14 @@ class SettingsScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                      colors: [Color(0xFF059669), Color(0xFF047857)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                        color: const Color(0xFF059669).withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -146,21 +146,21 @@ class SettingsScreen extends StatelessWidget {
                   subtitle: 'Struk tercetak otomatis setelah transaksi',
                   value: settings.cetakStruk,
                   onChanged: cubit.toggleCetakStruk,
-                  color: const Color(0xFF2563EB),
+                  color: const Color(0xFF059669),
                 ),
                 _ToggleItem(
                   label: 'Cetak Nama Kasir',
                   subtitle: 'Tampilkan nama kasir pada struk',
                   value: settings.cetakKasir,
                   onChanged: cubit.toggleCetakKasir,
-                  color: const Color(0xFF2563EB),
+                  color: const Color(0xFF059669),
                 ),
                 _ToggleItem(
                   label: 'Cetak Waktu Transaksi',
                   subtitle: 'Tampilkan waktu pada struk',
                   value: settings.cetakWaktu,
                   onChanged: cubit.toggleCetakWaktu,
-                  color: const Color(0xFF2563EB),
+                  color: const Color(0xFF059669),
                 ),
                 const SizedBox(height: 32),
                 

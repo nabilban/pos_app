@@ -90,7 +90,7 @@ class ProductCard extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
-                  color: Color(0xFF2563EB),
+                  color: Color(0xFF059669),
                 ),
               ),
               const Spacer(),
@@ -98,7 +98,7 @@ class ProductCard extends StatelessWidget {
                 width: double.infinity,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2563EB),
+                  color: const Color(0xFF059669),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Center(

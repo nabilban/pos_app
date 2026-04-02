@@ -164,7 +164,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF2563EB),
+                          color: Color(0xFF059669),
                         ),
                       ),
                     ],
@@ -248,7 +248,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
+                      backgroundColor: const Color(0xFF059669),
                       foregroundColor: Colors.white,
                       disabledBackgroundColor: const Color(0xFFE2E8F0),
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -330,7 +330,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                            color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF475569),
+                            color: isSelected ? const Color(0xFF059669) : const Color(0xFF475569),
                           ),
                         ),
                         if (option.additionalPrice > 0)
@@ -338,7 +338,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
                             '+ ${CurrencyUtil.format(option.additionalPrice)}',
                             style: const TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF2563EB),
+                              color: Color(0xFF059669),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -367,7 +367,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+            color: isSelected ? const Color(0xFF059669) : const Color(0xFFCBD5E1),
             width: isSelected ? 6 : 1.5,
           ),
         ),
@@ -379,10 +379,10 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
-            color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+            color: isSelected ? const Color(0xFF059669) : const Color(0xFFCBD5E1),
             width: 1.5,
           ),
-          color: isSelected ? const Color(0xFF2563EB) : Colors.transparent,
+          color: isSelected ? const Color(0xFF059669) : Colors.transparent,
         ),
         child: isSelected
             ? const Icon(Icons.check, size: 14, color: Colors.white)

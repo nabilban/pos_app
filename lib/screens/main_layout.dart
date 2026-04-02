@@ -7,6 +7,7 @@ import 'history_screen.dart';
 import 'shift_screen.dart';
 import 'settings_screen.dart';
 import '../cubits/auth_cubit.dart';
+import '../cubits/auth_state.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -87,37 +88,73 @@ class _MainLayoutState extends State<MainLayout> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Color(0xFF2563EB),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.storefront_outlined,
-                    color: Color(0xFF2563EB),
-                    size: 36,
-                  ),
+          BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, authState) {
+              return DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF059669),
                 ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Fiesto POS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                child: authState.maybeWhen(
+                  authenticated: (token, user) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Colors.white24,
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        user.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        user.role.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.storefront,
+                            color: Colors.white70,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              user.outlet?.name ?? 'No Outlet',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                  orElse: () => const SizedBox.shrink(),
                 ),
-              ],
-            ),
+              );
+            },
           ),
           _buildDrawerItem(
             icon: Icons.point_of_sale,
@@ -164,19 +201,19 @@ class _MainLayoutState extends State<MainLayout> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFEFF6FF) : Colors.transparent,
+        color: isSelected ? const Color(0xFFECFDF5) : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
         leading: Icon(
           icon,
-          color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF64748B),
+          color: isSelected ? const Color(0xFF059669) : const Color(0xFF64748B),
         ),
         title: Text(
           title,
           style: TextStyle(
             color:
-                isSelected ? const Color(0xFF2563EB) : const Color(0xFF475569),
+                isSelected ? const Color(0xFF059669) : const Color(0xFF475569),
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),

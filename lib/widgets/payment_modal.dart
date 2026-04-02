@@ -388,7 +388,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
                         ),
                         child: const Center(
-                          child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+                          child: CircularProgressIndicator(color: Color(0xFF059669)),
                         ),
                       ),
                     ),
@@ -549,7 +549,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 child: ElevatedButton(
                   onPressed: _isCheckingVoucher ? null : () => _checkVoucher(cartState),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: const Color(0xFF059669),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     elevation: 0,
@@ -585,7 +585,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF2563EB)),
+                  color: Color(0xFF059669)),
             ),
           ],
         ),
@@ -603,13 +603,13 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 24),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: const Color(0xFFECFDF5),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             children: [
               const Text('Total Tagihan',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF2563EB))),
+                  style: TextStyle(fontSize: 14, color: Color(0xFF059669))),
               const SizedBox(height: 8),
               Text(
                 CurrencyUtil.format(cartState.total),
@@ -645,7 +645,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF2563EB), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF059669), width: 2),
               ),
             ),
             onChanged: (val) {
@@ -744,7 +744,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF2563EB)),
+                    color: Color(0xFF059669)),
               ),
             ],
           ),
@@ -861,7 +861,7 @@ class _PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2563EB),
+          backgroundColor: const Color(0xFF059669),
           foregroundColor: Colors.white,
           disabledBackgroundColor: const Color(0xFFE2E8F0),
           disabledForegroundColor: const Color(0xFF94A3B8),
@@ -940,7 +940,7 @@ class _CartItemRow extends StatelessWidget {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit_outlined,
-                              color: Color(0xFF2563EB), size: 20),
+                              color: Color(0xFF059669), size: 20),
                           onPressed: () => VariantSelectionModal.show(
                             context,
                             item.product,
@@ -972,7 +972,7 @@ class _CartItemRow extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2563EB))),
+                        color: Color(0xFF059669))),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1031,7 +1031,7 @@ class _QtyActionBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: isAdd ? const Color(0xFF2563EB) : Colors.white,
+          color: isAdd ? const Color(0xFF059669) : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: isAdd ? null : Border.all(color: const Color(0xFFE2E8F0)),
         ),
@@ -1085,14 +1085,14 @@ class _AppliedPromoRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: const Color(0xFFECFDF5),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFFBBF7D0)),
       ),
       child: Row(
         children: [
           const Icon(Icons.check_circle_rounded,
-              color: Color(0xFF2563EB), size: 16),
+              color: Color(0xFF059669), size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

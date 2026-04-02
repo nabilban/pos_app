@@ -45,7 +45,7 @@ class CartSidebar extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.shopping_cart_outlined,
-                        color: Color(0xFF2563EB),
+                        color: Color(0xFF059669),
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -159,7 +159,7 @@ class CartSidebar extends StatelessWidget {
                                             CurrencyUtil.format(item.subtotal),
                                             style: const TextStyle(
                                               fontSize: 12,
-                                              color: Color(0xFF2563EB),
+                                              color: Color(0xFF059669),
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -260,7 +260,7 @@ class CartSidebar extends StatelessWidget {
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
+                            backgroundColor: const Color(0xFF059669),
                             foregroundColor: Colors.white,
                             disabledBackgroundColor: const Color(0xFFE2E8F0),
                             disabledForegroundColor: const Color(0xFF94A3B8),
