@@ -84,8 +84,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         child: _SummaryCard(
                           label: 'Total Transaksi',
                           value: cubit.totalTransaksi.toString(),
-                          icon: Icons.receipt_long,
-                          iconColor: const Color(0xFF3B82F6),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -93,8 +91,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         child: _SummaryCard(
                           label: 'Total Omzet',
                           value: CurrencyUtil.format(cubit.totalOmzet),
-                          icon: Icons.account_balance_wallet,
-                          iconColor: const Color(0xFF059669),
                           valueColor: const Color(0xFF059669),
                         ),
                       ),
@@ -297,21 +293,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
 class _SummaryCard extends StatelessWidget {
   final String label;
   final String value;
-  final IconData icon;
-  final Color iconColor;
   final Color? valueColor;
 
   const _SummaryCard({
     required this.label,
     required this.value,
-    required this.icon,
-    required this.iconColor,
     this.valueColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 84,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -325,40 +318,28 @@ class _SummaryCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF94A3B8),
             ),
-            child: Icon(icon, size: 20, color: iconColor),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF94A3B8),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: valueColor ?? const Color(0xFF1E293B),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: valueColor ?? const Color(0xFF1E293B),
+              ),
             ),
           ),
         ],
@@ -414,19 +395,22 @@ class _SaleCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFECFDF5),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              sale.paymentMethod?.name ?? '-',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF059669),
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFECFDF5),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                sale.paymentMethod?.name ?? '-',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF059669),
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
@@ -449,13 +433,16 @@ class _SaleCard extends StatelessWidget {
                           const Icon(Icons.person,
                               size: 13, color: Color(0xFF94A3B8)),
                           const SizedBox(width: 4),
-                          Text(
-                            sale.customerName.isEmpty
-                                ? '-'
-                                : sale.customerName,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF94A3B8),
+                          Flexible(
+                            child: Text(
+                              sale.customerName.isEmpty
+                                  ? '-'
+                                  : sale.customerName,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF94A3B8),
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 12),

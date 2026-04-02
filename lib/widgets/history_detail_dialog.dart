@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/models/sale.dart';
 import '../utils/currency_util.dart';
+import '../cubits/auth_cubit.dart';
+import '../services/receipt_printer.dart';
 
 class HistoryDetailDialog extends StatelessWidget {
   final Sale sale;
@@ -16,9 +19,15 @@ class HistoryDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Read user info from AuthCubit to get current Outlet/Store info
+    final currentUser = context.read<AuthCubit>().state.maybeMap(
+          authenticated: (s) => s.user,
+          orElse: () => null,
+        );
+
     final created = DateTime.tryParse(sale.createdAt);
     final dateStr = created != null
-        ? '${created.day.toString().padLeft(2, '0')} ${_monthName(created.month)} ${created.year} ${created.hour.toString().padLeft(2, '0')}.${created.minute.toString().padLeft(2, '0')}'
+        ? '${created.day.toString().padLeft(2, '0')}/${created.month.toString().padLeft(2, '0')}/${created.year}  ${created.hour.toString().padLeft(2, '0')}:${created.minute.toString().padLeft(2, '0')}'
         : '-';
 
     return Dialog(
@@ -26,188 +35,267 @@ class HistoryDetailDialog extends StatelessWidget {
       elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 460),
+        constraints: const BoxConstraints(maxWidth: 450),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // ── Header ──
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 16, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Detail Transaksi',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          sale.invoiceNumber,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF059669),
-                          ),
-                        ),
-                      ],
+            // ── Gradient Header ──
+            Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF059669), Color(0xFF1E40AF)],
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Color(0xFF94A3B8)),
-                    splashRadius: 20,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_rounded,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Detail Transaksi',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        sale.invoiceNumber,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                // Close icon button top right
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => Navigator.pop(context),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Print icon button top left
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        if (currentUser != null) {
+                          ReceiptPrinter.printSale(
+                            sale: sale,
+                            user: currentUser,
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.print_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
 
-            // ── Scrollable content ──
-            Flexible(
+            // ── Scrollable Receipt Body ──
+            Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Info card
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFF1F5F9)),
-                      ),
-                      child: Column(
-                        children: [
-                          _InfoRow(label: 'Tanggal', value: dateStr),
-                          const SizedBox(height: 10),
-                          _InfoRow(
-                            label: 'Pembeli',
-                            value: sale.customerName.isEmpty
-                                ? '-'
-                                : sale.customerName,
-                          ),
-                          const SizedBox(height: 10),
-                          _InfoRow(
-                            label: 'Metode Bayar',
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFECFDF5),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                sale.paymentMethod?.name ?? '-',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF059669),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          _InfoRow(
-                            label: 'Operator',
-                            value: sale.user?.name ?? '-',
-                          ),
-                        ],
-                      ),
+                    _Row(label: 'Tanggal', value: dateStr),
+                    _Row(
+                      label: 'Metode Bayar',
+                      value: sale.paymentMethod?.name ?? '-',
+                      color: const Color(0xFF059669),
+                      isBold: true,
+                    ),
+                    _Row(
+                      label: 'Nama Pembeli',
+                      value: sale.customerName.isEmpty ? '-' : sale.customerName,
+                    ),
+                    _Row(
+                      label: 'Operator',
+                      value: sale.user?.name ?? '-',
                     ),
 
-                    const SizedBox(height: 24),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: _DottedDivider(),
+                    ),
 
-                    // Items header
                     const Text(
-                      'Item Pesanan',
+                      'DETAIL PESANAN',
                       style: TextStyle(
-                        fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
+                        fontSize: 11,
+                        color: Color(0xFF94A3B8),
+                        letterSpacing: 1.0,
                       ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Item list
-                    ...sale.items.map((item) => _ItemTile(item: item)),
+                    // Items list
+                    ...sale.items.map((item) => _ItemRow(item: item)),
 
-                    // Divider
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+                      child: _DottedDivider(),
                     ),
 
-                    // Subtotal
-                    _TotalRow(
-                      label: 'Subtotal',
-                      value: CurrencyUtil.format(sale.subtotal),
-                    ),
                     if (sale.discountTotal > 0) ...[
-                      const SizedBox(height: 6),
-                      _TotalRow(
+                      _Row(
+                        label: 'Subtotal',
+                        value: CurrencyUtil.format(sale.subtotal),
+                      ),
+                      _Row(
                         label: 'Diskon',
                         value: '-${CurrencyUtil.format(sale.discountTotal)}',
-                        valueColor: const Color(0xFFEF4444),
+                        color: const Color(0xFFEF4444),
                       ),
+                      const SizedBox(height: 4),
                     ],
-                    const SizedBox(height: 8),
-                    _TotalRow(
-                      label: 'Total',
+
+                    _Row(
+                      label: 'TOTAL',
                       value: CurrencyUtil.format(sale.grandTotal),
                       isBold: true,
-                      valueColor: const Color(0xFF059669),
+                      isTotal: true,
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
+
+                    // Success Badge
+                    const Center(
+                      child: Column(
+                        children: [
+                          _SuccessBadge(),
+                          SizedBox(height: 12),
+                          Text(
+                            'Transaksi Selesai',
+                            style: TextStyle(
+                              color: Color(0xFF94A3B8),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
 
-            // ── Close button ──
+            // ── Action Buttons ──
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF059669),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        if (currentUser != null) {
+                          ReceiptPrinter.printSale(
+                            sale: sale,
+                            user: currentUser,
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.print_rounded, size: 20),
+                      label: const Text('Cetak'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Tutup',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF059669),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'Tutup',
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
@@ -215,55 +303,60 @@ class HistoryDetailDialog extends StatelessWidget {
       ),
     );
   }
-
-  String _monthName(int month) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
-    ];
-    return months[month - 1];
-  }
 }
 
-// ── Helper widgets ──
+// ── Components matching receipt_dialog.dart ──
 
-class _InfoRow extends StatelessWidget {
+class _Row extends StatelessWidget {
   final String label;
-  final String? value;
-  final Widget? child;
+  final String value;
+  final bool isBold;
+  final bool isTotal;
+  final Color? color;
 
-  const _InfoRow({required this.label, this.value, this.child});
+  const _Row({
+    required this.label,
+    required this.value,
+    this.isBold = false,
+    this.isTotal = false,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF64748B),
-          ),
-        ),
-        child ??
-            Text(
-              value ?? '-',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
-              ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
+              fontSize: isTotal ? 16 : 13,
+              color: color ?? const Color(0xFF64748B),
             ),
-      ],
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
+              fontSize: isTotal ? 18 : 13,
+              color: isTotal
+                  ? const Color(0xFF059669)
+                  : (color ?? const Color(0xFF1E293B)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _ItemTile extends StatelessWidget {
+class _ItemRow extends StatelessWidget {
   final SaleItem item;
 
-  const _ItemTile({required this.item});
+  const _ItemRow({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -273,56 +366,47 @@ class _ItemTile extends StatelessWidget {
         .map((v) => v.variantOption!.name)
         .toList();
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Column(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  item.product?.name ?? 'Product',
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.product?.name ?? 'Unknown Product',
                   style: const TextStyle(
-                    fontSize: 15,
                     fontWeight: FontWeight.w700,
+                    fontSize: 14,
                     color: Color(0xFF1E293B),
                   ),
                 ),
-              ),
-              Text(
-                CurrencyUtil.format(item.subtotal),
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B),
+                if (variantNames.isNotEmpty)
+                  Text(
+                    variantNames.join(', '),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                Text(
+                  '${item.quantity} x ${CurrencyUtil.format(unitPrice)}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF94A3B8),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (variantNames.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              variantNames.join(', '),
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF64748B),
-              ),
+              ],
             ),
-          ],
-          const SizedBox(height: 4),
+          ),
           Text(
-            '${CurrencyUtil.format(unitPrice)} × ${item.quantity}',
+            CurrencyUtil.format(item.subtotal),
             style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF94A3B8),
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+              color: Color(0xFF1E293B),
             ),
           ),
         ],
@@ -331,41 +415,55 @@ class _ItemTile extends StatelessWidget {
   }
 }
 
-class _TotalRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool isBold;
-  final Color? valueColor;
-
-  const _TotalRow({
-    required this.label,
-    required this.value,
-    this.isBold = false,
-    this.valueColor,
-  });
+class _DottedDivider extends StatelessWidget {
+  const _DottedDivider();
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: isBold ? 16 : 14,
-            fontWeight: isBold ? FontWeight.w900 : FontWeight.w500,
-            color: const Color(0xFF64748B),
+      children: List.generate(
+        80,
+        (index) => Expanded(
+          child: Container(
+            color: index % 2 == 0 ? Colors.transparent : const Color(0xFFE2E8F0),
+            height: 1.5,
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: isBold ? 18 : 14,
-            fontWeight: isBold ? FontWeight.w900 : FontWeight.w700,
-            color: valueColor ?? const Color(0xFF1E293B),
+      ),
+    );
+  }
+}
+
+class _SuccessBadge extends StatelessWidget {
+  const _SuccessBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFECFDF5),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.check_circle_rounded,
+            color: Color(0xFF059669),
+            size: 16,
           ),
-        ),
-      ],
+          SizedBox(width: 8),
+          Text(
+            'Pembayaran Berhasil',
+            style: TextStyle(
+              color: Color(0xFF059669),
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

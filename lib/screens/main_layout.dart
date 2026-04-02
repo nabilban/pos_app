@@ -19,6 +19,7 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
+  int _lastPageIndex = 0;
 
   final List<String> _titles = [
     'Point of Sale',
@@ -61,7 +62,7 @@ class _MainLayoutState extends State<MainLayout> {
               showBackButton: _selectedIndex == 3,
               onLeadingTap: _selectedIndex == 3
                   ? () => setState(() {
-                        _selectedIndex = 0;
+                        _selectedIndex = _lastPageIndex;
                       })
                   : () => _scaffoldKey.currentState?.openDrawer(),
               // show the gear icon only if we are not already on the Pengaturan page
@@ -69,6 +70,7 @@ class _MainLayoutState extends State<MainLayout> {
                   ? null
                   : () {
                       setState(() {
+                        _lastPageIndex = _selectedIndex;
                         _selectedIndex = 3;
                       });
                     },

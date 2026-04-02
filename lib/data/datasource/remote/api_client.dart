@@ -9,23 +9,54 @@ class ApiClient {
 
   ApiClient(this.cleanDio, this._tokenManager, {VoidCallback? onUnauthorized})
     : authenticatedDio = Dio(cleanDio.options) {
-    // Interceptor to inject the bearer token into authenticatedDio
-    authenticatedDio.interceptors.add(
+    _addInterceptors(authenticatedDio, onUnauthorized, true);
+    _addInterceptors(cleanDio, onUnauthorized, false);
+  }
+
+  void _addInterceptors(Dio dio, VoidCallback? onUnauthorized, bool isAuth) {
+    dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await _tokenManager.getToken();
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
+          if (isAuth) {
+            final token = await _tokenManager.getToken();
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
+          // 401/403 Handling (only for auth dio or always if we want to force logout)
           if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
-            // Token expired or invalid — clear local credentials and trigger logout
             await _tokenManager.deleteToken();
             onUnauthorized?.call();
+            return handler.next(e);
           }
-          return handler.next(e);
+
+          // Internet / Connection Handling
+          String message;
+          switch (e.type) {
+            case DioExceptionType.connectionTimeout:
+            case DioExceptionType.sendTimeout:
+            case DioExceptionType.receiveTimeout:
+              message = 'Koneksi terputus. Silakan coba lagi.';
+              break;
+            case DioExceptionType.connectionError:
+              message = 'Internet tidak ditemukan. Periksa koneksi Anda.';
+              break;
+            case DioExceptionType.unknown:
+              if (e.message?.contains('SocketException') ?? false) {
+                message = 'Internet tidak ditemukan. Periksa koneksi Anda.';
+              } else {
+                message = 'Terjadi kesalahan tidak terduga.';
+              }
+              break;
+            default:
+              message = e.message ?? 'Terjadi kesalahan sistem.';
+          }
+
+          final customError = e.copyWith(message: message);
+          return handler.next(customError);
         },
       ),
     );

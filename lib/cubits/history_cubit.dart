@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 import '../data/repositories/sales_repository.dart';
 import '../data/models/sale.dart';
 import 'history_state.dart';
@@ -6,7 +7,10 @@ import 'history_state.dart';
 class HistoryCubit extends Cubit<HistoryState> {
   final ISalesRepository _salesRepository;
 
-  HistoryCubit(this._salesRepository) : super(const HistoryState());
+  HistoryCubit(this._salesRepository)
+      : super(HistoryState(selectedDate: DateTime.now())) {
+    loadSales();
+  }
 
   Future<void> loadSales() async {
     emit(state.copyWith(isLoading: true, error: ''));
@@ -14,7 +18,8 @@ class HistoryCubit extends Cubit<HistoryState> {
       final sales = await _salesRepository.getSales();
       emit(state.copyWith(sales: sales, isLoading: false));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      final message = e is DioException ? (e.message ?? e.toString()) : e.toString();
+      emit(state.copyWith(isLoading: false, error: message));
     }
   }
 

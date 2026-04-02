@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/datasource/local/token_manager.dart';
 import '../data/repositories/user_repository.dart';
@@ -31,8 +32,8 @@ class AuthCubit extends Cubit<AuthState> {
       final response = await _authRepository.login(username, password);
       emit(AuthState.authenticated(token: response.token, user: response.user));
     } catch (e) {
-      // Revert to unauthenticated with an error
-      emit(AuthState.error(e.toString()));
+      final message = e is DioException ? (e.message ?? e.toString()) : e.toString();
+      emit(AuthState.error(message));
       emit(const AuthState.unauthenticated());
     }
   }

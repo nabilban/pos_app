@@ -37,9 +37,9 @@ class GlobalProviders extends StatelessWidget {
           create: (_) => Dio(
             BaseOptions(
               baseUrl:
-                  dotenv.env['local_backend'] ?? 'http://localhost:8080/api',
-              connectTimeout: const Duration(seconds: 10),
-              receiveTimeout: const Duration(seconds: 10),
+                  dotenv.env['remote_backend'] ?? 'http://localhost:8080/api',
+              connectTimeout: const Duration(seconds: 60),
+              receiveTimeout: const Duration(seconds: 60),
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -90,13 +90,9 @@ class GlobalProviders extends StatelessWidget {
           ),
           BlocProvider(create: (_) => CartCubit()),
           BlocProvider(
-            create: (context) => HistoryCubit(
-              context.read<ISalesRepository>(),
-            ),
+            create: (context) => HistoryCubit(context.read<ISalesRepository>()),
           ),
-          BlocProvider(
-            create: (context) => SettingsCubit(),
-          ),
+          BlocProvider(create: (context) => SettingsCubit()),
         ],
         child: child,
       ),
