@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/models/sale.dart';
 import '../utils/currency_util.dart';
+import '../utils/app_colors.dart';
+import '../utils/date_util.dart';
 import '../cubits/auth_cubit.dart';
 import '../services/receipt_printer.dart';
+import 'common/dotted_divider.dart';
+import 'common/success_badge.dart';
 
 class HistoryDetailDialog extends StatelessWidget {
   final Sale sale;
@@ -25,10 +29,7 @@ class HistoryDetailDialog extends StatelessWidget {
           orElse: () => null,
         );
 
-    final created = DateTime.tryParse(sale.createdAt);
-    final dateStr = created != null
-        ? '${created.day.toString().padLeft(2, '0')}/${created.month.toString().padLeft(2, '0')}/${created.year}  ${created.hour.toString().padLeft(2, '0')}:${created.minute.toString().padLeft(2, '0')}'
-        : '-';
+    final dateStr = DateUtil.formatFull(sale.createdAt);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -59,7 +60,7 @@ class HistoryDetailDialog extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF059669), Color(0xFF1E40AF)],
+                      colors: AppColors.primaryGradient,
                     ),
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24),
@@ -80,10 +81,10 @@ class HistoryDetailDialog extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Text(
+                      const Text(
                         'Detail Transaksi',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
@@ -172,7 +173,7 @@ class HistoryDetailDialog extends StatelessWidget {
                     _Row(
                       label: 'Metode Bayar',
                       value: sale.paymentMethod?.name ?? '-',
-                      color: const Color(0xFF059669),
+                      color: AppColors.success,
                       isBold: true,
                     ),
                     _Row(
@@ -186,7 +187,7 @@ class HistoryDetailDialog extends StatelessWidget {
 
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: _DottedDivider(),
+                      child: DottedDivider(),
                     ),
 
                     const Text(
@@ -194,7 +195,7 @@ class HistoryDetailDialog extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 11,
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textMuted,
                         letterSpacing: 1.0,
                       ),
                     ),
@@ -205,7 +206,7 @@ class HistoryDetailDialog extends StatelessWidget {
 
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: _DottedDivider(),
+                      child: DottedDivider(),
                     ),
 
                     if (sale.discountTotal > 0) ...[
@@ -216,7 +217,7 @@ class HistoryDetailDialog extends StatelessWidget {
                       _Row(
                         label: 'Diskon',
                         value: '-${CurrencyUtil.format(sale.discountTotal)}',
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.error,
                       ),
                       const SizedBox(height: 4),
                     ],
@@ -234,12 +235,12 @@ class HistoryDetailDialog extends StatelessWidget {
                     const Center(
                       child: Column(
                         children: [
-                          _SuccessBadge(),
+                          SuccessBadge(),
                           SizedBox(height: 12),
                           Text(
                             'Transaksi Selesai',
                             style: TextStyle(
-                              color: Color(0xFF94A3B8),
+                              color: AppColors.textMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -281,7 +282,7 @@ class HistoryDetailDialog extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF059669),
+                        backgroundColor: AppColors.success,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         elevation: 0,
@@ -304,8 +305,6 @@ class HistoryDetailDialog extends StatelessWidget {
     );
   }
 }
-
-// ── Components matching receipt_dialog.dart ──
 
 class _Row extends StatelessWidget {
   final String label;
@@ -334,7 +333,7 @@ class _Row extends StatelessWidget {
             style: TextStyle(
               fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
               fontSize: isTotal ? 16 : 13,
-              color: color ?? const Color(0xFF64748B),
+              color: color ?? AppColors.textSecondary,
             ),
           ),
           Text(
@@ -343,8 +342,8 @@ class _Row extends StatelessWidget {
               fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
               fontSize: isTotal ? 18 : 13,
               color: isTotal
-                  ? const Color(0xFF059669)
-                  : (color ?? const Color(0xFF1E293B)),
+                  ? AppColors.success
+                  : (color ?? AppColors.textPrimary),
             ),
           ),
         ],
@@ -380,7 +379,7 @@ class _ItemRow extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 if (variantNames.isNotEmpty)
@@ -388,14 +387,14 @@ class _ItemRow extends StatelessWidget {
                     variantNames.join(', '),
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF64748B),
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 Text(
                   '${item.quantity} x ${CurrencyUtil.format(unitPrice)}',
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.textMuted,
                   ),
                 ),
               ],
@@ -406,60 +405,7 @@ class _ItemRow extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 14,
-              color: Color(0xFF1E293B),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DottedDivider extends StatelessWidget {
-  const _DottedDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(
-        80,
-        (index) => Expanded(
-          child: Container(
-            color: index % 2 == 0 ? Colors.transparent : const Color(0xFFE2E8F0),
-            height: 1.5,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SuccessBadge extends StatelessWidget {
-  const _SuccessBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFECFDF5),
-        borderRadius: BorderRadius.circular(100),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.check_circle_rounded,
-            color: Color(0xFF059669),
-            size: 16,
-          ),
-          SizedBox(width: 8),
-          Text(
-            'Pembayaran Berhasil',
-            style: TextStyle(
-              color: Color(0xFF059669),
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
+              color: AppColors.textPrimary,
             ),
           ),
         ],

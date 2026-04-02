@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_colors.dart';
 
 class PosHeader extends StatelessWidget {
   final VoidCallback onLeadingTap;
@@ -20,7 +21,7 @@ class PosHeader extends StatelessWidget {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         boxShadow: [
           BoxShadow(
             color: Color(0x0A000000),
@@ -35,7 +36,7 @@ class PosHeader extends StatelessWidget {
             onPressed: onLeadingTap,
             icon: Icon(
               showBackButton ? Icons.arrow_back : Icons.menu,
-              color: const Color(0xFF64748B),
+              color: AppColors.textSecondary,
               size: 24,
             ),
             tooltip: showBackButton ? 'Kembali' : 'Menu',
@@ -46,7 +47,7 @@ class PosHeader extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
           if (onSettingsTap != null) ...[
@@ -55,7 +56,7 @@ class PosHeader extends StatelessWidget {
               onPressed: onSettingsTap,
               icon: const Icon(
                 Icons.settings_outlined,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
                 size: 24,
               ),
               tooltip: 'Pengaturan',

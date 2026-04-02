@@ -8,6 +8,7 @@ import 'shift_screen.dart';
 import 'settings_screen.dart';
 import '../cubits/auth_cubit.dart';
 import '../cubits/auth_state.dart';
+import '../utils/app_colors.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -52,7 +53,7 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       drawer: _buildDrawer(),
       body: SafeArea(
         child: Column(
@@ -99,7 +100,7 @@ class _MainLayoutState extends State<MainLayout> {
             builder: (context, authState) {
               return DrawerHeader(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF059669),
+                  color: AppColors.primary,
                 ),
                 child: authState.maybeWhen(
                   authenticated: (token, user) => Column(
@@ -181,11 +182,11 @@ class _MainLayoutState extends State<MainLayout> {
           const Spacer(),
           const Divider(height: 1),
           ListTile(
-            leading: const Icon(Icons.logout, color: Color(0xFFEF4444)),
+            leading: const Icon(Icons.logout, color: AppColors.error),
             title: const Text(
               'Keluar',
               style: TextStyle(
-                  color: Color(0xFFEF4444), fontWeight: FontWeight.w600),
+                  color: AppColors.error, fontWeight: FontWeight.w600),
             ),
             onTap: () {
               Navigator.pop(context);

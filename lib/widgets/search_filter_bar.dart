@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/pos_cubit.dart';
 import '../cubits/pos_state.dart';
 import '../data/models/brand.dart';
+import '../utils/app_colors.dart';
 
 class SearchFilterBar extends StatelessWidget {
   const SearchFilterBar({super.key});
@@ -13,7 +14,7 @@ class SearchFilterBar extends StatelessWidget {
       builder: (context, state) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: Colors.white,
+          color: AppColors.surface,
           child: Row(
             children: [
               // Search Input (takes 2 parts)
@@ -64,23 +65,23 @@ class SearchFilterBar extends StatelessWidget {
   }) {
     return InputDecoration(
       hintText: hintText,
-      prefixIcon: Icon(prefixIcon, color: const Color(0xFF94A3B8), size: 20),
+      prefixIcon: const Icon(Icons.search, color: AppColors.textMuted, size: 20),
       contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        borderSide: const BorderSide(color: AppColors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        borderSide: const BorderSide(color: AppColors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF059669)),
+        borderSide: const BorderSide(color: AppColors.success),
       ),
       filled: true,
-      fillColor: Colors.white,
-      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+      fillColor: AppColors.surface,
+      hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
     );
   }
 
@@ -100,7 +101,7 @@ class SearchFilterBar extends StatelessWidget {
             style: const TextStyle(
               overflow: TextOverflow.ellipsis,
               fontSize: 13,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
               fontWeight: FontWeight.w500,
             ),
             child: item.child,
@@ -115,27 +116,27 @@ class SearchFilterBar extends StatelessWidget {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF059669)),
+          borderSide: const BorderSide(color: AppColors.success),
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.surface,
       ),
       icon: const Icon(
         Icons.keyboard_arrow_down,
-        color: Color(0xFF64748B),
+        color: AppColors.textSecondary,
         size: 20,
       ),
       hint: Text(
         hint,
-        style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+        style: const TextStyle(fontSize: 13, color: AppColors.textMuted),
       ),
     );
   }

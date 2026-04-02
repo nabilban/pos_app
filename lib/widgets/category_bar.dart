@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/models/category.dart';
+import '../utils/app_colors.dart';
 
 class CategoryBar extends StatelessWidget {
   final List<Category> categories;
@@ -17,7 +18,7 @@ class CategoryBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 52,
-      color: Colors.white,
+      color: AppColors.surface,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
@@ -36,7 +37,7 @@ class CategoryBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF059669)
+                    ? AppColors.primary
                     : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -45,7 +46,7 @@ class CategoryBar extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
-                  color: isSelected ? Colors.white : const Color(0xFF64748B),
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
                 ),
               ),
             ),

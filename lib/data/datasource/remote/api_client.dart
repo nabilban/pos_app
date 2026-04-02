@@ -3,37 +3,33 @@ import 'package:dio/dio.dart';
 import '../local/token_manager.dart';
 
 class ApiClient {
-  final Dio cleanDio;
-  final Dio authenticatedDio;
+  final Dio dio;
   final TokenManager _tokenManager;
 
-  ApiClient(this.cleanDio, this._tokenManager, {VoidCallback? onUnauthorized})
-    : authenticatedDio = Dio(cleanDio.options) {
-    _addInterceptors(authenticatedDio, onUnauthorized, true);
-    _addInterceptors(cleanDio, onUnauthorized, false);
+  ApiClient(this.dio, this._tokenManager, {VoidCallback? onUnauthorized}) {
+    _addInterceptors(onUnauthorized);
   }
 
-  void _addInterceptors(Dio dio, VoidCallback? onUnauthorized, bool isAuth) {
+  void _addInterceptors(VoidCallback? onUnauthorized) {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          if (isAuth) {
-            final token = await _tokenManager.getToken();
-            if (token != null && token.isNotEmpty) {
-              options.headers['Authorization'] = 'Bearer $token';
-            }
+          // Inject token if available
+          final token = await _tokenManager.getToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
           }
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
-          // 401/403 Handling (only for auth dio or always if we want to force logout)
+          // 401/403 Handling: clear credentials and trigger logout
           if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
             await _tokenManager.deleteToken();
             onUnauthorized?.call();
             return handler.next(e);
           }
 
-          // Internet / Connection Handling
+          // User-friendly error messaging for connection issues
           String message;
           switch (e.type) {
             case DioExceptionType.connectionTimeout:
@@ -62,6 +58,7 @@ class ApiClient {
     );
   }
 
-  /// Backward compatibility getter
-  Dio get dio => authenticatedDio;
+  /// Alias for backward compatibility
+  Dio get cleanDio => dio;
+  Dio get authenticatedDio => dio;
 }

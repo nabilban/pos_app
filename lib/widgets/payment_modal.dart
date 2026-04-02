@@ -13,6 +13,7 @@ import '../cubits/checkout_cubit.dart';
 import '../cubits/checkout_state.dart';
 import 'variant_selection_modal.dart';
 import 'receipt_dialog.dart';
+import '../utils/app_colors.dart';
 
 Future<void> showPaymentModal(BuildContext context) {
   return showModalBottomSheet(
@@ -327,7 +328,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                                 IconButton(
                                   icon: const Icon(Icons.close_rounded, size: 28),
                                   onPressed: () => Navigator.pop(context),
-                                  color: const Color(0xFF94A3B8),
+                                  color: AppColors.textMuted,
                                 ),
                             ],
                           ),
@@ -388,7 +389,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
                         ),
                         child: const Center(
-                          child: CircularProgressIndicator(color: Color(0xFF059669)),
+                          child: CircularProgressIndicator(color: AppColors.success),
                         ),
                       ),
                     ),
@@ -442,9 +443,9 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: AppColors.background,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.border),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<int?>(
@@ -486,7 +487,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               items: [
                 const DropdownMenuItem<int?>(
                   value: null,
-                  child: Text('Tanpa Promo', style: TextStyle(color: Color(0xFF64748B))),
+                  child: Text('Tanpa Promo', style: TextStyle(color: AppColors.textSecondary)),
                 ),
                 ..._promos.map((p) => DropdownMenuItem<int?>(
                       value: p.promoId,
@@ -506,14 +507,14 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             padding: const EdgeInsets.only(left: 4),
             child: Row(
               children: [
-                const Icon(Icons.info_outline, size: 14, color: Color(0xFFEF4444)),
+                const Icon(Icons.info_outline, size: 14, color: AppColors.error),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     _promoWarning!,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFFEF4444),
+                      color: AppColors.error,
                     ),
                   ),
                 ),
@@ -528,7 +529,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.border),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -549,7 +550,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 child: ElevatedButton(
                   onPressed: _isCheckingVoucher ? null : () => _checkVoucher(cartState),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF059669),
+                    backgroundColor: AppColors.success,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     elevation: 0,
@@ -572,7 +573,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           _SummaryRow(
             label: 'Diskon',
             value: '-${CurrencyUtil.format(cartState.discount)}',
-            valueColor: const Color(0xFFEF4444),
+            valueColor: AppColors.error,
           ),
         const SizedBox(height: 8),
         Row(
@@ -585,7 +586,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF059669)),
+                  color: AppColors.success),
             ),
           ],
         ),
@@ -609,7 +610,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           child: Column(
             children: [
               const Text('Total Tagihan',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF059669))),
+                  style: TextStyle(fontSize: 14, color: AppColors.success)),
               const SizedBox(height: 8),
               Text(
                 CurrencyUtil.format(cartState.total),
@@ -635,7 +636,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
 
         if (['cash', 'tunai'].contains(checkoutState.selectedMethod.toLowerCase())) ...[
           const Text('Nominal Dibayar',
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
           const SizedBox(height: 8),
           TextField(
             controller: _cashController,
@@ -645,7 +646,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF059669), width: 2),
+                borderSide: const BorderSide(color: AppColors.success, width: 2),
               ),
             ),
             onChanged: (val) {
@@ -744,7 +745,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF059669)),
+                    color: AppColors.success),
               ),
             ],
           ),

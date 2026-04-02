@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/cart_state.dart';
 import '../utils/currency_util.dart';
+import '../utils/app_colors.dart';
+import '../utils/date_util.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/auth_cubit.dart';
 import '../data/models/cart_item.dart';
 import '../data/models/auth_response.dart';
 import '../services/receipt_printer.dart';
+import 'common/dotted_divider.dart';
+import 'common/success_badge.dart';
 
 Future<void> showReceiptDialog(
   BuildContext context,
@@ -27,9 +31,7 @@ Future<void> showReceiptDialog(
         orElse: () => null,
       );
 
-  final now = DateTime.now();
-  final dateStr =
-      '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}  ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+  final dateStr = DateUtil.formatFull(DateTime.now());
 
   return showDialog(
     context: context,
@@ -111,7 +113,7 @@ class _ReceiptDialog extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF059669), Color(0xFF1E40AF)],
+                      colors: AppColors.primaryGradient,
                     ),
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24),
@@ -185,8 +187,8 @@ class _ReceiptDialog extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.1),
+                        decoration: const BoxDecoration(
+                          color: Colors.black12,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -223,8 +225,8 @@ class _ReceiptDialog extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.1),
+                        decoration: const BoxDecoration(
+                          color: Colors.black12,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -261,7 +263,7 @@ class _ReceiptDialog extends StatelessWidget {
 
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: _DottedDivider(),
+                      child: DottedDivider(),
                     ),
 
                     const Text(
@@ -269,7 +271,7 @@ class _ReceiptDialog extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 11,
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textMuted,
                         letterSpacing: 1.0,
                       ),
                     ),
@@ -290,7 +292,7 @@ class _ReceiptDialog extends StatelessWidget {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
-                                      color: Color(0xFF1E293B),
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                   if (item.selectedOptions.isNotEmpty)
@@ -300,14 +302,14 @@ class _ReceiptDialog extends StatelessWidget {
                                           .join(', '),
                                       style: const TextStyle(
                                         fontSize: 11,
-                                        color: Color(0xFF64748B),
+                                        color: AppColors.textSecondary,
                                       ),
                                     ),
                                   Text(
                                     '${item.quantity} x ${CurrencyUtil.format(item.subtotal / item.quantity)}',
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: Color(0xFF94A3B8),
+                                      color: AppColors.textMuted,
                                     ),
                                   ),
                                 ],
@@ -318,7 +320,7 @@ class _ReceiptDialog extends StatelessWidget {
                               style: const TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 14,
-                                color: Color(0xFF1E293B),
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ],
@@ -328,7 +330,7 @@ class _ReceiptDialog extends StatelessWidget {
 
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: _DottedDivider(),
+                      child: DottedDivider(),
                     ),
 
                     if (discount > 0) ...[
@@ -339,7 +341,7 @@ class _ReceiptDialog extends StatelessWidget {
                       _Row(
                         label: 'Diskon',
                         value: '-${CurrencyUtil.format(discount)}',
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.error,
                       ),
                       const SizedBox(height: 4),
                     ],
@@ -354,43 +356,15 @@ class _ReceiptDialog extends StatelessWidget {
                     const SizedBox(height: 32),
 
                     // Success Badge
-                    Center(
+                    const Center(
                       child: Column(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFECFDF5),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.check_circle_rounded,
-                                  color: Color(0xFF059669),
-                                  size: 16,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Pembayaran Berhasil',
-                                  style: TextStyle(
-                                    color: Color(0xFF059669),
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
+                          SuccessBadge(),
+                          SizedBox(height: 12),
+                          Text(
                             'Terima kasih telah berkunjung!',
                             style: TextStyle(
-                              color: Color(0xFF94A3B8),
+                              color: AppColors.textMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -442,7 +416,7 @@ class _ReceiptDialog extends StatelessWidget {
                         Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF059669),
+                        backgroundColor: AppColors.success,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         elevation: 0,
@@ -493,7 +467,7 @@ class _Row extends StatelessWidget {
             style: TextStyle(
               fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
               fontSize: isTotal ? 16 : 13,
-              color: color ?? const Color(0xFF64748B),
+              color: color ?? AppColors.textSecondary,
             ),
           ),
           Text(
@@ -502,32 +476,11 @@ class _Row extends StatelessWidget {
               fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
               fontSize: isTotal ? 18 : 13,
               color: isTotal
-                  ? const Color(0xFF059669)
-                  : (color ?? const Color(0xFF1E293B)),
+                  ? AppColors.success
+                  : (color ?? AppColors.textPrimary),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _DottedDivider extends StatelessWidget {
-  const _DottedDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(
-        80,
-        (index) => Expanded(
-          child: Container(
-            color: index % 2 == 0
-                ? Colors.transparent
-                : const Color(0xFFE2E8F0),
-            height: 1.5,
-          ),
-        ),
       ),
     );
   }

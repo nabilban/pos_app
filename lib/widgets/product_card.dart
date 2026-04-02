@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/models/product.dart';
 import '../utils/currency_util.dart';
 import '../utils/image_util.dart';
+import '../utils/app_colors.dart';
 
 final List<Color> _cardColors = [
   const Color(0xFFEEF2FF),
@@ -90,7 +91,7 @@ class ProductCard extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
-                  color: Color(0xFF059669),
+                  color: AppColors.success,
                 ),
               ),
               const Spacer(),
@@ -98,7 +99,7 @@ class ProductCard extends StatelessWidget {
                 width: double.infinity,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF059669),
+                  color: AppColors.success,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Center(
