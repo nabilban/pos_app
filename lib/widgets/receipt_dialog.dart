@@ -8,8 +8,12 @@ import '../data/models/cart_item.dart';
 import '../data/models/store_info.dart';
 import '../services/receipt_printer.dart';
 
-Future<void> showReceiptDialog(BuildContext context, String paymentMethod,
-    {required String buyerName, String? invoiceNumber}) {
+Future<void> showReceiptDialog(
+  BuildContext context,
+  String paymentMethod, {
+  required String buyerName,
+  String? invoiceNumber,
+}) {
   final cubit = context.read<CartCubit>();
   final state = cubit.state;
   final items = state.items;
@@ -19,7 +23,7 @@ Future<void> showReceiptDialog(BuildContext context, String paymentMethod,
 
   // Read store info from SettingsCubit
   final storeInfo = context.read<SettingsCubit>().state.storeInfo;
-  
+
   final now = DateTime.now();
   final dateStr =
       '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}  ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
@@ -102,7 +106,9 @@ class _ReceiptDialog extends StatelessWidget {
                       end: Alignment.bottomRight,
                       colors: [Color(0xFF059669), Color(0xFF1E40AF)],
                     ),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -112,11 +118,17 @@ class _ReceiptDialog extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.receipt_long_rounded, color: Colors.white, size: 32),
+                        child: const Icon(
+                          Icons.receipt_long_rounded,
+                          color: Colors.white,
+                          size: 32,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        storeInfo.name,
+                        storeInfo.name.trim().isNotEmpty
+                            ? storeInfo.name
+                            : 'Transaction Complete',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Colors.white,
@@ -125,25 +137,29 @@ class _ReceiptDialog extends StatelessWidget {
                           letterSpacing: 0.5,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        storeInfo.address,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 13,
-                          height: 1.4,
-                        ),
-                      ),
-                      if (storeInfo.phone.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'Telp: ${storeInfo.phone}',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 12,
+                      if (storeInfo.name.trim().isNotEmpty) ...[
+                        if (storeInfo.address.trim().isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            storeInfo.address,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
                           ),
-                        ),
+                        ],
+                        if (storeInfo.phone.trim().isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Telp: ${storeInfo.phone}',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ],
                     ],
                   ),
@@ -166,7 +182,11 @@ class _ReceiptDialog extends StatelessWidget {
                           color: Colors.black.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ),
@@ -198,7 +218,11 @@ class _ReceiptDialog extends StatelessWidget {
                           color: Colors.black.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.print_rounded, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.print_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ),
@@ -214,11 +238,18 @@ class _ReceiptDialog extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (invoiceNumber != null)
-                      _Row(label: 'Invoice ID', value: invoiceNumber!, isBold: true),
+                      _Row(
+                        label: 'Invoice ID',
+                        value: invoiceNumber!,
+                        isBold: true,
+                      ),
                     _Row(label: 'Tanggal', value: dateStr),
                     _Row(label: 'Metode Bayar', value: paymentMethod),
-                    _Row(label: 'Nama Pembeli', value: buyerName.isEmpty ? '-' : buyerName),
-                    
+                    _Row(
+                      label: 'Nama Pembeli',
+                      value: buyerName.isEmpty ? '-' : buyerName,
+                    ),
+
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
                       child: _DottedDivider(),
@@ -235,52 +266,56 @@ class _ReceiptDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
 
-                    ...items.map((item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.product.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 14,
-                                    color: Color(0xFF1E293B),
-                                  ),
-                                ),
-                                if (item.selectedOptions.isNotEmpty)
+                    ...items.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Text(
-                                    item.selectedOptions.map((o) => o.name).join(', '),
+                                    item.product.name,
                                     style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Color(0xFF64748B),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                      color: Color(0xFF1E293B),
                                     ),
                                   ),
-                                Text(
-                                  '${item.quantity} x ${CurrencyUtil.format(item.subtotal / item.quantity)}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFF94A3B8),
+                                  if (item.selectedOptions.isNotEmpty)
+                                    Text(
+                                      item.selectedOptions
+                                          .map((o) => o.name)
+                                          .join(', '),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  Text(
+                                    '${item.quantity} x ${CurrencyUtil.format(item.subtotal / item.quantity)}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF94A3B8),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          Text(
-                            CurrencyUtil.format(item.subtotal),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                              color: Color(0xFF1E293B),
+                            Text(
+                              CurrencyUtil.format(item.subtotal),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: Color(0xFF1E293B),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    )),
+                    ),
 
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
@@ -288,9 +323,12 @@ class _ReceiptDialog extends StatelessWidget {
                     ),
 
                     if (discount > 0) ...[
-                      _Row(label: 'Subtotal', value: CurrencyUtil.format(subtotal)),
                       _Row(
-                        label: 'Diskon', 
+                        label: 'Subtotal',
+                        value: CurrencyUtil.format(subtotal),
+                      ),
+                      _Row(
+                        label: 'Diskon',
                         value: '-${CurrencyUtil.format(discount)}',
                         color: const Color(0xFFEF4444),
                       ),
@@ -303,7 +341,7 @@ class _ReceiptDialog extends StatelessWidget {
                       isBold: true,
                       isTotal: true,
                     ),
-                    
+
                     const SizedBox(height: 32),
 
                     // Success Badge
@@ -311,7 +349,10 @@ class _ReceiptDialog extends StatelessWidget {
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFECFDF5),
                               borderRadius: BorderRadius.circular(100),
@@ -319,7 +360,11 @@ class _ReceiptDialog extends StatelessWidget {
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.check_circle_rounded, color: Color(0xFF059669), size: 16),
+                                Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Color(0xFF059669),
+                                  size: 16,
+                                ),
                                 SizedBox(width: 8),
                                 Text(
                                   'Pembayaran Berhasil',
@@ -335,7 +380,10 @@ class _ReceiptDialog extends StatelessWidget {
                           const SizedBox(height: 12),
                           const Text(
                             'Terima kasih telah berkunjung!',
-                            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                            style: TextStyle(
+                              color: Color(0xFF94A3B8),
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -369,7 +417,9 @@ class _ReceiptDialog extends StatelessWidget {
                       label: const Text('Cetak'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
                   ),
@@ -385,9 +435,14 @@ class _ReceiptDialog extends StatelessWidget {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      child: const Text('Tutup', style: TextStyle(fontWeight: FontWeight.w800)),
+                      child: const Text(
+                        'Tutup',
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
                     ),
                   ),
                 ],
@@ -435,7 +490,9 @@ class _Row extends StatelessWidget {
             style: TextStyle(
               fontWeight: isBold ? FontWeight.w800 : FontWeight.w700,
               fontSize: isTotal ? 18 : 13,
-              color: isTotal ? const Color(0xFF059669) : (color ?? const Color(0xFF1E293B)),
+              color: isTotal
+                  ? const Color(0xFF059669)
+                  : (color ?? const Color(0xFF1E293B)),
             ),
           ),
         ],
@@ -454,7 +511,9 @@ class _DottedDivider extends StatelessWidget {
         80,
         (index) => Expanded(
           child: Container(
-            color: index % 2 == 0 ? Colors.transparent : const Color(0xFFE2E8F0),
+            color: index % 2 == 0
+                ? Colors.transparent
+                : const Color(0xFFE2E8F0),
             height: 1.5,
           ),
         ),

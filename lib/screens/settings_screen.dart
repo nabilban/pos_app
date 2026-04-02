@@ -64,32 +64,50 @@ class SettingsScreen extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  Text(
-                                    user.role.name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(
-                                        Icons.storefront,
-                                        color: Colors.white70,
-                                        size: 14,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Flexible(
+                                      const Icon(Icons.badge, color: Colors.white70, size: 14),
+                                      const SizedBox(width: 6),
+                                      Expanded(
                                         child: Text(
-                                          user.outlet?.name ?? 'No Outlet',
+                                          '${user.role.name} • @${user.username}',
+                                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.email, color: Colors.white70, size: 14),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          user.email,
+                                          style: const TextStyle(color: Colors.white70, fontSize: 13),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.storefront, color: Colors.white70, size: 14),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          user.outlet != null
+                                              ? '${user.outlet!.name}\n${user.outlet!.address}\n${user.outlet!.phone}'
+                                              : 'No Outlet',
                                           style: const TextStyle(
                                             color: Colors.white70,
                                             fontSize: 13,
+                                            height: 1.4,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],

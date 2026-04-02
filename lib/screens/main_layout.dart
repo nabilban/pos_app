@@ -58,7 +58,12 @@ class _MainLayoutState extends State<MainLayout> {
           children: [
             PosHeader(
               title: _titles[_selectedIndex],
-              onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
+              showBackButton: _selectedIndex == 3,
+              onLeadingTap: _selectedIndex == 3
+                  ? () => setState(() {
+                        _selectedIndex = 0;
+                      })
+                  : () => _scaffoldKey.currentState?.openDrawer(),
               // show the gear icon only if we are not already on the Pengaturan page
               onSettingsTap: _selectedIndex == 3
                   ? null

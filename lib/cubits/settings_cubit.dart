@@ -15,7 +15,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       final user = await _userRepository.getCurrentUser();
       if (user != null) {
         final storeInfo = StoreInfo(
-          name: user.outlet?.name ?? 'FIESTO POS',
+          name: user.outlet?.name ?? 'POS',
           address: user.outlet?.address ?? '',
           phone: user.outlet?.phone ?? '',
           cashierName: user.name,

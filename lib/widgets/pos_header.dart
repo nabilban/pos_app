@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
 class PosHeader extends StatelessWidget {
-  final VoidCallback onMenuTap;
+  final VoidCallback onLeadingTap;
   final VoidCallback? onSettingsTap;
   final String title;
+  final bool showBackButton;
 
   const PosHeader({
     super.key,
-    required this.onMenuTap,
+    required this.onLeadingTap,
     this.onSettingsTap,
     this.title = 'Point of Sale',
+    this.showBackButton = false,
   });
 
   @override
@@ -30,13 +32,13 @@ class PosHeader extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            onPressed: onMenuTap,
-            icon: const Icon(
-              Icons.menu,
-              color: Color(0xFF64748B),
+            onPressed: onLeadingTap,
+            icon: Icon(
+              showBackButton ? Icons.arrow_back : Icons.menu,
+              color: const Color(0xFF64748B),
               size: 24,
             ),
-            tooltip: 'Menu',
+            tooltip: showBackButton ? 'Kembali' : 'Menu',
           ),
           const SizedBox(width: 8),
           Text(

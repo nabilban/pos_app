@@ -1,47 +1,52 @@
-import '../models/auth_response.dart';
-import '../datasource/local/token_manager.dart';
-import '../models/role.dart';
-import '../models/outlet.dart';
+import '../models/auth_response.dart' as model;
+import '../datasource/local/user_manager.dart';
+import '../models/role.dart' as model_role;
+import '../models/outlet.dart' as model_outlet;
 
 abstract class IUserRepository {
-  Future<User?> getCurrentUser();
+  Future<model.User?> getCurrentUser();
 }
 
 class UserRepository implements IUserRepository {
-  final TokenManager _tokenManager;
+  final UserManager _userManager;
 
-  UserRepository(this._tokenManager);
+  UserRepository(this._userManager);
 
   @override
-  Future<User?> getCurrentUser() async {
-    final authData = await _tokenManager.getAuthData();
-    if (authData['token'] == null) return null;
+  Future<model.User?> getCurrentUser() async {
+    final user = await _userManager.getActiveUser();
+    if (user == null) return null;
 
-    // Construct a partial User object from local storage
-    return User(
-      id: 0, // ID not strictly needed for UI display if we just use the name
+    final role = await _userManager.getActiveRole();
+    final outlet = await _userManager.getActiveOutlet();
+
+    return model.User(
+      id: user.id,
       createdAt: '',
       updatedAt: '',
-      name: authData['userName'] ?? 'User',
-      username: '',
-      email: '',
-      roleId: 0,
-      canAccessCenter: false,
-      role: Role(
-        id: 0,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      roleId: user.roleId,
+      canAccessCenter: user.canAccessCenter,
+      outletId: user.outletId,
+      role: model_role.Role(
+        id: role?.id ?? 0,
         createdAt: '',
         updatedAt: '',
-        name: authData['roleName'] ?? '',
+        name: role?.name ?? '',
       ),
-      outlet: Outlet(
-        id: 0,
-        createdAt: '',
-        updatedAt: '',
-        name: authData['outletName'] ?? '',
-        address: '',
-        phone: '',
-        status: '',
-      ),
+      outlet: outlet != null
+          ? model_outlet.Outlet(
+              id: outlet.id,
+              createdAt: '',
+              updatedAt: '',
+              name: outlet.name,
+              address: outlet.address,
+              phone: outlet.phone,
+              status: outlet.status,
+            )
+          : null,
     );
   }
 }

@@ -8,6 +8,7 @@ import '../cubits/settings_cubit.dart';
 import '../cubits/auth_cubit.dart';
 import '../data/database/app_database.dart';
 import '../data/datasource/local/token_manager.dart';
+import '../data/datasource/local/user_manager.dart';
 import '../data/datasource/remote/api_client.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/pos_repository.dart';
@@ -27,11 +28,14 @@ class GlobalProviders extends StatelessWidget {
         RepositoryProvider<TokenManager>(
           create: (context) => TokenManager(context.read<AppDatabase>()),
         ),
+        RepositoryProvider<UserManager>(
+          create: (context) => UserManager(context.read<AppDatabase>()),
+        ),
         RepositoryProvider<Dio>(
           create: (_) => Dio(
             BaseOptions(
               baseUrl:
-                  dotenv.env['remote_backend'] ?? 'http://localhost:8080/api',
+                  dotenv.env['local_backend'] ?? 'http://localhost:8080/api',
               connectTimeout: const Duration(seconds: 10),
               receiveTimeout: const Duration(seconds: 10),
               headers: {
@@ -59,13 +63,14 @@ class GlobalProviders extends StatelessWidget {
           create: (context) => AuthRepository(
             context.read<ApiClient>(),
             context.read<TokenManager>(),
+            context.read<UserManager>(),
           ),
         ),
         RepositoryProvider<IPosRepository>(
           create: (context) => PosRepository(context.read<ApiClient>()),
         ),
         RepositoryProvider<IUserRepository>(
-          create: (context) => UserRepository(context.read<TokenManager>()),
+          create: (context) => UserRepository(context.read<UserManager>()),
         ),
       ],
       child: MultiBlocProvider(
