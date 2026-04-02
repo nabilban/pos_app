@@ -20,8 +20,8 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
-          if (e.response?.statusCode == 401) {
-            // Token expired — clear local credentials and trigger logout
+          if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+            // Token expired or invalid — clear local credentials and trigger logout
             await _tokenManager.deleteToken();
             onUnauthorized?.call();
           }

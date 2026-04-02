@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/cart_state.dart';
 import '../utils/currency_util.dart';
 import '../cubits/cart_cubit.dart';
-import '../cubits/settings_cubit.dart';
+import '../cubits/auth_cubit.dart';
 import '../data/models/cart_item.dart';
-import '../data/models/store_info.dart';
+import '../data/models/auth_response.dart';
 import '../services/receipt_printer.dart';
 
 Future<void> showReceiptDialog(
@@ -21,8 +21,11 @@ Future<void> showReceiptDialog(
   final subtotal = state.subtotal;
   final discount = state.discount;
 
-  // Read store info from SettingsCubit
-  final storeInfo = context.read<SettingsCubit>().state.storeInfo;
+  // Read user info from AuthCubit
+  final user = context.read<AuthCubit>().state.maybeMap(
+        authenticated: (s) => s.user,
+        orElse: () => null,
+      );
 
   final now = DateTime.now();
   final dateStr =
@@ -40,7 +43,7 @@ Future<void> showReceiptDialog(
       buyerName: buyerName,
       invoiceNumber: invoiceNumber,
       dateStr: dateStr,
-      storeInfo: storeInfo,
+      user: user,
       onClose: () {
         cubit.clear();
       },
@@ -57,7 +60,7 @@ class _ReceiptDialog extends StatelessWidget {
   final String buyerName;
   final String? invoiceNumber;
   final String dateStr;
-  final StoreInfo storeInfo;
+  final User? user;
   final VoidCallback onClose;
 
   const _ReceiptDialog({
@@ -69,12 +72,16 @@ class _ReceiptDialog extends StatelessWidget {
     required this.buyerName,
     this.invoiceNumber,
     required this.dateStr,
-    required this.storeInfo,
+    required this.user,
     required this.onClose,
   });
 
   @override
   Widget build(BuildContext context) {
+    final outletName = user?.outlet?.name ?? '';
+    final outletAddress = user?.outlet?.address ?? '';
+    final outletPhone = user?.outlet?.phone ?? '';
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -126,8 +133,8 @@ class _ReceiptDialog extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        storeInfo.name.trim().isNotEmpty
-                            ? storeInfo.name
+                        outletName.trim().isNotEmpty
+                            ? outletName
                             : 'Transaction Complete',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
@@ -137,11 +144,11 @@ class _ReceiptDialog extends StatelessWidget {
                           letterSpacing: 0.5,
                         ),
                       ),
-                      if (storeInfo.name.trim().isNotEmpty) ...[
-                        if (storeInfo.address.trim().isNotEmpty) ...[
+                      if (outletName.trim().isNotEmpty) ...[
+                        if (outletAddress.trim().isNotEmpty) ...[
                           const SizedBox(height: 6),
                           Text(
-                            storeInfo.address,
+                            outletAddress,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8),
@@ -150,10 +157,10 @@ class _ReceiptDialog extends StatelessWidget {
                             ),
                           ),
                         ],
-                        if (storeInfo.phone.trim().isNotEmpty) ...[
+                        if (outletPhone.trim().isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            'Telp: ${storeInfo.phone}',
+                            'Telp: $outletPhone',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 12,
@@ -199,17 +206,19 @@ class _ReceiptDialog extends StatelessWidget {
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: () {
-                        ReceiptPrinter.printReceipt(
-                          items: items,
-                          total: total,
-                          subtotal: subtotal,
-                          discount: discount,
-                          paymentMethod: paymentMethod,
-                          buyerName: buyerName,
-                          dateStr: dateStr,
-                          storeInfo: storeInfo,
-                          invoiceNumber: invoiceNumber,
-                        );
+                        if (user != null) {
+                          ReceiptPrinter.printReceipt(
+                            items: items,
+                            total: total,
+                            subtotal: subtotal,
+                            discount: discount,
+                            paymentMethod: paymentMethod,
+                            buyerName: buyerName,
+                            dateStr: dateStr,
+                            user: user!,
+                            invoiceNumber: invoiceNumber,
+                          );
+                        }
                       },
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
@@ -401,17 +410,19 @@ class _ReceiptDialog extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        ReceiptPrinter.printReceipt(
-                          items: items,
-                          total: total,
-                          subtotal: subtotal,
-                          discount: discount,
-                          paymentMethod: paymentMethod,
-                          buyerName: buyerName,
-                          dateStr: dateStr,
-                          storeInfo: storeInfo,
-                          invoiceNumber: invoiceNumber,
-                        );
+                        if (user != null) {
+                          ReceiptPrinter.printReceipt(
+                            items: items,
+                            total: total,
+                            subtotal: subtotal,
+                            discount: discount,
+                            paymentMethod: paymentMethod,
+                            buyerName: buyerName,
+                            dateStr: dateStr,
+                            user: user!,
+                            invoiceNumber: invoiceNumber,
+                          );
+                        }
                       },
                       icon: const Icon(Icons.print_rounded, size: 20),
                       label: const Text('Cetak'),

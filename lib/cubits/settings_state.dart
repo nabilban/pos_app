@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../data/models/store_info.dart';
+
 
 part 'settings_state.freezed.dart';
 part 'settings_state.g.dart';
@@ -13,15 +13,6 @@ class SettingsState with _$SettingsState {
     @Default(true) bool cetakStruk,
     @Default(false) bool cetakKasir,
     @Default(true) bool cetakWaktu,
-    @Default(
-      StoreInfo(
-        name: 'FIESTO POS',
-        address: 'Jl. Sudirman No. 123, Surabaya',
-        phone: '0812-3456-7890',
-        cashierName: 'Ahmad',
-      ),
-    )
-    StoreInfo storeInfo,
   }) = _SettingsState;
 
   factory SettingsState.fromJson(Map<String, dynamic> json) =>

@@ -3,7 +3,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../utils/currency_util.dart';
 import '../data/models/cart_item.dart';
-import '../data/models/store_info.dart';
+import '../data/models/auth_response.dart';
 
 class ReceiptPrinter {
   /// Generates a thermal-style PDF receipt and opens the native print dialog.
@@ -15,7 +15,7 @@ class ReceiptPrinter {
     required String paymentMethod,
     required String buyerName,
     required String dateStr,
-    required StoreInfo storeInfo,
+    required User user,
     String? invoiceNumber,
   }) async {
     final doc = pw.Document();
@@ -23,6 +23,10 @@ class ReceiptPrinter {
     // Use a monospace font that resembles a thermal printer
     final ttf = await PdfGoogleFonts.courierPrimeRegular();
     final ttfBold = await PdfGoogleFonts.courierPrimeBold();
+
+    final outletName = user.outlet?.name ?? 'FIESTO POS';
+    final outletAddress = user.outlet?.address ?? '';
+    final outletPhone = user.outlet?.phone ?? '';
 
     // Thermal receipt width is typically 58mm or 80mm.
     // We use A4 with narrow content to preview, then actual printers
@@ -66,7 +70,7 @@ class ReceiptPrinter {
               // ── Restaurant name (bold, centered) ──
               pw.Center(
                 child: pw.Text(
-                  storeInfo.name,
+                  outletName,
                   style: pw.TextStyle(
                     font: ttfBold,
                     fontSize: 16,
@@ -79,7 +83,7 @@ class ReceiptPrinter {
               // ── Address ──
               pw.Center(
                 child: pw.Text(
-                  storeInfo.address,
+                  outletAddress,
                   style: pw.TextStyle(font: ttf, fontSize: 10),
                 ),
               ),
@@ -88,7 +92,7 @@ class ReceiptPrinter {
               // ── Phone ──
               pw.Center(
                 child: pw.Text(
-                  storeInfo.phone,
+                  outletPhone,
                   style: pw.TextStyle(font: ttf, fontSize: 10),
                 ),
               ),
@@ -100,7 +104,7 @@ class ReceiptPrinter {
 
               // ── Itemized list ──
               ...items.map((item) {
-                final subtotal = CurrencyUtil.format(item.subtotal);
+                final subtotalItem = CurrencyUtil.format(item.subtotal);
                 final unitPrice = CurrencyUtil.format(item.subtotal / item.quantity);
                 
                 return pw.Padding(
@@ -118,7 +122,7 @@ class ReceiptPrinter {
                             ),
                           ),
                           pw.Text(
-                            subtotal,
+                            subtotalItem,
                             style: pw.TextStyle(font: ttfBold, fontSize: 10),
                           ),
                         ],
@@ -186,7 +190,7 @@ class ReceiptPrinter {
 
               // ── Cashier name ──
               pw.Text(
-                'Kasir: ${storeInfo.cashierName}',
+                'Kasir: ${user.name}',
                 style: pw.TextStyle(font: ttf, fontSize: 10),
               ),
 

@@ -18,21 +18,12 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
-        },
-        onUpgrade: (m, from, to) async {
-          if (from < 5) {
-            await m.issueCustomQuery('DROP TABLE IF EXISTS tokens');
-            await m.issueCustomQuery('DROP TABLE IF EXISTS users');
-            await m.issueCustomQuery('DROP TABLE IF EXISTS roles');
-            await m.issueCustomQuery('DROP TABLE IF EXISTS outlets');
-            await m.createAll();
-          }
         },
       );
 

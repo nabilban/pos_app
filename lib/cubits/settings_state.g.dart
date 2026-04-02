@@ -14,14 +14,6 @@ _$SettingsStateImpl _$$SettingsStateImplFromJson(Map<String, dynamic> json) =>
       cetakStruk: json['cetakStruk'] as bool? ?? true,
       cetakKasir: json['cetakKasir'] as bool? ?? false,
       cetakWaktu: json['cetakWaktu'] as bool? ?? true,
-      storeInfo: json['storeInfo'] == null
-          ? const StoreInfo(
-              name: 'FIESTO POS',
-              address: 'Jl. Sudirman No. 123, Surabaya',
-              phone: '0812-3456-7890',
-              cashierName: 'Ahmad',
-            )
-          : StoreInfo.fromJson(json['storeInfo'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$SettingsStateImplToJson(_$SettingsStateImpl instance) =>
@@ -32,5 +24,4 @@ Map<String, dynamic> _$$SettingsStateImplToJson(_$SettingsStateImpl instance) =>
       'cetakStruk': instance.cetakStruk,
       'cetakKasir': instance.cetakKasir,
       'cetakWaktu': instance.cetakWaktu,
-      'storeInfo': instance.storeInfo,
     };

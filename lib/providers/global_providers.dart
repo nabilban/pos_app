@@ -55,6 +55,7 @@ class GlobalProviders extends StatelessWidget {
               final navContext = navigatorKey.currentContext;
               if (navContext != null) {
                 navContext.read<AuthCubit>().logout();
+                Navigator.of(navContext).popUntil((route) => route.isFirst);
               }
             },
           ),
@@ -84,7 +85,7 @@ class GlobalProviders extends StatelessWidget {
           ),
           BlocProvider(create: (_) => CartCubit()),
           BlocProvider(
-            create: (context) => SettingsCubit(context.read<IUserRepository>()),
+            create: (context) => SettingsCubit(),
           ),
         ],
         child: child,

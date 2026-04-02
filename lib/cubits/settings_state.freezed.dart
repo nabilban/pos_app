@@ -27,7 +27,6 @@ mixin _$SettingsState {
   bool get cetakStruk => throw _privateConstructorUsedError;
   bool get cetakKasir => throw _privateConstructorUsedError;
   bool get cetakWaktu => throw _privateConstructorUsedError;
-  StoreInfo get storeInfo => throw _privateConstructorUsedError;
 
   /// Serializes this SettingsState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -53,10 +52,7 @@ abstract class $SettingsStateCopyWith<$Res> {
     bool cetakStruk,
     bool cetakKasir,
     bool cetakWaktu,
-    StoreInfo storeInfo,
   });
-
-  $StoreInfoCopyWith<$Res> get storeInfo;
 }
 
 /// @nodoc
@@ -80,7 +76,6 @@ class _$SettingsStateCopyWithImpl<$Res, $Val extends SettingsState>
     Object? cetakStruk = null,
     Object? cetakKasir = null,
     Object? cetakWaktu = null,
-    Object? storeInfo = null,
   }) {
     return _then(
       _value.copyWith(
@@ -108,23 +103,9 @@ class _$SettingsStateCopyWithImpl<$Res, $Val extends SettingsState>
                 ? _value.cetakWaktu
                 : cetakWaktu // ignore: cast_nullable_to_non_nullable
                       as bool,
-            storeInfo: null == storeInfo
-                ? _value.storeInfo
-                : storeInfo // ignore: cast_nullable_to_non_nullable
-                      as StoreInfo,
           )
           as $Val,
     );
-  }
-
-  /// Create a copy of SettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $StoreInfoCopyWith<$Res> get storeInfo {
-    return $StoreInfoCopyWith<$Res>(_value.storeInfo, (value) {
-      return _then(_value.copyWith(storeInfo: value) as $Val);
-    });
   }
 }
 
@@ -144,11 +125,7 @@ abstract class _$$SettingsStateImplCopyWith<$Res>
     bool cetakStruk,
     bool cetakKasir,
     bool cetakWaktu,
-    StoreInfo storeInfo,
   });
-
-  @override
-  $StoreInfoCopyWith<$Res> get storeInfo;
 }
 
 /// @nodoc
@@ -171,7 +148,6 @@ class __$$SettingsStateImplCopyWithImpl<$Res>
     Object? cetakStruk = null,
     Object? cetakKasir = null,
     Object? cetakWaktu = null,
-    Object? storeInfo = null,
   }) {
     return _then(
       _$SettingsStateImpl(
@@ -199,10 +175,6 @@ class __$$SettingsStateImplCopyWithImpl<$Res>
             ? _value.cetakWaktu
             : cetakWaktu // ignore: cast_nullable_to_non_nullable
                   as bool,
-        storeInfo: null == storeInfo
-            ? _value.storeInfo
-            : storeInfo // ignore: cast_nullable_to_non_nullable
-                  as StoreInfo,
       ),
     );
   }
@@ -218,12 +190,6 @@ class _$SettingsStateImpl implements _SettingsState {
     this.cetakStruk = true,
     this.cetakKasir = false,
     this.cetakWaktu = true,
-    this.storeInfo = const StoreInfo(
-      name: 'FIESTO POS',
-      address: 'Jl. Sudirman No. 123, Surabaya',
-      phone: '0812-3456-7890',
-      cashierName: 'Ahmad',
-    ),
   });
 
   factory _$SettingsStateImpl.fromJson(Map<String, dynamic> json) =>
@@ -247,13 +213,10 @@ class _$SettingsStateImpl implements _SettingsState {
   @override
   @JsonKey()
   final bool cetakWaktu;
-  @override
-  @JsonKey()
-  final StoreInfo storeInfo;
 
   @override
   String toString() {
-    return 'SettingsState(diskon10: $diskon10, cashback50: $cashback50, gratisMinuman: $gratisMinuman, cetakStruk: $cetakStruk, cetakKasir: $cetakKasir, cetakWaktu: $cetakWaktu, storeInfo: $storeInfo)';
+    return 'SettingsState(diskon10: $diskon10, cashback50: $cashback50, gratisMinuman: $gratisMinuman, cetakStruk: $cetakStruk, cetakKasir: $cetakKasir, cetakWaktu: $cetakWaktu)';
   }
 
   @override
@@ -272,9 +235,7 @@ class _$SettingsStateImpl implements _SettingsState {
             (identical(other.cetakKasir, cetakKasir) ||
                 other.cetakKasir == cetakKasir) &&
             (identical(other.cetakWaktu, cetakWaktu) ||
-                other.cetakWaktu == cetakWaktu) &&
-            (identical(other.storeInfo, storeInfo) ||
-                other.storeInfo == storeInfo));
+                other.cetakWaktu == cetakWaktu));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -287,7 +248,6 @@ class _$SettingsStateImpl implements _SettingsState {
     cetakStruk,
     cetakKasir,
     cetakWaktu,
-    storeInfo,
   );
 
   /// Create a copy of SettingsState
@@ -312,7 +272,6 @@ abstract class _SettingsState implements SettingsState {
     final bool cetakStruk,
     final bool cetakKasir,
     final bool cetakWaktu,
-    final StoreInfo storeInfo,
   }) = _$SettingsStateImpl;
 
   factory _SettingsState.fromJson(Map<String, dynamic> json) =
@@ -330,8 +289,6 @@ abstract class _SettingsState implements SettingsState {
   bool get cetakKasir;
   @override
   bool get cetakWaktu;
-  @override
-  StoreInfo get storeInfo;
 
   /// Create a copy of SettingsState
   /// with the given fields replaced by the non-null parameter values.
