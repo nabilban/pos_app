@@ -10,10 +10,12 @@ import '../entity/token_entity.dart';
 import '../entity/user_entity.dart';
 import '../entity/role_entity.dart';
 import '../entity/outlet_entity.dart';
+import '../entity/attendance_entity.dart';
+import '../entity/shift_entity.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Tokens, Users, Roles, Outlets])
+@DriftDatabase(tables: [Tokens, Users, Roles, Outlets, Attendances, Shifts])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -82,7 +84,47 @@ class AppDatabase extends _$AppDatabase {
       await delete(users).go();
       await delete(roles).go();
       await delete(outlets).go();
+      await delete(attendances).go();
+      await delete(shifts).go();
     });
+  }
+
+  // --- ATTENDANCE OPERATIONS ---
+
+  Future<Attendance?> getTodayAttendance(int userId) async {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    return await (select(attendances)
+          ..where((t) => t.userId.equals(userId))
+          ..where((t) => t.checkInTime.isBiggerOrEqualValue(startOfDay))
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  Future<int> saveAttendance(AttendancesCompanion entry) async {
+    return await into(attendances).insert(entry);
+  }
+
+  Future<void> updateAttendance(int id, AttendancesCompanion entry) async {
+    await (update(attendances)..where((t) => t.id.equals(id))).write(entry);
+  }
+
+  // --- SHIFT OPERATIONS ---
+
+  Future<Shift?> getActiveShift(int userId) async {
+    return await (select(shifts)
+          ..where((t) => t.userId.equals(userId))
+          ..where((t) => t.status.equals('open'))
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  Future<int> saveShift(ShiftsCompanion entry) async {
+    return await into(shifts).insert(entry);
+  }
+
+  Future<void> updateShift(int id, ShiftsCompanion entry) async {
+    await (update(shifts)..where((t) => t.id.equals(id))).write(entry);
   }
 }
 

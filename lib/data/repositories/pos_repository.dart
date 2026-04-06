@@ -132,7 +132,7 @@ class PosRepository implements IPosRepository {
   Future<String> createSale(SaleRequest request) async {
     try {
       final response = await _apiClient.authenticatedDio.post(
-        '/sales',
+        '/sales/daily',
         data: request.toJson(),
       );
       return response.data['data']['invoice_number'];
@@ -151,7 +151,9 @@ class PosRepository implements IPosRepository {
   @override
   Future<List<PriceCategory>> getPriceCategories() async {
     try {
-      final response = await _apiClient.authenticatedDio.get('/price-categories');
+      final response = await _apiClient.authenticatedDio.get(
+        '/price-categories',
+      );
       final List<dynamic> data = response.data['data'] ?? [];
       return data.map((json) => PriceCategory.fromJson(json)).toList();
     } catch (e) {
@@ -160,7 +162,9 @@ class PosRepository implements IPosRepository {
   }
 
   @override
-  Future<List<PriceCategoryProduct>> getPriceCategoryProducts(int categoryId) async {
+  Future<List<PriceCategoryProduct>> getPriceCategoryProducts(
+    int categoryId,
+  ) async {
     try {
       final response = await _apiClient.authenticatedDio.get(
         '/price-categories/$categoryId/products',

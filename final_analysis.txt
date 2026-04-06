@@ -1,0 +1,5 @@
+Analyzing pos_app...                                            
+
+warning • Unused import: 'package:dio/dio.dart' • lib/data/repositories/shift_repository.dart:1:8 • unused_import
+
+1 issue found. (ran in 2.3s)

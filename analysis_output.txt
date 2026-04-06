@@ -1,0 +1,30 @@
+Analyzing pos_app...                                            
+
+  error • Undefined class 'Attendance' • lib/cubits/attendance_state.dart:10:5 • undefined_class
+  error • Undefined class 'Attendance' • lib/cubits/attendance_state.freezed.dart:21:3 • undefined_class
+  error • Undefined class 'Attendance' • lib/cubits/attendance_state.freezed.dart:38:30 • undefined_class
+  error • The name 'Attendance' isn't a type, so it can't be used in an 'as' expression • lib/cubits/attendance_state.freezed.dart:69:26 • cast_to_non_type
+  error • Undefined class 'Attendance' • lib/cubits/attendance_state.freezed.dart:89:30 • undefined_class
+  error • The name 'Attendance' isn't a type, so it can't be used in an 'as' expression • lib/cubits/attendance_state.freezed.dart:119:22 • cast_to_non_type
+  error • Undefined class 'Attendance' • lib/cubits/attendance_state.freezed.dart:142:9 • undefined_class
+  error • Undefined class 'Attendance' • lib/cubits/attendance_state.freezed.dart:188:11 • undefined_class
+  error • Undefined class 'Attendance' • lib/cubits/attendance_state.freezed.dart:195:3 • undefined_class
+  error • Undefined class 'Shift' • lib/cubits/shift_state.dart:10:5 • undefined_class
+  error • Undefined class 'Shift' • lib/cubits/shift_state.freezed.dart:21:3 • undefined_class
+  error • Undefined class 'Shift' • lib/cubits/shift_state.freezed.dart:38:30 • undefined_class
+  error • The name 'Shift' isn't a type, so it can't be used in an 'as' expression • lib/cubits/shift_state.freezed.dart:69:26 • cast_to_non_type
+  error • Undefined class 'Shift' • lib/cubits/shift_state.freezed.dart:89:30 • undefined_class
+  error • The name 'Shift' isn't a type, so it can't be used in an 'as' expression • lib/cubits/shift_state.freezed.dart:119:22 • cast_to_non_type
+  error • Undefined class 'Shift' • lib/cubits/shift_state.freezed.dart:142:9 • undefined_class
+  error • Undefined class 'Shift' • lib/cubits/shift_state.freezed.dart:185:11 • undefined_class
+  error • Undefined class 'Shift' • lib/cubits/shift_state.freezed.dart:192:3 • undefined_class
+  error • The name 'AttendancesCompanion' isn't a class • lib/data/repositories/attendance_repository.dart:79:44 • creation_with_non_type
+  error • The name 'AttendancesCompanion' isn't a class • lib/data/repositories/attendance_repository.dart:103:54 • creation_with_non_type
+  error • The name 'ShiftsCompanion' isn't a class • lib/data/repositories/shift_repository.dart:84:39 • creation_with_non_type
+  error • The name 'ShiftsCompanion' isn't a class • lib/data/repositories/shift_repository.dart:117:39 • creation_with_non_type
+warning • Unused import: 'cubits/attendance_cubit.dart' • lib/main.dart:9:8 • unused_import
+warning • Unused import: 'cubits/shift_cubit.dart' • lib/main.dart:10:8 • unused_import
+warning • Unused import: 'data/repositories/attendance_repository.dart' • lib/main.dart:13:8 • unused_import
+warning • Unused import: 'data/repositories/shift_repository.dart' • lib/main.dart:14:8 • unused_import
+
+26 issues found. (ran in 2.3s)

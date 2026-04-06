@@ -15,6 +15,10 @@ import '../data/repositories/auth_repository.dart';
 import '../data/repositories/pos_repository.dart';
 import '../data/repositories/sales_repository.dart';
 import '../data/repositories/user_repository.dart';
+import '../data/repositories/attendance_repository.dart';
+import '../data/repositories/shift_repository.dart';
+import '../cubits/attendance_cubit.dart';
+import '../cubits/shift_cubit.dart';
 import '../main.dart' show navigatorKey;
 
 class GlobalProviders extends StatelessWidget {
@@ -78,6 +82,18 @@ class GlobalProviders extends StatelessWidget {
         RepositoryProvider<ISalesRepository>(
           create: (context) => SalesRepository(context.read<ApiClient>()),
         ),
+        RepositoryProvider<IAttendanceRepository>(
+          create: (context) => AttendanceRepository(
+            context.read<ApiClient>(),
+            context.read<AppDatabase>(),
+          ),
+        ),
+        RepositoryProvider<IShiftRepository>(
+          create: (context) => ShiftRepository(
+            context.read<ApiClient>(),
+            context.read<AppDatabase>(),
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -91,6 +107,16 @@ class GlobalProviders extends StatelessWidget {
           BlocProvider(create: (_) => CartCubit()),
           BlocProvider(
             create: (context) => HistoryCubit(context.read<ISalesRepository>()),
+          ),
+          BlocProvider(
+            create: (context) => AttendanceCubit(
+              context.read<IAttendanceRepository>(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => ShiftCubit(
+              context.read<IShiftRepository>(),
+            ),
           ),
           BlocProvider(create: (context) => SettingsCubit()),
         ],
