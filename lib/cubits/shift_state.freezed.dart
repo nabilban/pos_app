@@ -23,8 +23,6 @@ mixin _$ShiftState {
   int get selectedTab =>
       throw _privateConstructorUsedError; // 0: Shift, 1: Absensi
   String? get error => throw _privateConstructorUsedError;
-  ShiftSummaryModel? get selectedSummary => throw _privateConstructorUsedError;
-  bool get isSummaryLoading => throw _privateConstructorUsedError;
 
   /// Create a copy of ShiftState
   /// with the given fields replaced by the non-null parameter values.
@@ -46,12 +44,9 @@ abstract class $ShiftStateCopyWith<$Res> {
     List<ShiftModel> history,
     int selectedTab,
     String? error,
-    ShiftSummaryModel? selectedSummary,
-    bool isSummaryLoading,
   });
 
   $ShiftModelCopyWith<$Res>? get activeShift;
-  $ShiftSummaryModelCopyWith<$Res>? get selectedSummary;
 }
 
 /// @nodoc
@@ -74,8 +69,6 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
     Object? history = null,
     Object? selectedTab = null,
     Object? error = freezed,
-    Object? selectedSummary = freezed,
-    Object? isSummaryLoading = null,
   }) {
     return _then(
       _value.copyWith(
@@ -99,14 +92,6 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
                       as String?,
-            selectedSummary: freezed == selectedSummary
-                ? _value.selectedSummary
-                : selectedSummary // ignore: cast_nullable_to_non_nullable
-                      as ShiftSummaryModel?,
-            isSummaryLoading: null == isSummaryLoading
-                ? _value.isSummaryLoading
-                : isSummaryLoading // ignore: cast_nullable_to_non_nullable
-                      as bool,
           )
           as $Val,
     );
@@ -123,20 +108,6 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
 
     return $ShiftModelCopyWith<$Res>(_value.activeShift!, (value) {
       return _then(_value.copyWith(activeShift: value) as $Val);
-    });
-  }
-
-  /// Create a copy of ShiftState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ShiftSummaryModelCopyWith<$Res>? get selectedSummary {
-    if (_value.selectedSummary == null) {
-      return null;
-    }
-
-    return $ShiftSummaryModelCopyWith<$Res>(_value.selectedSummary!, (value) {
-      return _then(_value.copyWith(selectedSummary: value) as $Val);
     });
   }
 }
@@ -156,14 +127,10 @@ abstract class _$$ShiftStateImplCopyWith<$Res>
     List<ShiftModel> history,
     int selectedTab,
     String? error,
-    ShiftSummaryModel? selectedSummary,
-    bool isSummaryLoading,
   });
 
   @override
   $ShiftModelCopyWith<$Res>? get activeShift;
-  @override
-  $ShiftSummaryModelCopyWith<$Res>? get selectedSummary;
 }
 
 /// @nodoc
@@ -185,8 +152,6 @@ class __$$ShiftStateImplCopyWithImpl<$Res>
     Object? history = null,
     Object? selectedTab = null,
     Object? error = freezed,
-    Object? selectedSummary = freezed,
-    Object? isSummaryLoading = null,
   }) {
     return _then(
       _$ShiftStateImpl(
@@ -210,14 +175,6 @@ class __$$ShiftStateImplCopyWithImpl<$Res>
             ? _value.error
             : error // ignore: cast_nullable_to_non_nullable
                   as String?,
-        selectedSummary: freezed == selectedSummary
-            ? _value.selectedSummary
-            : selectedSummary // ignore: cast_nullable_to_non_nullable
-                  as ShiftSummaryModel?,
-        isSummaryLoading: null == isSummaryLoading
-            ? _value.isSummaryLoading
-            : isSummaryLoading // ignore: cast_nullable_to_non_nullable
-                  as bool,
       ),
     );
   }
@@ -232,8 +189,6 @@ class _$ShiftStateImpl implements _ShiftState {
     final List<ShiftModel> history = const [],
     this.selectedTab = 0,
     this.error,
-    this.selectedSummary,
-    this.isSummaryLoading = false,
   }) : _history = history;
 
   @override
@@ -256,15 +211,10 @@ class _$ShiftStateImpl implements _ShiftState {
   // 0: Shift, 1: Absensi
   @override
   final String? error;
-  @override
-  final ShiftSummaryModel? selectedSummary;
-  @override
-  @JsonKey()
-  final bool isSummaryLoading;
 
   @override
   String toString() {
-    return 'ShiftState(isLoading: $isLoading, activeShift: $activeShift, history: $history, selectedTab: $selectedTab, error: $error, selectedSummary: $selectedSummary, isSummaryLoading: $isSummaryLoading)';
+    return 'ShiftState(isLoading: $isLoading, activeShift: $activeShift, history: $history, selectedTab: $selectedTab, error: $error)';
   }
 
   @override
@@ -279,11 +229,7 @@ class _$ShiftStateImpl implements _ShiftState {
             const DeepCollectionEquality().equals(other._history, _history) &&
             (identical(other.selectedTab, selectedTab) ||
                 other.selectedTab == selectedTab) &&
-            (identical(other.error, error) || other.error == error) &&
-            (identical(other.selectedSummary, selectedSummary) ||
-                other.selectedSummary == selectedSummary) &&
-            (identical(other.isSummaryLoading, isSummaryLoading) ||
-                other.isSummaryLoading == isSummaryLoading));
+            (identical(other.error, error) || other.error == error));
   }
 
   @override
@@ -294,8 +240,6 @@ class _$ShiftStateImpl implements _ShiftState {
     const DeepCollectionEquality().hash(_history),
     selectedTab,
     error,
-    selectedSummary,
-    isSummaryLoading,
   );
 
   /// Create a copy of ShiftState
@@ -314,8 +258,6 @@ abstract class _ShiftState implements ShiftState {
     final List<ShiftModel> history,
     final int selectedTab,
     final String? error,
-    final ShiftSummaryModel? selectedSummary,
-    final bool isSummaryLoading,
   }) = _$ShiftStateImpl;
 
   @override
@@ -328,10 +270,6 @@ abstract class _ShiftState implements ShiftState {
   int get selectedTab; // 0: Shift, 1: Absensi
   @override
   String? get error;
-  @override
-  ShiftSummaryModel? get selectedSummary;
-  @override
-  bool get isSummaryLoading;
 
   /// Create a copy of ShiftState
   /// with the given fields replaced by the non-null parameter values.

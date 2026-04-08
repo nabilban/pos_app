@@ -26,6 +26,7 @@ class _ShiftScreenState extends State<ShiftScreen>
   DateTime _now = DateTime.now();
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  final ValueNotifier<bool> _isSyncing = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -52,6 +53,7 @@ class _ShiftScreenState extends State<ShiftScreen>
   void dispose() {
     _timer?.cancel();
     _pulseController.dispose();
+    _isSyncing.dispose();
     super.dispose();
   }
 
@@ -180,44 +182,38 @@ class _ShiftScreenState extends State<ShiftScreen>
           totalTransactions = shiftSales.length;
         }
 
-        return RefreshIndicator(
-          onRefresh: () async {
-            final authState = context.read<AuthCubit>().state;
-            authState.maybeWhen(
-              authenticated: (_, user) {
-                context.read<ShiftCubit>().checkStatus(user.id);
-                context.read<HistoryCubit>().loadSales();
-              },
-              orElse: () {},
-            );
-          },
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              if (state.activeShift != null)
-                _buildActiveShiftCard(
-                  state.activeShift!,
-                  totalSales: totalSales,
-                  totalTransactions: totalTransactions,
-                )
-              else
-                _buildNoActiveShiftCard(),
-              const SizedBox(height: 32),
-              const Text(
-                'Riwayat Shift',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+        return ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            if (state.activeShift != null)
+              ValueListenableBuilder<bool>(
+                valueListenable: _isSyncing,
+                builder: (context, syncing, _) {
+                  return _buildActiveShiftCard(
+                    state.activeShift!,
+                    totalSales: totalSales,
+                    totalTransactions: totalTransactions,
+                    syncing: syncing,
+                  );
+                },
+              )
+            else
+              _buildNoActiveShiftCard(),
+            const SizedBox(height: 32),
+            const Text(
+              'Riwayat Shift',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
-              const SizedBox(height: 16),
-              ...state.history
-                  .where((s) => s.id != state.activeShift?.id)
-                  .map((shift) => _buildHistoryItem(shift)),
-              const SizedBox(height: 48), // Bottom padding
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
+            ...state.history
+                .where((s) => s.id != state.activeShift?.id)
+                .map((shift) => _buildHistoryItem(shift)),
+            const SizedBox(height: 48), // Bottom padding
+          ],
         );
       },
     );
@@ -227,6 +223,7 @@ class _ShiftScreenState extends State<ShiftScreen>
     ShiftModel shift, {
     required double totalSales,
     required int totalTransactions,
+    bool syncing = false,
   }) {
     final userName = context.read<AuthCubit>().state.maybeWhen(
       authenticated: (_, user) => user.name,
@@ -279,61 +276,103 @@ class _ShiftScreenState extends State<ShiftScreen>
                     'Durasi',
                     style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
-                  Text(
-                    _formatDuration(shift.startTime),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  if (syncing)
+                    _buildSkeletonText(width: 60, height: 20)
+                  else
+                    Text(
+                      _formatDuration(shift.startTime),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            userName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (syncing)
+                _buildSkeletonText(width: 150, height: 30)
+              else
+                Text(
+                  userName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              _buildAnimatedRefreshButton(),
+            ],
           ),
           const SizedBox(height: 4),
           Text(
             'Mulai: ${DateFormat('dd MMM yyyy, HH.mm').format(shift.startTime)}',
             style: const TextStyle(color: Colors.white70, fontSize: 13),
           ),
-          if (shift.notes != null && shift.notes!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.edit_note, color: Colors.white, size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  shift.notes!,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                ),
-              ],
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () => _showUpdateNotesDialog(shift),
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.edit_note,
+                    color: Colors.white70,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      (shift.notes != null && shift.notes!.isNotEmpty)
+                          ? shift.notes!
+                          : 'Tambah keterangan shift...',
+                      style: TextStyle(
+                        color: (shift.notes != null && shift.notes!.isNotEmpty)
+                            ? Colors.white
+                            : Colors.white60,
+                        fontSize: 14,
+                        fontStyle:
+                            (shift.notes != null && shift.notes!.isNotEmpty)
+                                ? FontStyle.normal
+                                : FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Colors.white38,
+                    size: 16,
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
               _buildStatHighlight(
                 label: 'Modal Awal',
                 value: CurrencyUtil.format(shift.cashIn),
+                syncing: syncing,
               ),
               const SizedBox(width: 12),
               _buildStatHighlight(
                 label: 'Penjualan',
                 value: CurrencyUtil.format(totalSales),
+                syncing: syncing,
               ),
               const SizedBox(width: 12),
               _buildStatHighlight(
                 label: 'Transaksi',
                 value: '${totalTransactions}x',
+                syncing: syncing,
               ),
             ],
           ),
@@ -409,7 +448,11 @@ class _ShiftScreenState extends State<ShiftScreen>
     );
   }
 
-  Widget _buildStatHighlight({required String label, required String value}) {
+  Widget _buildStatHighlight({
+    required String label,
+    required String value,
+    bool syncing = false,
+  }) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
@@ -425,19 +468,118 @@ class _ShiftScreenState extends State<ShiftScreen>
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            FittedBox(
-              child: Text(
-                value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+            if (syncing)
+              _buildSkeletonText(width: double.infinity, height: 16)
+            else
+              FittedBox(
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSkeletonText({required double width, required double height}) {
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _pulseAnimation.value,
+          child: Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(height / 4),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAnimatedRefreshButton() {
+    final isPressed = ValueNotifier<bool>(false);
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: _isSyncing,
+      builder: (context, syncing, _) {
+        return ValueListenableBuilder<bool>(
+          valueListenable: isPressed,
+          builder: (context, pressed, _) {
+            final double rotation = syncing ? 2 : 0; // 2 turns = 720 degrees
+
+            return GestureDetector(
+              onTapDown: syncing ? null : (_) => isPressed.value = true,
+              onTapUp: syncing ? null : (_) => isPressed.value = false,
+              onTapCancel: syncing ? null : () => isPressed.value = false,
+              onTap: syncing
+                  ? null
+                  : () async {
+                      _isSyncing.value = true;
+                      final startTime = DateTime.now();
+
+                      final authState = context.read<AuthCubit>().state;
+                      await authState.maybeWhen(
+                        authenticated: (_, user) async {
+                          await Future.wait([
+                            context.read<ShiftCubit>().checkStatus(user.id),
+                            context.read<HistoryCubit>().loadSales(),
+                          ]);
+                        },
+                        orElse: () async {},
+                      );
+
+                      // Ensure at least 800ms of animation
+                      final elapsed = DateTime.now().difference(startTime);
+                      if (elapsed < const Duration(milliseconds: 800)) {
+                        await Future.delayed(
+                          Duration(milliseconds: 800 - elapsed.inMilliseconds),
+                        );
+                      }
+
+                      if (mounted) _isSyncing.value = false;
+                    },
+              child: AnimatedScale(
+                scale: pressed ? 0.92 : 1.0,
+                duration: const Duration(milliseconds: 100),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: AnimatedRotation(
+                    turns: rotation,
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeInOutBack,
+                    child: Icon(
+                      Icons.sync,
+                      size: 20,
+                      color: syncing ? AppColors.textMuted : AppColors.primary,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -454,130 +596,123 @@ class _ShiftScreenState extends State<ShiftScreen>
         ? '${duration.inHours}j ${duration.inMinutes % 60}m'
         : '--';
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _showShiftSummaryDialog(shift.id!),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                userName,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                CurrencyUtil.format(shift.cashOut ?? 0),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    userName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    CurrencyUtil.format(shift.cashOut ?? 0),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${DateFormat('dd MMM yyyy, HH.mm').format(shift.startTime)} → ${shift.endTime != null ? DateFormat('HH.mm').format(shift.endTime!) : '--'}',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                    ),
-                  ),
-                  if (shift.cashOut != null)
-                    Text(
-                      shift.cashOut! >= shift.cashIn
-                          ? '+${CurrencyUtil.format(shift.cashOut! - shift.cashIn)}'
-                          : '-${CurrencyUtil.format(shift.cashIn - shift.cashOut!)}',
-                      style: TextStyle(
-                        color: shift.cashOut! >= shift.cashIn
-                            ? AppColors.success
-                            : AppColors.error,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 4),
               Text(
-                'Durasi: $durStr',
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                '${DateFormat('dd MMM yyyy, HH.mm').format(shift.startTime)} → ${shift.endTime != null ? DateFormat('HH.mm').format(shift.endTime!) : '--'}',
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
               ),
-              if (shift.notes != null && shift.notes!.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Row(
+              if (shift.cashOut != null)
+                Text(
+                  shift.cashOut! >= shift.cashIn
+                      ? '+${CurrencyUtil.format(shift.cashOut! - shift.cashIn)}'
+                      : '-${CurrencyUtil.format(shift.cashIn - shift.cashOut!)}',
+                  style: TextStyle(
+                    color: shift.cashOut! >= shift.cashIn
+                        ? AppColors.success
+                        : AppColors.error,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Durasi: $durStr',
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+          ),
+          if (shift.notes != null && shift.notes!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.edit_note,
+                  color: AppColors.textMuted,
+                  size: 16,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '"${shift.notes}"',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          Align(
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: () => _showUpdateNotesDialog(shift),
+              borderRadius: BorderRadius.circular(8),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.edit_note,
-                      color: AppColors.textMuted,
-                      size: 16,
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 14,
+                      color: AppColors.textSecondary,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
-                      '"${shift.notes}"',
-                      style: const TextStyle(
+                      'Edit keterangan',
+                      style: TextStyle(
                         color: AppColors.textSecondary,
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic,
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
-              ],
-              Align(
-                alignment: Alignment.centerRight,
-                child: InkWell(
-                  onTap: () => _showUpdateNotesDialog(shift),
-                  borderRadius: BorderRadius.circular(8),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.edit_outlined,
-                          size: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Edit keterangan',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -739,197 +874,16 @@ class _ShiftScreenState extends State<ShiftScreen>
     );
   }
 
-  void _showShiftSummaryDialog(int id) {
-    context.read<ShiftCubit>().loadShiftSummary(id);
-
-    showDialog(
-      context: context,
-      builder: (context) => BlocBuilder<ShiftCubit, ShiftState>(
-        builder: (context, state) {
-          if (state.isSummaryLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final summary = state.selectedSummary;
-          if (summary == null) return const SizedBox.shrink();
-
-          final shift = summary.shift;
-          final duration = shift.endTime != null
-              ? shift.endTime!.difference(shift.startTime)
-              : null;
-          final durStr = duration != null
-              ? '${duration.inHours}j ${duration.inMinutes % 60}m'
-              : '--';
-
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Ringkasan Shift',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildSummaryStat(
-                                'Penjualan', CurrencyUtil.format(summary.totalSales)),
-                            _buildSummaryStat(
-                                'Transaksi', '${summary.totalTrx}x'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildDetailRow(
-                            'Waktu Mulai',
-                            DateFormat('dd MMM yyyy, HH.mm')
-                                .format(shift.startTime)),
-                        _buildDetailRow(
-                            'Waktu Selesai',
-                            shift.endTime != null
-                                ? DateFormat('dd MMM yyyy, HH.mm')
-                                    .format(shift.endTime!)
-                                : '--'),
-                        _buildDetailRow('Durasi', durStr),
-                        const Divider(height: 32),
-                        _buildDetailRow(
-                            'Modal Awal', CurrencyUtil.format(shift.cashIn)),
-                        _buildDetailRow(
-                            'Kas Akhir', CurrencyUtil.format(shift.cashOut ?? 0)),
-                        _buildDetailRow(
-                            'Selisih',
-                            CurrencyUtil.format(
-                                (shift.cashOut ?? 0) - shift.cashIn)),
-                        if (shift.notes != null && shift.notes!.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Catatan:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            shift.notes!,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 32),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              context.read<ShiftCubit>().clearSummary();
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text('Tutup'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildSummaryStat(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showUpdateNotesDialog(ShiftModel shift) {
     if (shift.id == null) return;
-    final TextEditingController notesController =
-        TextEditingController(text: shift.notes);
+    final TextEditingController notesController = TextEditingController(
+      text: shift.notes,
+    );
 
     final userName = context.read<AuthCubit>().state.maybeWhen(
-          authenticated: (_, user) => user.name,
-          orElse: () => 'Kasir',
-        );
+      authenticated: (_, user) => user.name,
+      orElse: () => 'Kasir',
+    );
 
     final timeStr = DateFormat('dd MMM yyyy, HH.mm').format(shift.startTime);
 
@@ -955,10 +909,7 @@ class _ShiftScreenState extends State<ShiftScreen>
               const SizedBox(height: 4),
               Text(
                 '$userName · $timeStr',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF6B7280),
-                ),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
               ),
               const SizedBox(height: 24),
               TextField(
@@ -968,13 +919,17 @@ class _ShiftScreenState extends State<ShiftScreen>
                   contentPadding: const EdgeInsets.all(16),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide:
-                        const BorderSide(color: Color(0xFF10B981), width: 1.5),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF10B981),
+                      width: 1.5,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide:
-                        const BorderSide(color: Color(0xFF10B981), width: 2),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF10B981),
+                      width: 2,
+                    ),
                   ),
                 ),
               ),
@@ -989,8 +944,11 @@ class _ShiftScreenState extends State<ShiftScreen>
                 child: const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded,
-                        color: Color(0xFFD97706), size: 20),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Color(0xFFD97706),
+                      size: 20,
+                    ),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -1030,9 +988,10 @@ class _ShiftScreenState extends State<ShiftScreen>
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        context
-                            .read<ShiftCubit>()
-                            .updateNotes(shift.id!, notesController.text);
+                        context.read<ShiftCubit>().updateNotes(
+                          shift.id!,
+                          notesController.text,
+                        );
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -1046,9 +1005,7 @@ class _ShiftScreenState extends State<ShiftScreen>
                       ),
                       child: const Text(
                         'Simpan',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

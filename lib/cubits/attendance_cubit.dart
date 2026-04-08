@@ -9,7 +9,13 @@ class AttendanceCubit extends Cubit<AttendanceState> {
 
   Future<void> checkStatus(int userId) async {
     if (state.isLoading) return;
-    emit(state.copyWith(isLoading: true, error: null));
+    
+    // Only show global loading if we have no attendance data yet
+    final showLoading = state.todayAttendance == null;
+    if (showLoading) {
+      emit(state.copyWith(isLoading: true, error: null));
+    }
+
     try {
       final attendance = await _repository.getTodayAttendance(userId);
       emit(state.copyWith(isLoading: false, todayAttendance: attendance));

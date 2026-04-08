@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import '../datasource/remote/api_client.dart';
 import '../database/app_database.dart' as db;
 import '../models/shift.dart';
-import '../models/shift_summary.dart';
 
 abstract class IShiftRepository {
   Future<ShiftModel?> getActiveShift(int userId);
@@ -10,7 +9,6 @@ abstract class IShiftRepository {
   Future<void> closeShift(int id, double finalCash, String? notes);
   Future<List<ShiftModel>> getHistory();
   Future<void> updateShiftNotes(int id, String notes);
-  Future<ShiftSummaryModel> getShiftSummary(int id);
 }
 
 class ShiftRepository implements IShiftRepository {
@@ -81,16 +79,6 @@ class ShiftRepository implements IShiftRepository {
         '/shifts/$id/notes',
         data: {'notes': notes},
       );
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<ShiftSummaryModel> getShiftSummary(int id) async {
-    try {
-      final response = await _apiClient.authenticatedDio.get('/shifts/$id/summary');
-      return ShiftSummaryModel.fromJson(response.data['data']);
     } catch (e) {
       rethrow;
     }

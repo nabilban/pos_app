@@ -9,7 +9,13 @@ class ShiftCubit extends Cubit<ShiftState> {
 
   Future<void> checkStatus(int userId) async {
     if (state.isLoading) return;
-    emit(state.copyWith(isLoading: true, error: null));
+    
+    // Only show global loading if we have no active shift yet
+    final showLoading = state.activeShift == null;
+    if (showLoading) {
+      emit(state.copyWith(isLoading: true, error: null));
+    }
+    
     try {
       final shift = await _repository.getActiveShift(userId);
       final history = await _repository.getHistory();
@@ -69,19 +75,5 @@ class ShiftCubit extends Cubit<ShiftState> {
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
-  }
-
-  Future<void> loadShiftSummary(int id) async {
-    emit(state.copyWith(isSummaryLoading: true, selectedSummary: null));
-    try {
-      final summary = await _repository.getShiftSummary(id);
-      emit(state.copyWith(isSummaryLoading: false, selectedSummary: summary));
-    } catch (e) {
-      emit(state.copyWith(isSummaryLoading: false, error: e.toString()));
-    }
-  }
-
-  void clearSummary() {
-    emit(state.copyWith(selectedSummary: null));
   }
 }

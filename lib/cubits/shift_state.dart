@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../data/models/shift.dart';
-import '../data/models/shift_summary.dart';
 
 part 'shift_state.freezed.dart';
 
@@ -12,7 +11,5 @@ class ShiftState with _$ShiftState {
     @Default([]) List<ShiftModel> history,
     @Default(0) int selectedTab, // 0: Shift, 1: Absensi
     String? error,
-    ShiftSummaryModel? selectedSummary,
-    @Default(false) bool isSummaryLoading,
   }) = _ShiftState;
 }

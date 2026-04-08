@@ -40,8 +40,12 @@ class _StartupFlowWrapperState extends State<StartupFlowWrapper> {
       builder: (context, shiftState) {
         return BlocBuilder<AttendanceCubit, AttendanceState>(
           builder: (context, attendanceState) {
-            // 1. Loading State
-            if (shiftState.isLoading || attendanceState.isLoading) {
+            // 1. Loading State (Only if no data exists yet)
+            final isInitialLoading = 
+                (shiftState.isLoading && shiftState.activeShift == null) || 
+                (attendanceState.isLoading && attendanceState.todayAttendance == null);
+
+            if (isInitialLoading) {
               return const Scaffold(
                 body: Center(
                   child: Column(
