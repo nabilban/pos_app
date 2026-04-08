@@ -236,7 +236,7 @@ class _ShiftScreenState extends State<ShiftScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -457,7 +457,7 @@ class _ShiftScreenState extends State<ShiftScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -497,7 +497,7 @@ class _ShiftScreenState extends State<ShiftScreen>
             width: width,
             height: height,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(height / 4),
             ),
           ),
@@ -558,7 +558,7 @@ class _ShiftScreenState extends State<ShiftScreen>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 6,
                         offset: const Offset(0, 3),
                       ),
@@ -589,9 +589,7 @@ class _ShiftScreenState extends State<ShiftScreen>
       orElse: () => 'Kasir',
     );
 
-    final duration = shift.endTime != null
-        ? shift.endTime!.difference(shift.startTime)
-        : null;
+    final duration = shift.endTime?.difference(shift.startTime);
     final durStr = duration != null
         ? '${duration.inHours}j ${duration.inMinutes % 60}m'
         : '--';
@@ -604,7 +602,7 @@ class _ShiftScreenState extends State<ShiftScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -816,63 +814,6 @@ class _ShiftScreenState extends State<ShiftScreen>
     );
   }
 
-  void _showCloseShiftDialog(int shiftId) {
-    final TextEditingController cashController = TextEditingController();
-    final TextEditingController notesController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tutup Shift'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: cashController,
-              decoration: const InputDecoration(
-                labelText: 'Total Kas Akhir',
-                prefixText: 'Rp ',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: notesController,
-              decoration: const InputDecoration(labelText: 'Catatan'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final authState = this.context.read<AuthCubit>().state;
-              authState.maybeWhen(
-                authenticated: (_, user) {
-                  this.context.read<ShiftCubit>().closeShift(
-                    shiftId,
-                    user.id,
-                    double.tryParse(cashController.text) ?? 0,
-                    notesController.text,
-                  );
-                },
-                orElse: () {},
-              );
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text(
-              'Tutup Shift',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showUpdateNotesDialog(ShiftModel shift) {
     if (shift.id == null) return;
