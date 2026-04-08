@@ -8,6 +8,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
   AttendanceCubit(this._repository) : super(const AttendanceState());
 
   Future<void> checkStatus(int userId) async {
+    if (state.isLoading) return;
     emit(state.copyWith(isLoading: true, error: null));
     try {
       final attendance = await _repository.getTodayAttendance(userId);

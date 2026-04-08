@@ -2,12 +2,15 @@ import 'package:dio/dio.dart';
 import '../datasource/remote/api_client.dart';
 import '../database/app_database.dart' as db;
 import '../models/shift.dart';
+import '../models/shift_summary.dart';
 
 abstract class IShiftRepository {
   Future<ShiftModel?> getActiveShift(int userId);
   Future<void> openShift(int userId, double initialCash, String? notes);
   Future<void> closeShift(int id, double finalCash, String? notes);
   Future<List<ShiftModel>> getHistory();
+  Future<void> updateShiftNotes(int id, String notes);
+  Future<ShiftSummaryModel> getShiftSummary(int id);
 }
 
 class ShiftRepository implements IShiftRepository {
@@ -66,6 +69,28 @@ class ShiftRepository implements IShiftRepository {
       final response = await _apiClient.authenticatedDio.get('/shifts/history');
       final List data = response.data['data'] ?? [];
       return data.map((json) => ShiftModel.fromJson(json)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateShiftNotes(int id, String notes) async {
+    try {
+      await _apiClient.authenticatedDio.patch(
+        '/shifts/$id/notes',
+        data: {'notes': notes},
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ShiftSummaryModel> getShiftSummary(int id) async {
+    try {
+      final response = await _apiClient.authenticatedDio.get('/shifts/$id/summary');
+      return ShiftSummaryModel.fromJson(response.data['data']);
     } catch (e) {
       rethrow;
     }

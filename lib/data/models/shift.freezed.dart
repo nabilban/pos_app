@@ -21,12 +21,18 @@ ShiftModel _$ShiftModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ShiftModel {
+  @JsonKey(name: 'ID')
   int? get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
   int get userId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'cash_in')
   double get cashIn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'cash_out')
   double? get cashOut => throw _privateConstructorUsedError;
   String? get notes => throw _privateConstructorUsedError;
+  @JsonKey(name: 'start_time')
   DateTime get startTime => throw _privateConstructorUsedError;
+  @JsonKey(name: 'end_time')
   DateTime? get endTime => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
   String get syncStatus => throw _privateConstructorUsedError;
@@ -49,13 +55,13 @@ abstract class $ShiftModelCopyWith<$Res> {
   ) = _$ShiftModelCopyWithImpl<$Res, ShiftModel>;
   @useResult
   $Res call({
-    int? id,
-    int userId,
-    double cashIn,
-    double? cashOut,
+    @JsonKey(name: 'ID') int? id,
+    @JsonKey(name: 'user_id') int userId,
+    @JsonKey(name: 'cash_in') double cashIn,
+    @JsonKey(name: 'cash_out') double? cashOut,
     String? notes,
-    DateTime startTime,
-    DateTime? endTime,
+    @JsonKey(name: 'start_time') DateTime startTime,
+    @JsonKey(name: 'end_time') DateTime? endTime,
     String status,
     String syncStatus,
   });
@@ -140,13 +146,13 @@ abstract class _$$ShiftModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    int? id,
-    int userId,
-    double cashIn,
-    double? cashOut,
+    @JsonKey(name: 'ID') int? id,
+    @JsonKey(name: 'user_id') int userId,
+    @JsonKey(name: 'cash_in') double cashIn,
+    @JsonKey(name: 'cash_out') double? cashOut,
     String? notes,
-    DateTime startTime,
-    DateTime? endTime,
+    @JsonKey(name: 'start_time') DateTime startTime,
+    @JsonKey(name: 'end_time') DateTime? endTime,
     String status,
     String syncStatus,
   });
@@ -223,13 +229,13 @@ class __$$ShiftModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ShiftModelImpl implements _ShiftModel {
   const _$ShiftModelImpl({
-    required this.id,
-    required this.userId,
-    required this.cashIn,
-    this.cashOut,
+    @JsonKey(name: 'ID') required this.id,
+    @JsonKey(name: 'user_id') required this.userId,
+    @JsonKey(name: 'cash_in') required this.cashIn,
+    @JsonKey(name: 'cash_out') this.cashOut,
     this.notes,
-    required this.startTime,
-    this.endTime,
+    @JsonKey(name: 'start_time') required this.startTime,
+    @JsonKey(name: 'end_time') this.endTime,
     this.status = 'open',
     this.syncStatus = 'pending',
   });
@@ -238,18 +244,24 @@ class _$ShiftModelImpl implements _ShiftModel {
       _$$ShiftModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'ID')
   final int? id;
   @override
+  @JsonKey(name: 'user_id')
   final int userId;
   @override
+  @JsonKey(name: 'cash_in')
   final double cashIn;
   @override
+  @JsonKey(name: 'cash_out')
   final double? cashOut;
   @override
   final String? notes;
   @override
+  @JsonKey(name: 'start_time')
   final DateTime startTime;
   @override
+  @JsonKey(name: 'end_time')
   final DateTime? endTime;
   @override
   @JsonKey()
@@ -312,13 +324,13 @@ class _$ShiftModelImpl implements _ShiftModel {
 
 abstract class _ShiftModel implements ShiftModel {
   const factory _ShiftModel({
-    required final int? id,
-    required final int userId,
-    required final double cashIn,
-    final double? cashOut,
+    @JsonKey(name: 'ID') required final int? id,
+    @JsonKey(name: 'user_id') required final int userId,
+    @JsonKey(name: 'cash_in') required final double cashIn,
+    @JsonKey(name: 'cash_out') final double? cashOut,
     final String? notes,
-    required final DateTime startTime,
-    final DateTime? endTime,
+    @JsonKey(name: 'start_time') required final DateTime startTime,
+    @JsonKey(name: 'end_time') final DateTime? endTime,
     final String status,
     final String syncStatus,
   }) = _$ShiftModelImpl;
@@ -327,18 +339,24 @@ abstract class _ShiftModel implements ShiftModel {
       _$ShiftModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'ID')
   int? get id;
   @override
+  @JsonKey(name: 'user_id')
   int get userId;
   @override
+  @JsonKey(name: 'cash_in')
   double get cashIn;
   @override
+  @JsonKey(name: 'cash_out')
   double? get cashOut;
   @override
   String? get notes;
   @override
+  @JsonKey(name: 'start_time')
   DateTime get startTime;
   @override
+  @JsonKey(name: 'end_time')
   DateTime? get endTime;
   @override
   String get status;

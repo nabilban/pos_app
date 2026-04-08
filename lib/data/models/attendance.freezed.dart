@@ -21,10 +21,15 @@ AttendanceModel _$AttendanceModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AttendanceModel {
+  @JsonKey(name: 'ID')
   int? get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
   int get userId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'check_in_time')
   DateTime get checkInTime => throw _privateConstructorUsedError;
+  @JsonKey(name: 'check_out_time')
   DateTime? get checkOutTime => throw _privateConstructorUsedError;
+  @JsonKey(name: 'photo_path')
   String? get photoPath => throw _privateConstructorUsedError;
   String get syncStatus => throw _privateConstructorUsedError;
 
@@ -46,11 +51,11 @@ abstract class $AttendanceModelCopyWith<$Res> {
   ) = _$AttendanceModelCopyWithImpl<$Res, AttendanceModel>;
   @useResult
   $Res call({
-    int? id,
-    int userId,
-    DateTime checkInTime,
-    DateTime? checkOutTime,
-    String? photoPath,
+    @JsonKey(name: 'ID') int? id,
+    @JsonKey(name: 'user_id') int userId,
+    @JsonKey(name: 'check_in_time') DateTime checkInTime,
+    @JsonKey(name: 'check_out_time') DateTime? checkOutTime,
+    @JsonKey(name: 'photo_path') String? photoPath,
     String syncStatus,
   });
 }
@@ -119,11 +124,11 @@ abstract class _$$AttendanceModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    int? id,
-    int userId,
-    DateTime checkInTime,
-    DateTime? checkOutTime,
-    String? photoPath,
+    @JsonKey(name: 'ID') int? id,
+    @JsonKey(name: 'user_id') int userId,
+    @JsonKey(name: 'check_in_time') DateTime checkInTime,
+    @JsonKey(name: 'check_out_time') DateTime? checkOutTime,
+    @JsonKey(name: 'photo_path') String? photoPath,
     String syncStatus,
   });
 }
@@ -184,11 +189,11 @@ class __$$AttendanceModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AttendanceModelImpl implements _AttendanceModel {
   const _$AttendanceModelImpl({
-    required this.id,
-    required this.userId,
-    required this.checkInTime,
-    this.checkOutTime,
-    this.photoPath,
+    @JsonKey(name: 'ID') required this.id,
+    @JsonKey(name: 'user_id') required this.userId,
+    @JsonKey(name: 'check_in_time') required this.checkInTime,
+    @JsonKey(name: 'check_out_time') this.checkOutTime,
+    @JsonKey(name: 'photo_path') this.photoPath,
     this.syncStatus = 'pending',
   });
 
@@ -196,14 +201,19 @@ class _$AttendanceModelImpl implements _AttendanceModel {
       _$$AttendanceModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'ID')
   final int? id;
   @override
+  @JsonKey(name: 'user_id')
   final int userId;
   @override
+  @JsonKey(name: 'check_in_time')
   final DateTime checkInTime;
   @override
+  @JsonKey(name: 'check_out_time')
   final DateTime? checkOutTime;
   @override
+  @JsonKey(name: 'photo_path')
   final String? photoPath;
   @override
   @JsonKey()
@@ -262,11 +272,11 @@ class _$AttendanceModelImpl implements _AttendanceModel {
 
 abstract class _AttendanceModel implements AttendanceModel {
   const factory _AttendanceModel({
-    required final int? id,
-    required final int userId,
-    required final DateTime checkInTime,
-    final DateTime? checkOutTime,
-    final String? photoPath,
+    @JsonKey(name: 'ID') required final int? id,
+    @JsonKey(name: 'user_id') required final int userId,
+    @JsonKey(name: 'check_in_time') required final DateTime checkInTime,
+    @JsonKey(name: 'check_out_time') final DateTime? checkOutTime,
+    @JsonKey(name: 'photo_path') final String? photoPath,
     final String syncStatus,
   }) = _$AttendanceModelImpl;
 
@@ -274,14 +284,19 @@ abstract class _AttendanceModel implements AttendanceModel {
       _$AttendanceModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'ID')
   int? get id;
   @override
+  @JsonKey(name: 'user_id')
   int get userId;
   @override
+  @JsonKey(name: 'check_in_time')
   DateTime get checkInTime;
   @override
+  @JsonKey(name: 'check_out_time')
   DateTime? get checkOutTime;
   @override
+  @JsonKey(name: 'photo_path')
   String? get photoPath;
   @override
   String get syncStatus;

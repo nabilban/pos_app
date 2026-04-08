@@ -8,28 +8,28 @@ part of 'shift.dart';
 
 _$ShiftModelImpl _$$ShiftModelImplFromJson(Map<String, dynamic> json) =>
     _$ShiftModelImpl(
-      id: (json['id'] as num?)?.toInt(),
-      userId: (json['userId'] as num).toInt(),
-      cashIn: (json['cashIn'] as num).toDouble(),
-      cashOut: (json['cashOut'] as num?)?.toDouble(),
+      id: (json['ID'] as num?)?.toInt(),
+      userId: (json['user_id'] as num).toInt(),
+      cashIn: (json['cash_in'] as num).toDouble(),
+      cashOut: (json['cash_out'] as num?)?.toDouble(),
       notes: json['notes'] as String?,
-      startTime: DateTime.parse(json['startTime'] as String),
-      endTime: json['endTime'] == null
+      startTime: DateTime.parse(json['start_time'] as String),
+      endTime: json['end_time'] == null
           ? null
-          : DateTime.parse(json['endTime'] as String),
+          : DateTime.parse(json['end_time'] as String),
       status: json['status'] as String? ?? 'open',
       syncStatus: json['syncStatus'] as String? ?? 'pending',
     );
 
 Map<String, dynamic> _$$ShiftModelImplToJson(_$ShiftModelImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'userId': instance.userId,
-      'cashIn': instance.cashIn,
-      'cashOut': instance.cashOut,
+      'ID': instance.id,
+      'user_id': instance.userId,
+      'cash_in': instance.cashIn,
+      'cash_out': instance.cashOut,
       'notes': instance.notes,
-      'startTime': instance.startTime.toIso8601String(),
-      'endTime': instance.endTime?.toIso8601String(),
+      'start_time': instance.startTime.toIso8601String(),
+      'end_time': instance.endTime?.toIso8601String(),
       'status': instance.status,
       'syncStatus': instance.syncStatus,
     };

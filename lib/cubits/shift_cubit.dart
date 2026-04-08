@@ -8,6 +8,7 @@ class ShiftCubit extends Cubit<ShiftState> {
   ShiftCubit(this._repository) : super(const ShiftState());
 
   Future<void> checkStatus(int userId) async {
+    if (state.isLoading) return;
     emit(state.copyWith(isLoading: true, error: null));
     try {
       final shift = await _repository.getActiveShift(userId);
@@ -57,5 +58,30 @@ class ShiftCubit extends Cubit<ShiftState> {
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
+  }
+
+  Future<void> updateNotes(int id, String notes) async {
+    emit(state.copyWith(isLoading: true, error: null));
+    try {
+      await _repository.updateShiftNotes(id, notes);
+      await loadHistory();
+      emit(state.copyWith(isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.toString()));
+    }
+  }
+
+  Future<void> loadShiftSummary(int id) async {
+    emit(state.copyWith(isSummaryLoading: true, selectedSummary: null));
+    try {
+      final summary = await _repository.getShiftSummary(id);
+      emit(state.copyWith(isSummaryLoading: false, selectedSummary: summary));
+    } catch (e) {
+      emit(state.copyWith(isSummaryLoading: false, error: e.toString()));
+    }
+  }
+
+  void clearSummary() {
+    emit(state.copyWith(selectedSummary: null));
   }
 }

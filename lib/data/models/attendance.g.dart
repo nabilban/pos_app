@@ -9,23 +9,23 @@ part of 'attendance.dart';
 _$AttendanceModelImpl _$$AttendanceModelImplFromJson(
   Map<String, dynamic> json,
 ) => _$AttendanceModelImpl(
-  id: (json['id'] as num?)?.toInt(),
-  userId: (json['userId'] as num).toInt(),
-  checkInTime: DateTime.parse(json['checkInTime'] as String),
-  checkOutTime: json['checkOutTime'] == null
+  id: (json['ID'] as num?)?.toInt(),
+  userId: (json['user_id'] as num).toInt(),
+  checkInTime: DateTime.parse(json['check_in_time'] as String),
+  checkOutTime: json['check_out_time'] == null
       ? null
-      : DateTime.parse(json['checkOutTime'] as String),
-  photoPath: json['photoPath'] as String?,
+      : DateTime.parse(json['check_out_time'] as String),
+  photoPath: json['photo_path'] as String?,
   syncStatus: json['syncStatus'] as String? ?? 'pending',
 );
 
 Map<String, dynamic> _$$AttendanceModelImplToJson(
   _$AttendanceModelImpl instance,
 ) => <String, dynamic>{
-  'id': instance.id,
-  'userId': instance.userId,
-  'checkInTime': instance.checkInTime.toIso8601String(),
-  'checkOutTime': instance.checkOutTime?.toIso8601String(),
-  'photoPath': instance.photoPath,
+  'ID': instance.id,
+  'user_id': instance.userId,
+  'check_in_time': instance.checkInTime.toIso8601String(),
+  'check_out_time': instance.checkOutTime?.toIso8601String(),
+  'photo_path': instance.photoPath,
   'syncStatus': instance.syncStatus,
 };
