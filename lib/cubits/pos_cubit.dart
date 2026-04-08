@@ -13,11 +13,14 @@ class PosCubit extends Cubit<PosState> {
   }
 
   Future<void> loadData() async {
+    if (isClosed) return;
     emit(state.copyWith(isLoading: true));
     try {
       final products = await _repository.getProducts();
       final categories = await _repository.getCategories();
       final brands = await _repository.getBrands();
+
+      if (isClosed) return;
       emit(
         state.copyWith(
           products: products,
@@ -27,19 +30,23 @@ class PosCubit extends Cubit<PosState> {
         ),
       );
     } catch (e) {
+      if (isClosed) return;
       emit(state.copyWith(isLoading: false));
     }
   }
 
   void setSearchQuery(String query) {
+    if (isClosed) return;
     emit(state.copyWith(searchQuery: query));
   }
 
   void setCategory(Category? category) {
+    if (isClosed) return;
     emit(state.copyWith(selectedCategory: category));
   }
 
   void setBrand(Brand? brand) {
+    if (isClosed) return;
     emit(state.copyWith(selectedBrand: brand));
   }
 

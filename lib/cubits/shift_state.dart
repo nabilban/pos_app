@@ -8,6 +8,8 @@ class ShiftState with _$ShiftState {
   const factory ShiftState({
     @Default(false) bool isLoading,
     ShiftModel? activeShift,
+    @Default([]) List<ShiftModel> history,
+    @Default(0) int selectedTab, // 0: Shift, 1: Absensi
     String? error,
   }) = _ShiftState;
 }

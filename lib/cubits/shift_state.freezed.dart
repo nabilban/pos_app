@@ -19,6 +19,9 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$ShiftState {
   bool get isLoading => throw _privateConstructorUsedError;
   ShiftModel? get activeShift => throw _privateConstructorUsedError;
+  List<ShiftModel> get history => throw _privateConstructorUsedError;
+  int get selectedTab =>
+      throw _privateConstructorUsedError; // 0: Shift, 1: Absensi
   String? get error => throw _privateConstructorUsedError;
 
   /// Create a copy of ShiftState
@@ -35,7 +38,13 @@ abstract class $ShiftStateCopyWith<$Res> {
     $Res Function(ShiftState) then,
   ) = _$ShiftStateCopyWithImpl<$Res, ShiftState>;
   @useResult
-  $Res call({bool isLoading, ShiftModel? activeShift, String? error});
+  $Res call({
+    bool isLoading,
+    ShiftModel? activeShift,
+    List<ShiftModel> history,
+    int selectedTab,
+    String? error,
+  });
 
   $ShiftModelCopyWith<$Res>? get activeShift;
 }
@@ -57,6 +66,8 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
   $Res call({
     Object? isLoading = null,
     Object? activeShift = freezed,
+    Object? history = null,
+    Object? selectedTab = null,
     Object? error = freezed,
   }) {
     return _then(
@@ -69,6 +80,14 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
                 ? _value.activeShift
                 : activeShift // ignore: cast_nullable_to_non_nullable
                       as ShiftModel?,
+            history: null == history
+                ? _value.history
+                : history // ignore: cast_nullable_to_non_nullable
+                      as List<ShiftModel>,
+            selectedTab: null == selectedTab
+                ? _value.selectedTab
+                : selectedTab // ignore: cast_nullable_to_non_nullable
+                      as int,
             error: freezed == error
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
@@ -102,7 +121,13 @@ abstract class _$$ShiftStateImplCopyWith<$Res>
   ) = __$$ShiftStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool isLoading, ShiftModel? activeShift, String? error});
+  $Res call({
+    bool isLoading,
+    ShiftModel? activeShift,
+    List<ShiftModel> history,
+    int selectedTab,
+    String? error,
+  });
 
   @override
   $ShiftModelCopyWith<$Res>? get activeShift;
@@ -124,6 +149,8 @@ class __$$ShiftStateImplCopyWithImpl<$Res>
   $Res call({
     Object? isLoading = null,
     Object? activeShift = freezed,
+    Object? history = null,
+    Object? selectedTab = null,
     Object? error = freezed,
   }) {
     return _then(
@@ -136,6 +163,14 @@ class __$$ShiftStateImplCopyWithImpl<$Res>
             ? _value.activeShift
             : activeShift // ignore: cast_nullable_to_non_nullable
                   as ShiftModel?,
+        history: null == history
+            ? _value._history
+            : history // ignore: cast_nullable_to_non_nullable
+                  as List<ShiftModel>,
+        selectedTab: null == selectedTab
+            ? _value.selectedTab
+            : selectedTab // ignore: cast_nullable_to_non_nullable
+                  as int,
         error: freezed == error
             ? _value.error
             : error // ignore: cast_nullable_to_non_nullable
@@ -151,20 +186,35 @@ class _$ShiftStateImpl implements _ShiftState {
   const _$ShiftStateImpl({
     this.isLoading = false,
     this.activeShift,
+    final List<ShiftModel> history = const [],
+    this.selectedTab = 0,
     this.error,
-  });
+  }) : _history = history;
 
   @override
   @JsonKey()
   final bool isLoading;
   @override
   final ShiftModel? activeShift;
+  final List<ShiftModel> _history;
+  @override
+  @JsonKey()
+  List<ShiftModel> get history {
+    if (_history is EqualUnmodifiableListView) return _history;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_history);
+  }
+
+  @override
+  @JsonKey()
+  final int selectedTab;
+  // 0: Shift, 1: Absensi
   @override
   final String? error;
 
   @override
   String toString() {
-    return 'ShiftState(isLoading: $isLoading, activeShift: $activeShift, error: $error)';
+    return 'ShiftState(isLoading: $isLoading, activeShift: $activeShift, history: $history, selectedTab: $selectedTab, error: $error)';
   }
 
   @override
@@ -176,11 +226,21 @@ class _$ShiftStateImpl implements _ShiftState {
                 other.isLoading == isLoading) &&
             (identical(other.activeShift, activeShift) ||
                 other.activeShift == activeShift) &&
+            const DeepCollectionEquality().equals(other._history, _history) &&
+            (identical(other.selectedTab, selectedTab) ||
+                other.selectedTab == selectedTab) &&
             (identical(other.error, error) || other.error == error));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, isLoading, activeShift, error);
+  int get hashCode => Object.hash(
+    runtimeType,
+    isLoading,
+    activeShift,
+    const DeepCollectionEquality().hash(_history),
+    selectedTab,
+    error,
+  );
 
   /// Create a copy of ShiftState
   /// with the given fields replaced by the non-null parameter values.
@@ -195,6 +255,8 @@ abstract class _ShiftState implements ShiftState {
   const factory _ShiftState({
     final bool isLoading,
     final ShiftModel? activeShift,
+    final List<ShiftModel> history,
+    final int selectedTab,
     final String? error,
   }) = _$ShiftStateImpl;
 
@@ -202,6 +264,10 @@ abstract class _ShiftState implements ShiftState {
   bool get isLoading;
   @override
   ShiftModel? get activeShift;
+  @override
+  List<ShiftModel> get history;
+  @override
+  int get selectedTab; // 0: Shift, 1: Absensi
   @override
   String? get error;
 

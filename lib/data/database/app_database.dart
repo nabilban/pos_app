@@ -126,6 +126,17 @@ class AppDatabase extends _$AppDatabase {
   Future<void> updateShift(int id, ShiftsCompanion entry) async {
     await (update(shifts)..where((t) => t.id.equals(id))).write(entry);
   }
+
+  Future<void> deleteShift(int id) async {
+    await (delete(shifts)..where((t) => t.id.equals(id))).go();
+  }
+
+  Future<void> clearActiveShifts(int userId) async {
+    await (delete(shifts)
+          ..where((t) => t.userId.equals(userId))
+          ..where((t) => t.status.equals('open')))
+        .go();
+  }
 }
 
 LazyDatabase _openConnection() {

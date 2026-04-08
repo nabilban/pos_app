@@ -11,10 +11,28 @@ class ShiftCubit extends Cubit<ShiftState> {
     emit(state.copyWith(isLoading: true, error: null));
     try {
       final shift = await _repository.getActiveShift(userId);
-      emit(state.copyWith(isLoading: false, activeShift: shift));
+      final history = await _repository.getHistory();
+      emit(state.copyWith(
+        isLoading: false,
+        activeShift: shift,
+        history: history,
+      ));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
+  }
+
+  Future<void> loadHistory() async {
+    try {
+      final history = await _repository.getHistory();
+      emit(state.copyWith(history: history));
+    } catch (e) {
+      // Keep existing history on error
+    }
+  }
+
+  void setTab(int index) {
+    emit(state.copyWith(selectedTab: index));
   }
 
   Future<void> openShift(int userId, double initialCash, String? notes) async {
@@ -23,6 +41,7 @@ class ShiftCubit extends Cubit<ShiftState> {
       await _repository.openShift(userId, initialCash, notes);
       final shift = await _repository.getActiveShift(userId);
       emit(state.copyWith(isLoading: false, activeShift: shift));
+      loadHistory(); // Refresh history
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
@@ -34,6 +53,7 @@ class ShiftCubit extends Cubit<ShiftState> {
       await _repository.closeShift(id, finalCash, notes);
       final shift = await _repository.getActiveShift(userId);
       emit(state.copyWith(isLoading: false, activeShift: shift));
+      loadHistory(); // Refresh history
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
