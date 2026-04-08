@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../cubits/shift_cubit.dart';
 import '../../cubits/auth_cubit.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/logout_helper.dart';
 
 class OpenShiftScreen extends StatefulWidget {
   const OpenShiftScreen({super.key});
@@ -111,7 +112,7 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => context.read<AuthCubit>().logout(),
+                onPressed: () => LogoutHelper.handleLogout(context),
                 child: const Text('Keluar / Ganti Akun', style: TextStyle(color: AppColors.error)),
               ),
             ],

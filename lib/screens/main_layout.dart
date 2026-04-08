@@ -9,6 +9,7 @@ import 'settings_screen.dart';
 import '../cubits/auth_cubit.dart';
 import '../cubits/auth_state.dart';
 import '../utils/app_colors.dart';
+import '../utils/logout_helper.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -63,8 +64,8 @@ class _MainLayoutState extends State<MainLayout> {
               showBackButton: _selectedIndex == 3,
               onLeadingTap: _selectedIndex == 3
                   ? () => setState(() {
-                        _selectedIndex = _lastPageIndex;
-                      })
+                      _selectedIndex = _lastPageIndex;
+                    })
                   : () => _scaffoldKey.currentState?.openDrawer(),
               // show the gear icon only if we are not already on the Pengaturan page
               onSettingsTap: _selectedIndex == 3
@@ -79,10 +80,7 @@ class _MainLayoutState extends State<MainLayout> {
             Expanded(
               // Using IndexedStack allows preserving the state of POS screen (e.g. cart contents being visible/rebuilt efficiently)
               // Since CartState is global it's fine either way, but IndexedStack prevents full rebuilds
-              child: IndexedStack(
-                index: _selectedIndex,
-                children: _pages,
-              ),
+              child: IndexedStack(index: _selectedIndex, children: _pages),
             ),
           ],
         ),
@@ -99,9 +97,7 @@ class _MainLayoutState extends State<MainLayout> {
           BlocBuilder<AuthCubit, AuthState>(
             builder: (context, authState) {
               return DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                ),
+                decoration: const BoxDecoration(color: AppColors.primary),
                 child: authState.maybeWhen(
                   authenticated: (token, user) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,13 +180,15 @@ class _MainLayoutState extends State<MainLayout> {
           ListTile(
             leading: const Icon(Icons.logout, color: AppColors.error),
             title: const Text(
-              'Keluar',
+              'Tutup Shift & Log Out',
               style: TextStyle(
-                  color: AppColors.error, fontWeight: FontWeight.w600),
+                color: AppColors.error,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             onTap: () {
               Navigator.pop(context);
-              context.read<AuthCubit>().logout();
+              LogoutHelper.handleLogout(context);
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 24),
           ),
@@ -220,8 +218,9 @@ class _MainLayoutState extends State<MainLayout> {
         title: Text(
           title,
           style: TextStyle(
-            color:
-                isSelected ? const Color(0xFF059669) : const Color(0xFF475569),
+            color: isSelected
+                ? const Color(0xFF059669)
+                : const Color(0xFF475569),
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),

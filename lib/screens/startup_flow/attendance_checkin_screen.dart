@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../cubits/attendance_cubit.dart';
 import '../../cubits/auth_cubit.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/logout_helper.dart';
 
 class AttendanceCheckInScreen extends StatefulWidget {
   const AttendanceCheckInScreen({super.key});
@@ -106,7 +107,7 @@ class _AttendanceCheckInScreenState extends State<AttendanceCheckInScreen> {
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => context.read<AuthCubit>().logout(),
+                onPressed: () => LogoutHelper.handleLogout(context),
                 child: const Text('Batal & Keluar', style: TextStyle(color: AppColors.error)),
               ),
             ],

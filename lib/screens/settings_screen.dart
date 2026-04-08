@@ -4,6 +4,7 @@ import '../cubits/settings_cubit.dart';
 import '../cubits/settings_state.dart';
 import '../cubits/auth_cubit.dart';
 import '../cubits/auth_state.dart';
+import '../utils/logout_helper.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -67,12 +68,20 @@ class SettingsScreen extends StatelessWidget {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.badge, color: Colors.white70, size: 14),
+                                      const Icon(
+                                        Icons.badge,
+                                        color: Colors.white70,
+                                        size: 14,
+                                      ),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           '${user.role.name} • @${user.username}',
-                                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -80,12 +89,19 @@ class SettingsScreen extends StatelessWidget {
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.email, color: Colors.white70, size: 14),
+                                      const Icon(
+                                        Icons.email,
+                                        color: Colors.white70,
+                                        size: 14,
+                                      ),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           user.email,
-                                          style: const TextStyle(color: Colors.white70, fontSize: 13),
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 13,
+                                          ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -94,9 +110,14 @@ class SettingsScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8),
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.storefront, color: Colors.white70, size: 14),
+                                      const Icon(
+                                        Icons.storefront,
+                                        color: Colors.white70,
+                                        size: 14,
+                                      ),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
@@ -155,10 +176,7 @@ class SettingsScreen extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Divider(height: 1, color: Color(0xFFE2E8F0)),
                 ),
-                _SectionHeader(
-                  title: 'Printer',
-                  icon: Icons.print_outlined,
-                ),
+                _SectionHeader(title: 'Printer', icon: Icons.print_outlined),
                 _ToggleItem(
                   label: 'Cetak Struk Otomatis',
                   subtitle: 'Struk tercetak otomatis setelah transaksi',
@@ -181,7 +199,7 @@ class SettingsScreen extends StatelessWidget {
                   color: const Color(0xFF059669),
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Logout button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -192,7 +210,7 @@ class SettingsScreen extends StatelessWidget {
                       onPressed: () => _confirmLogout(context),
                       icon: const Icon(Icons.logout, size: 20),
                       label: const Text(
-                        'Keluar / Logout',
+                        'Tutup Shift & Log Out',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -218,32 +236,8 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _confirmLogout(BuildContext context) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true && context.mounted) {
-      context.read<AuthCubit>().logout();
-    }
+  void _confirmLogout(BuildContext context) {
+    LogoutHelper.handleLogout(context);
   }
 }
 
@@ -302,8 +296,13 @@ class _ToggleItem extends StatelessWidget {
           border: Border.all(color: const Color(0xFFF1F5F9)),
         ),
         child: SwitchListTile(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
           value: value,
           onChanged: onChanged,
           activeThumbColor: color,
