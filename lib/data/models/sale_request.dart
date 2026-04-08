@@ -6,6 +6,7 @@ part 'sale_request.g.dart';
 
 @freezed
 class SaleRequest with _$SaleRequest {
+  @JsonSerializable(explicitToJson: true)
   const factory SaleRequest({
     @JsonKey(name: 'payment_method_id') required int paymentMethodId,
     @JsonKey(name: 'customer_name') required String customerName,
@@ -23,6 +24,7 @@ class SaleRequest with _$SaleRequest {
 
 @freezed
 class SaleItemRequest with _$SaleItemRequest {
+  @JsonSerializable(explicitToJson: true)
   const factory SaleItemRequest({
     @JsonKey(name: 'product_id') required int productId,
     required int quantity,
@@ -36,6 +38,7 @@ class SaleItemRequest with _$SaleItemRequest {
 
 @freezed
 class SaleVariantRequest with _$SaleVariantRequest {
+  @JsonSerializable(explicitToJson: true)
   const factory SaleVariantRequest({
     @JsonKey(name: 'variant_option_id') required int variantOptionId,
   }) = _SaleVariantRequest;

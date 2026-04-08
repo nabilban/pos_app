@@ -24,7 +24,7 @@ Map<String, dynamic> _$$SaleRequestImplToJson(_$SaleRequestImpl instance) =>
     <String, dynamic>{
       'payment_method_id': instance.paymentMethodId,
       'customer_name': instance.customerName,
-      'items': instance.items,
+      'items': instance.items.map((e) => e.toJson()).toList(),
       'price_category_id': instance.priceCategoryId,
       'promo_id': instance.promoId,
       'source': instance.source,
@@ -49,7 +49,7 @@ Map<String, dynamic> _$$SaleItemRequestImplToJson(
   'product_id': instance.productId,
   'quantity': instance.quantity,
   'discount': instance.discount,
-  'variants': instance.variants,
+  'variants': instance.variants.map((e) => e.toJson()).toList(),
 };
 
 _$SaleVariantRequestImpl _$$SaleVariantRequestImplFromJson(

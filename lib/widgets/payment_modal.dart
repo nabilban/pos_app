@@ -347,6 +347,33 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                if (checkoutState.error != null)
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(16),
+                                    margin: const EdgeInsets.only(bottom: 24),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.error.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.error_outline, color: AppColors.error, size: 24),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            checkoutState.error!,
+                                            style: const TextStyle(
+                                              color: AppColors.error,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 if (checkoutState.currentStep == 0) ...[
                                   _buildCartStep(cartState, checkoutState),
                                 ] else ...[
@@ -373,7 +400,9 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                                 ? null
                                 : (checkoutState.currentStep == 0
                                     ? () => context.read<CheckoutCubit>().setStep(1)
-                                    : () => context.read<CheckoutCubit>().processCheckout(cartState)),
+                                    : () => context.read<CheckoutCubit>().processCheckout(
+                                          cartState,
+                                        )),
                           ),
                         ),
                       ],

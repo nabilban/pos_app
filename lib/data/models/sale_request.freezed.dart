@@ -213,7 +213,8 @@ class __$$SaleRequestImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _$SaleRequestImpl implements _SaleRequest {
   const _$SaleRequestImpl({
     @JsonKey(name: 'payment_method_id') required this.paymentMethodId,
@@ -499,7 +500,8 @@ class __$$SaleItemRequestImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _$SaleItemRequestImpl implements _SaleItemRequest {
   const _$SaleItemRequestImpl({
     @JsonKey(name: 'product_id') required this.productId,
@@ -696,7 +698,8 @@ class __$$SaleVariantRequestImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _$SaleVariantRequestImpl implements _SaleVariantRequest {
   const _$SaleVariantRequestImpl({
     @JsonKey(name: 'variant_option_id') required this.variantOptionId,

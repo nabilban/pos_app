@@ -4,6 +4,7 @@ import '../data/models/sale_request.dart';
 import 'cart_state.dart';
 import 'checkout_state.dart';
 import 'package:dio/dio.dart';
+import 'dart:convert';
 
 class CheckoutCubit extends Cubit<CheckoutState> {
   final IPosRepository _repository;
@@ -48,29 +49,47 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
       final request = SaleRequest(
         paymentMethodId: method.paymentMethodId,
-        customerName: state.buyerName.trim(),
-        priceCategoryId: state.selectedPriceCategoryId,
-        promoId: cartState.appliedPromo?.promoId,
-        items: cartState.items.map((item) => SaleItemRequest(
-          productId: item.product.id,
-          quantity: item.quantity,
-          variants: item.selectedOptions.map((opt) => SaleVariantRequest(
-            variantOptionId: opt.id,
-          )).toList(),
-        )).toList(),
+        customerName: state.buyerName.trim().isEmpty ? 'Guest' : state.buyerName.trim(),
+        priceCategoryId: state.selectedPriceCategoryId, // Explicitly pass from state (can be null)
+        promoId: cartState.appliedPromo?.promoId, // Explicitly pass (can be null)
+        source: 'pos', // Always 'pos' as per example
+        additionalFee: 0, // Always 0 as per example
+        items: cartState.items.map((item) {
+          final List<SaleVariantRequest> flattenedVariants = [];
+          // Repeat variants for each unit of quantity as required by API
+          for (int i = 0; i < item.quantity; i++) {
+            flattenedVariants.addAll(
+              item.selectedOptions.map((opt) => SaleVariantRequest(
+                variantOptionId: opt.id,
+              )),
+            );
+          }
+
+          return SaleItemRequest(
+            productId: item.product.id,
+            quantity: item.quantity,
+            variants: flattenedVariants,
+            discount: 0, // Explicitly 0 for each item as per example
+          );
+        }).toList(),
         manualDiscount: cartState.discount,
       );
 
+      // Log the request body for debugging as requested by the user
+      print('DEBUG - SaleRequest Body (JSON): ${jsonEncode(request.toJson())}');
       final invoiceNumber = await _repository.createSale(request);
       emit(state.copyWith(isProcessing: false, success: true, invoiceNumber: invoiceNumber));
     } catch (e) {
       String message = 'Gagal memproses transaksi: $e';
       if (e is DioException) {
-        final data = e.response?.data;
-        if (data is Map && data.containsKey('message')) {
-          message = data['message'];
+        final response = e.response;
+        if (response != null) {
+          final data = response.data;
+          message = 'Server Error (${response.statusCode}): ${data is Map ? (data['message'] ?? data.toString()) : data.toString()}';
+          print('DEBUG - Server Error Response: $data');
         }
       }
+      print('DEBUG - Final Error Message: $message');
       emit(state.copyWith(isProcessing: false, error: message));
     }
   }

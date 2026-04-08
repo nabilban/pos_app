@@ -132,10 +132,15 @@ class PosRepository implements IPosRepository {
   Future<String> createSale(SaleRequest request) async {
     try {
       final response = await _apiClient.authenticatedDio.post(
-        '/sales/daily',
+        '/sales',
         data: request.toJson(),
       );
-      return response.data['data']['invoice_number'];
+
+      final data = response.data;
+      if (data != null && data['data'] != null) {
+        return data['data']['invoice_number']?.toString() ?? 'SUCCESS';
+      }
+      return 'SUCCESS';
     } catch (e) {
       rethrow;
     }
