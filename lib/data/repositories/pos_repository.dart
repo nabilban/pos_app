@@ -29,36 +29,16 @@ class PosRepository implements IPosRepository {
 
   @override
   Future<List<Product>> getProducts() async {
-    try {
-      final response = await _apiClient.authenticatedDio.get('/products');
-      final List<dynamic> data = response.data['data'] ?? [];
-      return data.map((json) {
-        try {
-          return Product.fromJson(json);
-        } catch (e) {
-          rethrow;
-        }
-      }).toList();
-    } catch (e) {
-      rethrow;
-    }
+    final response = await _apiClient.authenticatedDio.get('/products');
+    final List<dynamic> data = response.data['data'] ?? [];
+    return data.map((json) => Product.fromJson(json)).toList();
   }
 
   @override
   Future<List<Category>> getCategories() async {
-    try {
-      final response = await _apiClient.authenticatedDio.get('/categories');
-      final List<dynamic> data = response.data['data'] ?? [];
-      return data.map((json) {
-        try {
-          return Category.fromJson(json);
-        } catch (e) {
-          rethrow;
-        }
-      }).toList();
-    } catch (e) {
-      rethrow;
-    }
+    final response = await _apiClient.authenticatedDio.get('/categories');
+    final List<dynamic> data = response.data['data'] ?? [];
+    return data.map((json) => Category.fromJson(json)).toList();
   }
 
   @override
@@ -146,12 +126,6 @@ class PosRepository implements IPosRepository {
     }
   }
 
-  // @override
-  // Future<StoreInfo> getStoreInfo() async {
-  //   // Keep this as is for now or update if there's an API for it
-  //   await Future.delayed(const Duration(milliseconds: 200));
-  //   return currentUser;
-  // }
 
   @override
   Future<List<PriceCategory>> getPriceCategories() async {

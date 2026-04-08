@@ -7,6 +7,7 @@ import 'package:pos_app/screens/startup_flow/startup_flow_wrapper.dart';
 import 'cubits/auth_cubit.dart';
 import 'cubits/auth_state.dart';
 import 'screens/login_screen.dart';
+import 'utils/app_colors.dart';
 import 'providers/global_providers.dart';
 
 Future<void> main() async {
@@ -29,7 +30,7 @@ class PosApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF059669)),
+          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
           textTheme: GoogleFonts.poppinsTextTheme(),
           useMaterial3: true,
         ),

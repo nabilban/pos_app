@@ -33,36 +33,24 @@ class AttendanceRepository implements IAttendanceRepository {
 
   @override
   Future<void> checkIn(int userId, String photoPath) async {
-    try {
-      final formData = FormData.fromMap({
-        'photo': await MultipartFile.fromFile(
-          photoPath,
-          filename: 'selfie.jpg',
-        ),
-      });
+    final formData = FormData.fromMap({
+      'photo': await MultipartFile.fromFile(
+        photoPath,
+        filename: 'selfie.jpg',
+      ),
+    });
 
-      await _apiClient.authenticatedDio.post(
-        '/attendances/checkin',
-        data: formData,
-      );
-    } on DioException catch (e) {
-      rethrow;
-    } catch (e) {
-      rethrow;
-    }
+    await _apiClient.authenticatedDio.post(
+      '/attendances/checkin',
+      data: formData,
+    );
   }
 
   @override
   Future<void> checkOut(int attendanceId) async {
-    try {
-      await _apiClient.authenticatedDio.post(
-        '/attendances/$attendanceId/checkout',
-      );
-    } on DioException catch (e) {
-      rethrow;
-    } catch (e) {
-      rethrow;
-    }
+    await _apiClient.authenticatedDio.post(
+      '/attendances/$attendanceId/checkout',
+    );
   }
 
   @override

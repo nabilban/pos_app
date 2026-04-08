@@ -7,7 +7,6 @@ import '../../cubits/shift_cubit.dart';
 import '../../cubits/shift_state.dart';
 import '../main_layout.dart';
 import 'open_shift_screen.dart';
-import 'attendance_checkin_screen.dart';
 
 class StartupFlowWrapper extends StatefulWidget {
   const StartupFlowWrapper({super.key});

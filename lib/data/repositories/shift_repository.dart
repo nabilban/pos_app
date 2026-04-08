@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../datasource/remote/api_client.dart';
 import '../database/app_database.dart' as db;
 import '../models/shift.dart';
@@ -34,31 +33,18 @@ class ShiftRepository implements IShiftRepository {
 
   @override
   Future<void> openShift(int userId, double initialCash, String? notes) async {
-    try {
-      await _apiClient.authenticatedDio.post(
-        '/shifts/open',
-        data: {'cash_in': initialCash, 'notes': notes},
-      );
-    } on DioException catch (e) {
-      // Re-throw so Cubit can show the exact error message from server
-      rethrow;
-    } catch (e) {
-      rethrow;
-    }
+    await _apiClient.authenticatedDio.post(
+      '/shifts/open',
+      data: {'cash_in': initialCash, 'notes': notes},
+    );
   }
 
   @override
   Future<void> closeShift(int id, double finalCash, String? notes) async {
-    try {
-      await _apiClient.authenticatedDio.post(
-        '/shifts/close',
-        data: {'cash_out': finalCash, 'notes': notes},
-      );
-    } on DioException catch (e) {
-      rethrow;
-    } catch (e) {
-      rethrow;
-    }
+    await _apiClient.authenticatedDio.post(
+      '/shifts/close',
+      data: {'cash_out': finalCash, 'notes': notes},
+    );
   }
 
   @override
