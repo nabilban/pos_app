@@ -11,11 +11,7 @@ class CloseShiftDialog extends StatefulWidget {
   final ShiftModel shift;
   final VoidCallback? onSuccess;
 
-  const CloseShiftDialog({
-    super.key,
-    required this.shift,
-    this.onSuccess,
-  });
+  const CloseShiftDialog({super.key, required this.shift, this.onSuccess});
 
   @override
   State<CloseShiftDialog> createState() => _CloseShiftDialogState();
@@ -59,12 +55,12 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
 
     try {
       await context.read<ShiftCubit>().closeShift(
-            widget.shift.id!,
-            userId,
-            finalCash,
-            _notesController.text,
-          );
-      
+        widget.shift.id!,
+        userId,
+        finalCash,
+        _notesController.text,
+      );
+
       if (mounted) {
         Navigator.pop(context);
         widget.onSuccess?.call();
@@ -72,9 +68,9 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isClosing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menutup shift: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal menutup shift: $e')));
       }
     }
   }
@@ -83,7 +79,7 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
   Widget build(BuildContext context) {
     final authState = context.watch<AuthCubit>().state;
     final historyState = context.watch<HistoryCubit>().state;
-    
+
     final userName = authState.maybeWhen(
       authenticated: (_, user) => user.name,
       orElse: () => 'Kasir',
@@ -141,9 +137,9 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Summary Box
               Container(
                 padding: const EdgeInsets.all(20),
@@ -154,35 +150,45 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
                 ),
                 child: Column(
                   children: [
-                    _buildSummaryRow('Modal Awal', CurrencyUtil.format(widget.shift.cashIn)),
+                    _buildSummaryRow(
+                      'Modal Awal',
+                      CurrencyUtil.format(widget.shift.cashIn),
+                    ),
                     const SizedBox(height: 12),
                     _buildSummaryRow(
-                      'Total Penjualan', 
+                      'Total Penjualan',
                       CurrencyUtil.format(totalSales),
                       valueColor: const Color(0xFF10B981),
                     ),
                     const SizedBox(height: 12),
-                    _buildSummaryRow('Total Transaksi', '${totalTransactions}x'),
+                    _buildSummaryRow(
+                      'Total Transaksi',
+                      '${totalTransactions}x',
+                    ),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(height: 1, color: Color(0xFFE2E8F0)),
                     ),
                     _buildSummaryRow(
-                      'Ekspektasi Kas', 
+                      'Ekspektasi Kas',
                       CurrencyUtil.format(expectedCash),
                       isBold: true,
                     ),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Input Sections
               _buildInputLabel('Uang di Kasir Sekarang'),
               TextField(
                 controller: _cashController,
                 decoration: InputDecoration(
+                  prefixStyle: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
                   prefixText: 'Rp ',
                   hintText: '0',
                   filled: true,
@@ -193,15 +199,18 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.all(16),
                 ),
                 keyboardType: TextInputType.number,
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               _buildInputLabel('Keterangan (opsional)'),
               TextField(
                 controller: _notesController,
@@ -215,21 +224,26 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 2,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.all(16),
                 ),
                 maxLines: 3,
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Action Buttons
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _isClosing ? null : () => Navigator.pop(context),
+                      onPressed: _isClosing
+                          ? null
+                          : () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -286,7 +300,12 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, {Color? valueColor, bool isBold = false}) {
+  Widget _buildSummaryRow(
+    String label,
+    String value, {
+    Color? valueColor,
+    bool isBold = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

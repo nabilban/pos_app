@@ -19,7 +19,7 @@ class AuthCubit extends Cubit<AuthState> {
     final token = await _tokenManager.getToken();
 
     if (token != null && token.isNotEmpty && user != null) {
-      if (user.roleId == 2) {
+      if (user.roleId == 3) {
         emit(AuthState.authenticated(token: token, user: user));
       } else {
         await logout();

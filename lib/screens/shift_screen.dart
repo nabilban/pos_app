@@ -70,8 +70,9 @@ class _ShiftScreenState extends State<ShiftScreen>
 
   @override
   Widget build(BuildContext context) {
-    final String baseUrl = (dotenv.env['local_backend'] ?? 'http://localhost:8080/api')
-        .replaceFirst('/api', '');
+    final String baseUrl = dotenv.env['upload_url'] ??
+        (dotenv.env['remote_backend'] ?? 'http://localhost:8080/api')
+            .replaceFirst('/api', '');
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),

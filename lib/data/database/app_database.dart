@@ -24,10 +24,10 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) async {
-          await m.createAll();
-        },
-      );
+    onCreate: (m) async {
+      await m.createAll();
+    },
+  );
 
   // --- TOKEN OPERATIONS ---
 
@@ -143,6 +143,8 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'db.sqlite'));
+
+    print('Database location: ${file.path}');
 
     // // Work around limitations on old Android versions
     // if (Platform.isAndroid) {
