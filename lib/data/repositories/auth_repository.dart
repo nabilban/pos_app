@@ -29,6 +29,11 @@ class AuthRepository implements IAuthRepository {
       // Parse the response into our Freezed model
       final authResponse = AuthResponse.fromJson(response.data);
 
+      // Check if user is a Kasir (role_id = 2)
+      if (authResponse.user.roleId != 2) {
+        throw 'Anda tidak memiliki akses login sebagai Kasir.';
+      }
+
       // Save token locally
       await _tokenManager.saveToken(authResponse.token);
 
