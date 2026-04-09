@@ -41,7 +41,7 @@ class GlobalProviders extends StatelessWidget {
           create: (_) => Dio(
             BaseOptions(
               baseUrl:
-                  dotenv.env['local_backend'] ?? 'http://localhost:8080/api',
+                  dotenv.env['remote_backend'] ?? 'http://localhost:8080/api',
               connectTimeout: const Duration(seconds: 60),
               receiveTimeout: const Duration(seconds: 60),
               headers: {

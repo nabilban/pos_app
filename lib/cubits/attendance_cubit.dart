@@ -47,10 +47,10 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     }
   }
 
-  Future<void> checkOut(int attendanceId, int userId) async {
+  Future<void> checkOut(int attendanceId, int userId, String photoPath) async {
     emit(state.copyWith(isLoading: true, error: null));
     try {
-      await _repository.checkOut(attendanceId);
+      await _repository.checkOut(attendanceId, photoPath);
       final attendance = await _repository.getTodayAttendance(userId);
       emit(state.copyWith(isLoading: false, todayAttendance: attendance));
       await loadHistory();

@@ -796,7 +796,7 @@ class _ShiftScreenState extends State<ShiftScreen>
           _buildAttendanceStatusRow(
             label: 'Absen Masuk',
             time: att?.checkIn != null 
-                ? DateFormat('HH:mm').format(DateTime.parse(att!.checkIn!)) 
+                ? DateFormat('HH:mm').format(DateTime.parse(att!.checkIn!).toLocal()) 
                 : null,
             subtitle: att?.checkIn != null ? 'Terabsen' : 'Belum absen masuk',
             onPressed: att?.checkIn == null ? () => _handleAttendanceCheckIn() : null,
@@ -806,7 +806,7 @@ class _ShiftScreenState extends State<ShiftScreen>
           _buildAttendanceStatusRow(
             label: 'Absen Pulang',
             time: att?.checkOut != null 
-                ? DateFormat('HH:mm').format(DateTime.parse(att!.checkOut!)) 
+                ? DateFormat('HH:mm').format(DateTime.parse(att!.checkOut!).toLocal()) 
                 : null,
             subtitle: att?.checkOut != null 
                 ? 'Selesai' 
@@ -877,8 +877,8 @@ class _ShiftScreenState extends State<ShiftScreen>
   }
 
   Widget _buildAttendanceHistoryItem(AttendanceModel a, String baseUrl) {
-    final checkIn = a.checkIn != null ? DateTime.parse(a.checkIn!) : null;
-    final checkOut = a.checkOut != null ? DateTime.parse(a.checkOut!) : null;
+    final checkIn = a.checkIn != null ? DateTime.parse(a.checkIn!).toLocal() : null;
+    final checkOut = a.checkOut != null ? DateTime.parse(a.checkOut!).toLocal() : null;
     
     String duration = '';
     if (checkIn != null && checkOut != null) {
@@ -912,25 +912,34 @@ class _ShiftScreenState extends State<ShiftScreen>
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 const SizedBox(height: 8),
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
                   children: [
-                    if (checkIn != null) ...[
-                      const Icon(Icons.circle, size: 8, color: AppColors.success),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Masuk: ${DateFormat('HH.mm').format(checkIn)}',
-                        style: const TextStyle(fontSize: 13),
+                    if (checkIn != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.circle, size: 8, color: AppColors.success),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Masuk: ${DateFormat('HH.mm').format(checkIn)}',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ],
                       ),
-                    ],
-                    if (checkOut != null) ...[
-                      const SizedBox(width: 12),
-                      const Icon(Icons.circle, size: 8, color: AppColors.warning),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Pulang: ${DateFormat('HH.mm').format(checkOut)}',
-                        style: const TextStyle(fontSize: 13),
+                    if (checkOut != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.circle, size: 8, color: AppColors.warning),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Pulang: ${DateFormat('HH.mm').format(checkOut)}',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ],
                       ),
-                    ],
                   ],
                 ),
                 if (duration.isNotEmpty) ...[
@@ -1026,10 +1035,25 @@ class _ShiftScreenState extends State<ShiftScreen>
       authenticated: (_, user) => user.id,
       orElse: () => 0,
     );
-    
-    // We just trigger checkout, real app might need another photo?
-    // Using checkOut(attendanceId, userId) as defined in cubit
-    context.read<AttendanceCubit>().checkOut(attendanceId, userId);
+    if (userId == 0) return;
+
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        imageQuality: 50,
+      );
+
+      if (photo != null && mounted) {
+        context.read<AttendanceCubit>().checkOut(attendanceId, userId, photo.path);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengambil foto: $e')),
+        );
+      }
+    }
   }
 
   void _showOpenShiftDialog() {
@@ -1040,23 +1064,25 @@ class _ShiftScreenState extends State<ShiftScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Buka Shift'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: cashController,
-              decoration: const InputDecoration(
-                labelText: 'Modal Awal',
-                prefixText: 'Rp ',
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: cashController,
+                decoration: const InputDecoration(
+                  labelText: 'Modal Awal',
+                  prefixText: 'Rp ',
+                ),
+                keyboardType: TextInputType.number,
               ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: notesController,
-              decoration: const InputDecoration(labelText: 'Catatan'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextField(
+                controller: notesController,
+                decoration: const InputDecoration(labelText: 'Catatan'),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -1106,124 +1132,126 @@ class _ShiftScreenState extends State<ShiftScreen>
         child: Container(
           width: 400,
           padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Edit Keterangan Shift',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2937),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$userName · $timeStr',
-                style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: notesController,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.all(16),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF10B981),
-                      width: 1.5,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF10B981),
-                      width: 2,
-                    ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Edit Keterangan Shift',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2937),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFBEB),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFEF3C7)),
+                const SizedBox(height: 4),
+                Text(
+                  '$userName · $timeStr',
+                  style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                 ),
-                child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 24),
+                TextField(
+                  controller: notesController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(16),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF10B981),
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF10B981),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFBEB),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFFEF3C7)),
+                  ),
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: Color(0xFFD97706),
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Hanya keterangan yang bisa diedit. Data nominal tidak dapat diubah.',
+                          style: TextStyle(
+                            color: Color(0xFF92400E),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Row(
                   children: [
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      color: Color(0xFFD97706),
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        'Hanya keterangan yang bisa diedit. Data nominal tidak dapat diubah.',
-                        style: TextStyle(
-                          color: Color(0xFF92400E),
-                          fontSize: 13,
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(color: Color(0xFFE5E7EB)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          'Batal',
+                          style: TextStyle(
+                            color: Color(0xFF374151),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.read<ShiftCubit>().updateNotes(
+                                shift.id!,
+                                notesController.text,
+                              );
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF049C6B),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          'Simpan',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 28),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: Color(0xFFE5E7EB)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text(
-                        'Batal',
-                        style: TextStyle(
-                          color: Color(0xFF374151),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context.read<ShiftCubit>().updateNotes(
-                          shift.id!,
-                          notesController.text,
-                        );
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF049C6B),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text(
-                        'Simpan',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

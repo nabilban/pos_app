@@ -106,179 +106,181 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
       child: Container(
         width: 420,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.error.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header Section
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.history_toggle_off,
+                  color: AppColors.error,
+                  size: 32,
+                ),
               ),
-              child: const Icon(
-                Icons.history_toggle_off,
-                color: AppColors.error,
-                size: 32,
+              const SizedBox(height: 16),
+              const Text(
+                'Tutup Shift',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.5,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Tutup Shift',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-                letterSpacing: -0.5,
+              Text(
+                userName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            Text(
-              userName,
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w500,
+              
+              const SizedBox(height: 24),
+              
+              // Summary Box
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFF1F5F9)),
+                ),
+                child: Column(
+                  children: [
+                    _buildSummaryRow('Modal Awal', CurrencyUtil.format(widget.shift.cashIn)),
+                    const SizedBox(height: 12),
+                    _buildSummaryRow(
+                      'Total Penjualan', 
+                      CurrencyUtil.format(totalSales),
+                      valueColor: const Color(0xFF10B981),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSummaryRow('Total Transaksi', '${totalTransactions}x'),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+                    ),
+                    _buildSummaryRow(
+                      'Ekspektasi Kas', 
+                      CurrencyUtil.format(expectedCash),
+                      isBold: true,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Summary Box
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
+              
+              const SizedBox(height: 24),
+              
+              // Input Sections
+              _buildInputLabel('Uang di Kasir Sekarang'),
+              TextField(
+                controller: _cashController,
+                decoration: InputDecoration(
+                  prefixText: 'Rp ',
+                  hintText: '0',
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.all(16),
+                ),
+                keyboardType: TextInputType.number,
               ),
-              child: Column(
+              
+              const SizedBox(height: 20),
+              
+              _buildInputLabel('Keterangan (opsional)'),
+              TextField(
+                controller: _notesController,
+                decoration: InputDecoration(
+                  hintText: 'Tulis keterangan tambahan...',
+                  filled: true,
+                  fillColor: Colors.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.all(16),
+                ),
+                maxLines: 3,
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Action Buttons
+              Row(
                 children: [
-                  _buildSummaryRow('Modal Awal', CurrencyUtil.format(widget.shift.cashIn)),
-                  const SizedBox(height: 12),
-                  _buildSummaryRow(
-                    'Total Penjualan', 
-                    CurrencyUtil.format(totalSales),
-                    valueColor: const Color(0xFF10B981),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _isClosing ? null : () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Batal',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  _buildSummaryRow('Total Transaksi', '${totalTransactions}x'),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(height: 1, color: Color(0xFFE2E8F0)),
-                  ),
-                  _buildSummaryRow(
-                    'Ekspektasi Kas', 
-                    CurrencyUtil.format(expectedCash),
-                    isBold: true,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isClosing ? null : _onCloseShift,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFEF4444),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: _isClosing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Tutup Shift',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                            ),
+                    ),
                   ),
                 ],
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Input Sections
-            _buildInputLabel('Uang di Kasir Sekarang'),
-            TextField(
-              controller: _cashController,
-              decoration: InputDecoration(
-                prefixText: 'Rp ',
-                hintText: '0',
-                filled: true,
-                fillColor: Colors.white,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                ),
-                contentPadding: const EdgeInsets.all(16),
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            
-            const SizedBox(height: 20),
-            
-            _buildInputLabel('Keterangan (opsional)'),
-            TextField(
-              controller: _notesController,
-              decoration: InputDecoration(
-                hintText: 'Tulis keterangan tambahan...',
-                filled: true,
-                fillColor: Colors.white,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                ),
-                contentPadding: const EdgeInsets.all(16),
-              ),
-              maxLines: 3,
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _isClosing ? null : () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Batal',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isClosing ? null : _onCloseShift,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEF4444),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: _isClosing
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Tutup Shift',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 16,
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

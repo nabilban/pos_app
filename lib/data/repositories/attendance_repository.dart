@@ -6,7 +6,7 @@ import '../models/attendance.dart';
 abstract class IAttendanceRepository {
   Future<AttendanceModel?> getTodayAttendance(int userId);
   Future<void> checkIn(int userId, String photoPath);
-  Future<void> checkOut(int attendanceId);
+  Future<void> checkOut(int attendanceId, String photoPath);
   Future<List<AttendanceModel>> getHistory();
 }
 
@@ -49,9 +49,17 @@ class AttendanceRepository implements IAttendanceRepository {
   }
 
   @override
-  Future<void> checkOut(int attendanceId) async {
+  Future<void> checkOut(int attendanceId, String photoPath) async {
+    final formData = FormData.fromMap({
+      'photo': await MultipartFile.fromFile(
+        photoPath,
+        filename: 'selfie_out.jpg',
+      ),
+    });
+
     await _apiClient.authenticatedDio.post(
       '/attendances/$attendanceId/checkout',
+      data: formData,
     );
   }
 
