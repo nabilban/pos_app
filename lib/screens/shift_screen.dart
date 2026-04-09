@@ -12,6 +12,9 @@ import '../cubits/history_state.dart';
 import '../utils/app_colors.dart';
 import '../utils/currency_util.dart';
 import '../data/models/shift.dart';
+import '../data/models/attendance.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ShiftScreen extends StatefulWidget {
   const ShiftScreen({super.key});
@@ -27,6 +30,7 @@ class _ShiftScreenState extends State<ShiftScreen>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   final ValueNotifier<bool> _isSyncing = ValueNotifier<bool>(false);
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -66,6 +70,9 @@ class _ShiftScreenState extends State<ShiftScreen>
 
   @override
   Widget build(BuildContext context) {
+    final String baseUrl = (dotenv.env['local_backend'] ?? 'http://localhost:8080/api')
+        .replaceFirst('/api', '');
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
 
@@ -78,7 +85,7 @@ class _ShiftScreenState extends State<ShiftScreen>
               Expanded(
                 child: state.selectedTab == 0
                     ? _buildShiftTab(state)
-                    : _buildAttendanceTab(),
+                    : _buildAttendanceTab(baseUrl),
               ),
             ],
           );
@@ -122,7 +129,12 @@ class _ShiftScreenState extends State<ShiftScreen>
   }) {
     return Expanded(
       child: GestureDetector(
-        onTap: () => context.read<ShiftCubit>().setTab(index),
+      onTap: () {
+          context.read<ShiftCubit>().setTab(index);
+          if (index == 1) {
+            context.read<AttendanceCubit>().loadHistory();
+          }
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
@@ -715,50 +727,309 @@ class _ShiftScreenState extends State<ShiftScreen>
     );
   }
 
-  Widget _buildAttendanceTab() {
+  Widget _buildAttendanceTab(String baseUrl) {
     return BlocBuilder<AttendanceCubit, AttendanceState>(
       builder: (context, state) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.construction_outlined,
-                size: 80,
-                color: AppColors.warning,
+        if (state.isLoading && state.history.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            _buildTodayAttendanceSection(state),
+            const SizedBox(height: 32),
+            const Text(
+              'Riwayat Absensi',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
               ),
-              const SizedBox(height: 24),
-              const Text(
-                'Fitur Absensi Sedang Maintenance',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              ),
-              const SizedBox(height: 12),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 48),
-                child: Text(
-                  'Backend absensi sedang dalam perbaikan. Silakan gunakan fitur Shift untuk sementara.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            if (state.history.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Text('Belum ada riwayat absensi'),
                 ),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () => context.read<ShiftCubit>().setTab(0),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text('Ke Manajemen Shift'),
-              ),
-            ],
-          ),
+              )
+            else
+              ...state.history.map((a) => _buildAttendanceHistoryItem(a, baseUrl)),
+            const SizedBox(height: 48),
+          ],
         );
       },
     );
+  }
+
+  Widget _buildTodayAttendanceSection(AttendanceState state) {
+    final today = DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now());
+    final att = state.todayAttendance;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Absensi Hari Ini',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          Text(
+            today,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          ),
+          const SizedBox(height: 24),
+          _buildAttendanceStatusRow(
+            label: 'Absen Masuk',
+            time: att?.checkIn != null 
+                ? DateFormat('HH:mm').format(DateTime.parse(att!.checkIn!)) 
+                : null,
+            subtitle: att?.checkIn != null ? 'Terabsen' : 'Belum absen masuk',
+            onPressed: att?.checkIn == null ? () => _handleAttendanceCheckIn() : null,
+            icon: Icons.login_rounded,
+          ),
+          const Divider(height: 32),
+          _buildAttendanceStatusRow(
+            label: 'Absen Pulang',
+            time: att?.checkOut != null 
+                ? DateFormat('HH:mm').format(DateTime.parse(att!.checkOut!)) 
+                : null,
+            subtitle: att?.checkOut != null 
+                ? 'Selesai' 
+                : (att?.checkIn != null ? 'Siap absen pulang' : 'Absen masuk dulu'),
+            onPressed: (att?.checkIn != null && att?.checkOut == null) 
+                ? () => _handleAttendanceCheckOut(att!.id!) 
+                : null,
+            icon: Icons.logout_rounded,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttendanceStatusRow({
+    required String label,
+    String? time,
+    required String subtitle,
+    VoidCallback? onPressed,
+    required IconData icon,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: AppColors.textSecondary),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              Text(
+                time != null ? '$subtitle $time' : subtitle,
+                style: TextStyle(
+                  color: time != null ? AppColors.success : AppColors.textMuted,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (onPressed != null)
+          ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text(label),
+          )
+        else if (time != null)
+          const Icon(Icons.check_circle, color: AppColors.success)
+        else
+          const Text('—', style: TextStyle(color: AppColors.textMuted)),
+      ],
+    );
+  }
+
+  Widget _buildAttendanceHistoryItem(AttendanceModel a, String baseUrl) {
+    final checkIn = a.checkIn != null ? DateTime.parse(a.checkIn!) : null;
+    final checkOut = a.checkOut != null ? DateTime.parse(a.checkOut!) : null;
+    
+    String duration = '';
+    if (checkIn != null && checkOut != null) {
+      final diff = checkOut.difference(checkIn);
+      duration = 'Durasi: ${diff.inHours}j ${diff.inMinutes % 60}m';
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  checkIn != null ? DateFormat('EEE, dd MMM yyyy').format(checkIn) : '-',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (checkIn != null) ...[
+                      const Icon(Icons.circle, size: 8, color: AppColors.success),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Masuk: ${DateFormat('HH.mm').format(checkIn)}',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ],
+                    if (checkOut != null) ...[
+                      const SizedBox(width: 12),
+                      const Icon(Icons.circle, size: 8, color: AppColors.warning),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Pulang: ${DateFormat('HH.mm').format(checkOut)}',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ],
+                  ],
+                ),
+                if (duration.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    duration,
+                    style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              if (a.photoIn != null && a.photoIn!.isNotEmpty)
+                _buildAttendancePhoto(baseUrl + a.photoIn!, 'masuk'),
+              if (a.photoOut != null && a.photoOut!.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                _buildAttendancePhoto(baseUrl + a.photoOut!, 'pulang'),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttendancePhoto(String url, String label) {
+    // Basic image display, would need full URL in real app
+    return Stack(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: const Color(0xFFF1F5F9),
+            image: DecorationImage(
+              image: NetworkImage(url), // Placeholder for real implementation
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          left: 0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.5),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white, fontSize: 8),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _handleAttendanceCheckIn() async {
+    final userId = context.read<AuthCubit>().state.maybeWhen(
+      authenticated: (_, user) => user.id,
+      orElse: () => 0,
+    );
+    if (userId == 0) return;
+
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        imageQuality: 50,
+      );
+
+      if (photo != null && mounted) {
+        context.read<AttendanceCubit>().checkIn(userId, photo.path);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengambil foto: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleAttendanceCheckOut(int attendanceId) async {
+    final userId = context.read<AuthCubit>().state.maybeWhen(
+      authenticated: (_, user) => user.id,
+      orElse: () => 0,
+    );
+    
+    // We just trigger checkout, real app might need another photo?
+    // Using checkOut(attendanceId, userId) as defined in cubit
+    context.read<AttendanceCubit>().checkOut(attendanceId, userId);
   }
 
   void _showOpenShiftDialog() {

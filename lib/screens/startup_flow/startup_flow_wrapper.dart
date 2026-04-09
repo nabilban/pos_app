@@ -7,6 +7,7 @@ import '../../cubits/shift_cubit.dart';
 import '../../cubits/shift_state.dart';
 import '../main_layout.dart';
 import 'open_shift_screen.dart';
+import 'attendance_checkin_screen.dart';
 
 class StartupFlowWrapper extends StatefulWidget {
   const StartupFlowWrapper({super.key});
@@ -26,7 +27,7 @@ class _StartupFlowWrapperState extends State<StartupFlowWrapper> {
     final authState = context.read<AuthCubit>().state;
     authState.maybeWhen(
       authenticated: (token, user) {
-        // context.read<AttendanceCubit>().checkStatus(user.id);
+        context.read<AttendanceCubit>().checkStatus(user.id);
         context.read<ShiftCubit>().checkStatus(user.id);
       },
       orElse: () {},
@@ -65,11 +66,10 @@ class _StartupFlowWrapperState extends State<StartupFlowWrapper> {
               return const OpenShiftScreen();
             }
 
-            // // 3. Attendance Check
-            // if (attendanceState.todayAttendance == null ||
-            //     attendanceState.todayAttendance?.checkInTime == null) {
-            //   return const AttendanceCheckInScreen();
-            // }
+            // 3. Attendance Check
+            if (attendanceState.todayAttendance == null) {
+              return const AttendanceCheckInScreen();
+            }
 
             // 4. All set, show Main Dashboard
             return const MainLayout();

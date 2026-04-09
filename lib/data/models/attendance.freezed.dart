@@ -25,12 +25,14 @@ mixin _$AttendanceModel {
   int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_id')
   int get userId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'check_in_time')
-  DateTime get checkInTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'check_out_time')
-  DateTime? get checkOutTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'photo_path')
-  String? get photoPath => throw _privateConstructorUsedError;
+  @JsonKey(name: 'photo_in')
+  String? get photoIn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'photo_out')
+  String? get photoOut => throw _privateConstructorUsedError;
+  @JsonKey(name: 'check_in')
+  String? get checkIn => throw _privateConstructorUsedError;
+  @JsonKey(name: 'check_out')
+  String? get checkOut => throw _privateConstructorUsedError;
   String get syncStatus => throw _privateConstructorUsedError;
 
   /// Serializes this AttendanceModel to a JSON map.
@@ -53,9 +55,10 @@ abstract class $AttendanceModelCopyWith<$Res> {
   $Res call({
     @JsonKey(name: 'ID') int? id,
     @JsonKey(name: 'user_id') int userId,
-    @JsonKey(name: 'check_in_time') DateTime checkInTime,
-    @JsonKey(name: 'check_out_time') DateTime? checkOutTime,
-    @JsonKey(name: 'photo_path') String? photoPath,
+    @JsonKey(name: 'photo_in') String? photoIn,
+    @JsonKey(name: 'photo_out') String? photoOut,
+    @JsonKey(name: 'check_in') String? checkIn,
+    @JsonKey(name: 'check_out') String? checkOut,
     String syncStatus,
   });
 }
@@ -77,9 +80,10 @@ class _$AttendanceModelCopyWithImpl<$Res, $Val extends AttendanceModel>
   $Res call({
     Object? id = freezed,
     Object? userId = null,
-    Object? checkInTime = null,
-    Object? checkOutTime = freezed,
-    Object? photoPath = freezed,
+    Object? photoIn = freezed,
+    Object? photoOut = freezed,
+    Object? checkIn = freezed,
+    Object? checkOut = freezed,
     Object? syncStatus = null,
   }) {
     return _then(
@@ -92,17 +96,21 @@ class _$AttendanceModelCopyWithImpl<$Res, $Val extends AttendanceModel>
                 ? _value.userId
                 : userId // ignore: cast_nullable_to_non_nullable
                       as int,
-            checkInTime: null == checkInTime
-                ? _value.checkInTime
-                : checkInTime // ignore: cast_nullable_to_non_nullable
-                      as DateTime,
-            checkOutTime: freezed == checkOutTime
-                ? _value.checkOutTime
-                : checkOutTime // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            photoPath: freezed == photoPath
-                ? _value.photoPath
-                : photoPath // ignore: cast_nullable_to_non_nullable
+            photoIn: freezed == photoIn
+                ? _value.photoIn
+                : photoIn // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            photoOut: freezed == photoOut
+                ? _value.photoOut
+                : photoOut // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            checkIn: freezed == checkIn
+                ? _value.checkIn
+                : checkIn // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            checkOut: freezed == checkOut
+                ? _value.checkOut
+                : checkOut // ignore: cast_nullable_to_non_nullable
                       as String?,
             syncStatus: null == syncStatus
                 ? _value.syncStatus
@@ -126,9 +134,10 @@ abstract class _$$AttendanceModelImplCopyWith<$Res>
   $Res call({
     @JsonKey(name: 'ID') int? id,
     @JsonKey(name: 'user_id') int userId,
-    @JsonKey(name: 'check_in_time') DateTime checkInTime,
-    @JsonKey(name: 'check_out_time') DateTime? checkOutTime,
-    @JsonKey(name: 'photo_path') String? photoPath,
+    @JsonKey(name: 'photo_in') String? photoIn,
+    @JsonKey(name: 'photo_out') String? photoOut,
+    @JsonKey(name: 'check_in') String? checkIn,
+    @JsonKey(name: 'check_out') String? checkOut,
     String syncStatus,
   });
 }
@@ -149,9 +158,10 @@ class __$$AttendanceModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? userId = null,
-    Object? checkInTime = null,
-    Object? checkOutTime = freezed,
-    Object? photoPath = freezed,
+    Object? photoIn = freezed,
+    Object? photoOut = freezed,
+    Object? checkIn = freezed,
+    Object? checkOut = freezed,
     Object? syncStatus = null,
   }) {
     return _then(
@@ -164,17 +174,21 @@ class __$$AttendanceModelImplCopyWithImpl<$Res>
             ? _value.userId
             : userId // ignore: cast_nullable_to_non_nullable
                   as int,
-        checkInTime: null == checkInTime
-            ? _value.checkInTime
-            : checkInTime // ignore: cast_nullable_to_non_nullable
-                  as DateTime,
-        checkOutTime: freezed == checkOutTime
-            ? _value.checkOutTime
-            : checkOutTime // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        photoPath: freezed == photoPath
-            ? _value.photoPath
-            : photoPath // ignore: cast_nullable_to_non_nullable
+        photoIn: freezed == photoIn
+            ? _value.photoIn
+            : photoIn // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        photoOut: freezed == photoOut
+            ? _value.photoOut
+            : photoOut // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        checkIn: freezed == checkIn
+            ? _value.checkIn
+            : checkIn // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        checkOut: freezed == checkOut
+            ? _value.checkOut
+            : checkOut // ignore: cast_nullable_to_non_nullable
                   as String?,
         syncStatus: null == syncStatus
             ? _value.syncStatus
@@ -191,9 +205,10 @@ class _$AttendanceModelImpl implements _AttendanceModel {
   const _$AttendanceModelImpl({
     @JsonKey(name: 'ID') required this.id,
     @JsonKey(name: 'user_id') required this.userId,
-    @JsonKey(name: 'check_in_time') required this.checkInTime,
-    @JsonKey(name: 'check_out_time') this.checkOutTime,
-    @JsonKey(name: 'photo_path') this.photoPath,
+    @JsonKey(name: 'photo_in') this.photoIn,
+    @JsonKey(name: 'photo_out') this.photoOut,
+    @JsonKey(name: 'check_in') this.checkIn,
+    @JsonKey(name: 'check_out') this.checkOut,
     this.syncStatus = 'pending',
   });
 
@@ -207,21 +222,24 @@ class _$AttendanceModelImpl implements _AttendanceModel {
   @JsonKey(name: 'user_id')
   final int userId;
   @override
-  @JsonKey(name: 'check_in_time')
-  final DateTime checkInTime;
+  @JsonKey(name: 'photo_in')
+  final String? photoIn;
   @override
-  @JsonKey(name: 'check_out_time')
-  final DateTime? checkOutTime;
+  @JsonKey(name: 'photo_out')
+  final String? photoOut;
   @override
-  @JsonKey(name: 'photo_path')
-  final String? photoPath;
+  @JsonKey(name: 'check_in')
+  final String? checkIn;
+  @override
+  @JsonKey(name: 'check_out')
+  final String? checkOut;
   @override
   @JsonKey()
   final String syncStatus;
 
   @override
   String toString() {
-    return 'AttendanceModel(id: $id, userId: $userId, checkInTime: $checkInTime, checkOutTime: $checkOutTime, photoPath: $photoPath, syncStatus: $syncStatus)';
+    return 'AttendanceModel(id: $id, userId: $userId, photoIn: $photoIn, photoOut: $photoOut, checkIn: $checkIn, checkOut: $checkOut, syncStatus: $syncStatus)';
   }
 
   @override
@@ -231,12 +249,12 @@ class _$AttendanceModelImpl implements _AttendanceModel {
             other is _$AttendanceModelImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.checkInTime, checkInTime) ||
-                other.checkInTime == checkInTime) &&
-            (identical(other.checkOutTime, checkOutTime) ||
-                other.checkOutTime == checkOutTime) &&
-            (identical(other.photoPath, photoPath) ||
-                other.photoPath == photoPath) &&
+            (identical(other.photoIn, photoIn) || other.photoIn == photoIn) &&
+            (identical(other.photoOut, photoOut) ||
+                other.photoOut == photoOut) &&
+            (identical(other.checkIn, checkIn) || other.checkIn == checkIn) &&
+            (identical(other.checkOut, checkOut) ||
+                other.checkOut == checkOut) &&
             (identical(other.syncStatus, syncStatus) ||
                 other.syncStatus == syncStatus));
   }
@@ -247,9 +265,10 @@ class _$AttendanceModelImpl implements _AttendanceModel {
     runtimeType,
     id,
     userId,
-    checkInTime,
-    checkOutTime,
-    photoPath,
+    photoIn,
+    photoOut,
+    checkIn,
+    checkOut,
     syncStatus,
   );
 
@@ -274,9 +293,10 @@ abstract class _AttendanceModel implements AttendanceModel {
   const factory _AttendanceModel({
     @JsonKey(name: 'ID') required final int? id,
     @JsonKey(name: 'user_id') required final int userId,
-    @JsonKey(name: 'check_in_time') required final DateTime checkInTime,
-    @JsonKey(name: 'check_out_time') final DateTime? checkOutTime,
-    @JsonKey(name: 'photo_path') final String? photoPath,
+    @JsonKey(name: 'photo_in') final String? photoIn,
+    @JsonKey(name: 'photo_out') final String? photoOut,
+    @JsonKey(name: 'check_in') final String? checkIn,
+    @JsonKey(name: 'check_out') final String? checkOut,
     final String syncStatus,
   }) = _$AttendanceModelImpl;
 
@@ -290,14 +310,17 @@ abstract class _AttendanceModel implements AttendanceModel {
   @JsonKey(name: 'user_id')
   int get userId;
   @override
-  @JsonKey(name: 'check_in_time')
-  DateTime get checkInTime;
+  @JsonKey(name: 'photo_in')
+  String? get photoIn;
   @override
-  @JsonKey(name: 'check_out_time')
-  DateTime? get checkOutTime;
+  @JsonKey(name: 'photo_out')
+  String? get photoOut;
   @override
-  @JsonKey(name: 'photo_path')
-  String? get photoPath;
+  @JsonKey(name: 'check_in')
+  String? get checkIn;
+  @override
+  @JsonKey(name: 'check_out')
+  String? get checkOut;
   @override
   String get syncStatus;
 

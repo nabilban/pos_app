@@ -20,13 +20,15 @@ class AttendanceRepository implements IAttendanceRepository {
   @override
   Future<AttendanceModel?> getTodayAttendance(int userId) async {
     try {
-      final response = await _apiClient.authenticatedDio.get('/attendances/today');
+      final response = await _apiClient.authenticatedDio.get(
+        '/attendances/today',
+        data: {'user_id': userId.toString()},
+      );
       if (response.data['data'] != null) {
         return AttendanceModel.fromJson(response.data['data']);
       }
     } catch (e) {
       // If error (e.g. 404 or network error), we return null
-      // Cubit will handle the "no today attendance" state
     }
     return null;
   }

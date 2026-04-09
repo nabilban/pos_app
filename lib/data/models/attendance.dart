@@ -9,9 +9,10 @@ class AttendanceModel with _$AttendanceModel {
   const factory AttendanceModel({
     @JsonKey(name: 'ID') required int? id,
     @JsonKey(name: 'user_id') required int userId,
-    @JsonKey(name: 'check_in_time') required DateTime checkInTime,
-    @JsonKey(name: 'check_out_time') DateTime? checkOutTime,
-    @JsonKey(name: 'photo_path') String? photoPath,
+    @JsonKey(name: 'photo_in') String? photoIn,
+    @JsonKey(name: 'photo_out') String? photoOut,
+    @JsonKey(name: 'check_in') String? checkIn,
+    @JsonKey(name: 'check_out') String? checkOut,
     @Default('pending') String syncStatus,
   }) = _AttendanceModel;
 

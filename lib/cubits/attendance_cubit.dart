@@ -19,8 +19,19 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     try {
       final attendance = await _repository.getTodayAttendance(userId);
       emit(state.copyWith(isLoading: false, todayAttendance: attendance));
+      // Also load history to be sure
+      await loadHistory();
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
+    }
+  }
+
+  Future<void> loadHistory() async {
+    try {
+      final history = await _repository.getHistory();
+      emit(state.copyWith(history: history));
+    } catch (e) {
+      // Slient fail for history load to not block UI
     }
   }
 
@@ -30,6 +41,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
       await _repository.checkIn(userId, photoPath);
       final attendance = await _repository.getTodayAttendance(userId);
       emit(state.copyWith(isLoading: false, todayAttendance: attendance));
+      await loadHistory();
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
@@ -41,6 +53,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
       await _repository.checkOut(attendanceId);
       final attendance = await _repository.getTodayAttendance(userId);
       emit(state.copyWith(isLoading: false, todayAttendance: attendance));
+      await loadHistory();
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }

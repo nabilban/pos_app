@@ -11,11 +11,10 @@ _$AttendanceModelImpl _$$AttendanceModelImplFromJson(
 ) => _$AttendanceModelImpl(
   id: (json['ID'] as num?)?.toInt(),
   userId: (json['user_id'] as num).toInt(),
-  checkInTime: DateTime.parse(json['check_in_time'] as String),
-  checkOutTime: json['check_out_time'] == null
-      ? null
-      : DateTime.parse(json['check_out_time'] as String),
-  photoPath: json['photo_path'] as String?,
+  photoIn: json['photo_in'] as String?,
+  photoOut: json['photo_out'] as String?,
+  checkIn: json['check_in'] as String?,
+  checkOut: json['check_out'] as String?,
   syncStatus: json['syncStatus'] as String? ?? 'pending',
 );
 
@@ -24,8 +23,9 @@ Map<String, dynamic> _$$AttendanceModelImplToJson(
 ) => <String, dynamic>{
   'ID': instance.id,
   'user_id': instance.userId,
-  'check_in_time': instance.checkInTime.toIso8601String(),
-  'check_out_time': instance.checkOutTime?.toIso8601String(),
-  'photo_path': instance.photoPath,
+  'photo_in': instance.photoIn,
+  'photo_out': instance.photoOut,
+  'check_in': instance.checkIn,
+  'check_out': instance.checkOut,
   'syncStatus': instance.syncStatus,
 };

@@ -41,7 +41,7 @@ class GlobalProviders extends StatelessWidget {
           create: (_) => Dio(
             BaseOptions(
               baseUrl:
-                  dotenv.env['remote_backend'] ?? 'http://localhost:8080/api',
+                  dotenv.env['local_backend'] ?? 'http://localhost:8080/api',
               connectTimeout: const Duration(seconds: 60),
               receiveTimeout: const Duration(seconds: 60),
               headers: {
@@ -109,14 +109,11 @@ class GlobalProviders extends StatelessWidget {
             create: (context) => HistoryCubit(context.read<ISalesRepository>()),
           ),
           BlocProvider(
-            create: (context) => AttendanceCubit(
-              context.read<IAttendanceRepository>(),
-            ),
+            create: (context) =>
+                AttendanceCubit(context.read<IAttendanceRepository>()),
           ),
           BlocProvider(
-            create: (context) => ShiftCubit(
-              context.read<IShiftRepository>(),
-            ),
+            create: (context) => ShiftCubit(context.read<IShiftRepository>()),
           ),
           BlocProvider(create: (context) => SettingsCubit()),
         ],

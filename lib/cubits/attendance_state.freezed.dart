@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$AttendanceState {
   bool get isLoading => throw _privateConstructorUsedError;
   AttendanceModel? get todayAttendance => throw _privateConstructorUsedError;
+  List<AttendanceModel> get history => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
   /// Create a copy of AttendanceState
@@ -35,7 +36,12 @@ abstract class $AttendanceStateCopyWith<$Res> {
     $Res Function(AttendanceState) then,
   ) = _$AttendanceStateCopyWithImpl<$Res, AttendanceState>;
   @useResult
-  $Res call({bool isLoading, AttendanceModel? todayAttendance, String? error});
+  $Res call({
+    bool isLoading,
+    AttendanceModel? todayAttendance,
+    List<AttendanceModel> history,
+    String? error,
+  });
 
   $AttendanceModelCopyWith<$Res>? get todayAttendance;
 }
@@ -57,6 +63,7 @@ class _$AttendanceStateCopyWithImpl<$Res, $Val extends AttendanceState>
   $Res call({
     Object? isLoading = null,
     Object? todayAttendance = freezed,
+    Object? history = null,
     Object? error = freezed,
   }) {
     return _then(
@@ -69,6 +76,10 @@ class _$AttendanceStateCopyWithImpl<$Res, $Val extends AttendanceState>
                 ? _value.todayAttendance
                 : todayAttendance // ignore: cast_nullable_to_non_nullable
                       as AttendanceModel?,
+            history: null == history
+                ? _value.history
+                : history // ignore: cast_nullable_to_non_nullable
+                      as List<AttendanceModel>,
             error: freezed == error
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
@@ -102,7 +113,12 @@ abstract class _$$AttendanceStateImplCopyWith<$Res>
   ) = __$$AttendanceStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool isLoading, AttendanceModel? todayAttendance, String? error});
+  $Res call({
+    bool isLoading,
+    AttendanceModel? todayAttendance,
+    List<AttendanceModel> history,
+    String? error,
+  });
 
   @override
   $AttendanceModelCopyWith<$Res>? get todayAttendance;
@@ -124,6 +140,7 @@ class __$$AttendanceStateImplCopyWithImpl<$Res>
   $Res call({
     Object? isLoading = null,
     Object? todayAttendance = freezed,
+    Object? history = null,
     Object? error = freezed,
   }) {
     return _then(
@@ -136,6 +153,10 @@ class __$$AttendanceStateImplCopyWithImpl<$Res>
             ? _value.todayAttendance
             : todayAttendance // ignore: cast_nullable_to_non_nullable
                   as AttendanceModel?,
+        history: null == history
+            ? _value._history
+            : history // ignore: cast_nullable_to_non_nullable
+                  as List<AttendanceModel>,
         error: freezed == error
             ? _value.error
             : error // ignore: cast_nullable_to_non_nullable
@@ -151,20 +172,30 @@ class _$AttendanceStateImpl implements _AttendanceState {
   const _$AttendanceStateImpl({
     this.isLoading = false,
     this.todayAttendance,
+    final List<AttendanceModel> history = const [],
     this.error,
-  });
+  }) : _history = history;
 
   @override
   @JsonKey()
   final bool isLoading;
   @override
   final AttendanceModel? todayAttendance;
+  final List<AttendanceModel> _history;
+  @override
+  @JsonKey()
+  List<AttendanceModel> get history {
+    if (_history is EqualUnmodifiableListView) return _history;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_history);
+  }
+
   @override
   final String? error;
 
   @override
   String toString() {
-    return 'AttendanceState(isLoading: $isLoading, todayAttendance: $todayAttendance, error: $error)';
+    return 'AttendanceState(isLoading: $isLoading, todayAttendance: $todayAttendance, history: $history, error: $error)';
   }
 
   @override
@@ -176,12 +207,18 @@ class _$AttendanceStateImpl implements _AttendanceState {
                 other.isLoading == isLoading) &&
             (identical(other.todayAttendance, todayAttendance) ||
                 other.todayAttendance == todayAttendance) &&
+            const DeepCollectionEquality().equals(other._history, _history) &&
             (identical(other.error, error) || other.error == error));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, isLoading, todayAttendance, error);
+  int get hashCode => Object.hash(
+    runtimeType,
+    isLoading,
+    todayAttendance,
+    const DeepCollectionEquality().hash(_history),
+    error,
+  );
 
   /// Create a copy of AttendanceState
   /// with the given fields replaced by the non-null parameter values.
@@ -199,6 +236,7 @@ abstract class _AttendanceState implements AttendanceState {
   const factory _AttendanceState({
     final bool isLoading,
     final AttendanceModel? todayAttendance,
+    final List<AttendanceModel> history,
     final String? error,
   }) = _$AttendanceStateImpl;
 
@@ -206,6 +244,8 @@ abstract class _AttendanceState implements AttendanceState {
   bool get isLoading;
   @override
   AttendanceModel? get todayAttendance;
+  @override
+  List<AttendanceModel> get history;
   @override
   String? get error;
 

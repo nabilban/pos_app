@@ -8,6 +8,7 @@ class AttendanceState with _$AttendanceState {
   const factory AttendanceState({
     @Default(false) bool isLoading,
     AttendanceModel? todayAttendance,
+    @Default([]) List<AttendanceModel> history,
     String? error,
   }) = _AttendanceState;
 }
