@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
+import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 import '../entity/token_entity.dart';
 import '../entity/user_entity.dart';
@@ -144,12 +145,10 @@ LazyDatabase _openConnection() {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'db.sqlite'));
 
-    print('Database location: ${file.path}');
-
-    // // Work around limitations on old Android versions
-    // if (Platform.isAndroid) {
-    //   await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
-    // }
+    // Work around limitations on old Android versions
+    if (Platform.isAndroid) {
+      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
+    }
 
     // Make sqlite3 pick up the native library and cache directory properly
     final cachebase = (await getTemporaryDirectory()).path;

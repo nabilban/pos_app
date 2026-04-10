@@ -192,7 +192,7 @@ class _MainLayoutState extends State<MainLayout> {
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 24),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 48),
         ],
       ),
     );

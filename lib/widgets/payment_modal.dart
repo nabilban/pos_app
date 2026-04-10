@@ -268,7 +268,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                     borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
                   ),
                   child: SafeArea(
-                    bottom: false,
+                    bottom: true,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -403,7 +403,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
 
   Widget _buildFooter(CheckoutState checkoutState, CartState cartState) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       child: PrimaryButton(
         label: checkoutState.isProcessing
             ? 'Memproses...'
