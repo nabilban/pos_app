@@ -21,6 +21,7 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
   late final TextEditingController _cashController;
   late final TextEditingController _notesController;
   bool _isClosing = false;
+  String? _cashError;
 
   @override
   void initState() {
@@ -38,12 +39,16 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
 
   Future<void> _onCloseShift() async {
     final finalCash = double.tryParse(_cashController.text);
-    if (finalCash == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Masukkan total kas akhir yang valid')),
-      );
+    if (finalCash == null || finalCash < 0) {
+      setState(() {
+        _cashError = 'Masukkan total kas akhir yang valid';
+      });
       return;
     }
+
+    setState(() {
+      _cashError = null;
+    });
 
     setState(() => _isClosing = true);
 
@@ -184,6 +189,11 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
               _buildInputLabel('Uang di Kasir Sekarang'),
               TextField(
                 controller: _cashController,
+                onChanged: (_) {
+                  if (_cashError != null) {
+                    setState(() => _cashError = null);
+                  }
+                },
                 decoration: InputDecoration(
                   prefixStyle: const TextStyle(
                     color: AppColors.textPrimary,
@@ -191,6 +201,7 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
                   ),
                   prefixText: 'Rp ',
                   hintText: '0',
+                  errorText: _cashError,
                   filled: true,
                   fillColor: Colors.white,
                   enabledBorder: OutlineInputBorder(

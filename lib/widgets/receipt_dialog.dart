@@ -17,6 +17,7 @@ Future<void> showReceiptDialog(
   String paymentMethod, {
   required String buyerName,
   String? invoiceNumber,
+  bool isOffline = false,
 }) {
   final cubit = context.read<CartCubit>();
   final state = cubit.state;
@@ -44,6 +45,7 @@ Future<void> showReceiptDialog(
       paymentMethod: paymentMethod,
       buyerName: buyerName,
       invoiceNumber: invoiceNumber,
+      isOffline: isOffline,
       dateStr: dateStr,
       user: user,
       onClose: () {
@@ -61,6 +63,7 @@ class _ReceiptDialog extends StatelessWidget {
   final String paymentMethod;
   final String buyerName;
   final String? invoiceNumber;
+  final bool isOffline;
   final String dateStr;
   final User? user;
   final VoidCallback onClose;
@@ -73,6 +76,7 @@ class _ReceiptDialog extends StatelessWidget {
     required this.paymentMethod,
     required this.buyerName,
     this.invoiceNumber,
+    required this.isOffline,
     required this.dateStr,
     required this.user,
     required this.onClose,
@@ -137,7 +141,9 @@ class _ReceiptDialog extends StatelessWidget {
                       Text(
                         outletName.trim().isNotEmpty
                             ? outletName
-                            : 'Transaction Complete',
+                            : (isOffline
+                                  ? 'Transaksi Tersimpan!'
+                                  : 'Transaction Complete'),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Colors.white,
@@ -254,6 +260,30 @@ class _ReceiptDialog extends StatelessWidget {
                         value: invoiceNumber!,
                         isBold: true,
                       ),
+                    if (isOffline) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF8E8),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFFF4C542),
+                            width: 1.2,
+                          ),
+                        ),
+                        child: const Text(
+                          'Mode Offline\nTransaksi ini disimpan di perangkat dan akan dikirim otomatis saat koneksi kembali.',
+                          style: TextStyle(
+                            color: Color(0xFFB45309),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
                     _Row(label: 'Tanggal', value: dateStr),
                     _Row(label: 'Metode Bayar', value: paymentMethod),
                     _Row(
@@ -424,9 +454,9 @@ class _ReceiptDialog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text(
-                        'Tutup',
-                        style: TextStyle(fontWeight: FontWeight.w800),
+                      child: Text(
+                        isOffline ? 'Transaksi Baru' : 'Tutup',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
                       ),
                     ),
                   ),

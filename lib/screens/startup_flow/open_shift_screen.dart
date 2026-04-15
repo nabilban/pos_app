@@ -15,12 +15,21 @@ class OpenShiftScreen extends StatefulWidget {
 class _OpenShiftScreenState extends State<OpenShiftScreen> {
   final _cashController = TextEditingController();
   final _notesController = TextEditingController();
+  String? _cashError;
 
   void _onOpenShift(int userId) {
-    final cash = double.tryParse(_cashController.text) ?? 0;
+    final parsedCash = double.tryParse(_cashController.text.trim());
+    if (parsedCash == null || parsedCash <= 0) {
+      setState(() {
+        _cashError = 'Modal awal wajib diisi dengan angka yang valid';
+      });
+      return;
+    }
+
+    setState(() => _cashError = null);
     context.read<ShiftCubit>().openShift(
       userId,
-      cash,
+      parsedCash,
       _notesController.text,
     );
   }
@@ -72,9 +81,15 @@ class _OpenShiftScreenState extends State<OpenShiftScreen> {
               const SizedBox(height: 32),
               TextField(
                 controller: _cashController,
+                onChanged: (_) {
+                  if (_cashError != null) {
+                    setState(() => _cashError = null);
+                  }
+                },
                 decoration: InputDecoration(
                   labelText: 'Modal Awal (Kas)',
                   prefixText: 'Rp ',
+                  errorText: _cashError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

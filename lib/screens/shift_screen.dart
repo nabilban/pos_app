@@ -15,6 +15,7 @@ import '../utils/app_colors.dart';
 import '../utils/currency_util.dart';
 import '../data/models/shift.dart';
 import '../data/models/attendance.dart';
+import '../widgets/no_internet_banner.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -97,6 +98,12 @@ class _ShiftScreenState extends State<ShiftScreen>
           builder: (context, state) {
             return Column(
               children: [
+                const NoInternetBanner(
+                  title: 'Mode Offline',
+                  message:
+                      'Menampilkan data shift dari cache. Buka/Tutup shift & absensi membutuhkan koneksi.',
+                  margin: EdgeInsets.fromLTRB(24, 14, 24, 8),
+                ),
                 const SizedBox(height: 8),
                 _buildTabToggle(state.selectedTab),
                 Expanded(
@@ -428,49 +435,57 @@ class _ShiftScreenState extends State<ShiftScreen>
   }
 
   Widget _buildNoActiveShiftCard() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.no_accounts_outlined,
-            size: 48,
-            color: AppColors.textMuted,
+    return BlocBuilder<ConnectivityCubit, ConnectivityState>(
+      buildWhen: (previous, current) => previous.isOnline != current.isOnline,
+      builder: (context, connectivityState) {
+        final isOnline = connectivityState.isOnline;
+        return Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.border),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Belum Ada Shift Aktif',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Buka shift baru untuk mulai melakukan transaksi',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _showOpenShiftDialog(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          child: Column(
+            children: [
+              const Icon(
+                Icons.no_accounts_outlined,
+                size: 48,
+                color: AppColors.textMuted,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Belum Ada Shift Aktif',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isOnline
+                    ? 'Buka shift baru untuk mulai melakukan transaksi'
+                    : 'Tidak bisa membuka shift saat offline',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isOnline ? () => _showOpenShiftDialog() : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(isOnline ? 'Buka Shift Baru' : 'Butuh Koneksi'),
                 ),
               ),
-              child: const Text('Buka Shift Baru'),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -534,74 +549,88 @@ class _ShiftScreenState extends State<ShiftScreen>
 
   Widget _buildAnimatedRefreshButton() {
     final isPressed = ValueNotifier<bool>(false);
-
-    return ValueListenableBuilder<bool>(
-      valueListenable: _isSyncing,
-      builder: (context, syncing, _) {
+    return BlocBuilder<ConnectivityCubit, ConnectivityState>(
+      buildWhen: (previous, current) => previous.isOnline != current.isOnline,
+      builder: (context, connectivityState) {
+        final isOnline = connectivityState.isOnline;
         return ValueListenableBuilder<bool>(
-          valueListenable: isPressed,
-          builder: (context, pressed, _) {
-            final double rotation = syncing ? 2 : 0; // 2 turns = 720 degrees
+          valueListenable: _isSyncing,
+          builder: (context, syncing, _) {
+            return ValueListenableBuilder<bool>(
+              valueListenable: isPressed,
+              builder: (context, pressed, _) {
+                final double rotation = syncing ? 2 : 0; // 2 turns = 720 degrees
+                final isDisabled = syncing || !isOnline;
 
-            return GestureDetector(
-              onTapDown: syncing ? null : (_) => isPressed.value = true,
-              onTapUp: syncing ? null : (_) => isPressed.value = false,
-              onTapCancel: syncing ? null : () => isPressed.value = false,
-              onTap: syncing
-                  ? null
-                  : () async {
-                      _isSyncing.value = true;
-                      final startTime = DateTime.now();
+                return GestureDetector(
+                  onTapDown: isDisabled ? null : (_) => isPressed.value = true,
+                  onTapUp: isDisabled ? null : (_) => isPressed.value = false,
+                  onTapCancel: isDisabled ? null : () => isPressed.value = false,
+                  onTap: isDisabled
+                      ? null
+                      : () async {
+                          _isSyncing.value = true;
+                          final startTime = DateTime.now();
 
-                      final authState = context.read<AuthCubit>().state;
-                      await authState.maybeWhen(
-                        authenticated: (_, user) async {
-                          await Future.wait([
-                            context.read<ShiftCubit>().checkStatus(user.id),
-                            context.read<HistoryCubit>().loadSales(),
-                          ]);
+                          final authState = context.read<AuthCubit>().state;
+                          await authState.maybeWhen(
+                            authenticated: (_, user) async {
+                              await Future.wait([
+                                context.read<ShiftCubit>().checkStatus(user.id),
+                                context.read<HistoryCubit>().loadSales(),
+                              ]);
+                            },
+                            orElse: () async {},
+                          );
+
+                          // Ensure at least 800ms of animation
+                          final elapsed = DateTime.now().difference(startTime);
+                          if (elapsed < const Duration(milliseconds: 800)) {
+                            await Future.delayed(
+                              Duration(
+                                milliseconds: 800 - elapsed.inMilliseconds,
+                              ),
+                            );
+                          }
+
+                          if (mounted) _isSyncing.value = false;
                         },
-                        orElse: () async {},
-                      );
-
-                      // Ensure at least 800ms of animation
-                      final elapsed = DateTime.now().difference(startTime);
-                      if (elapsed < const Duration(milliseconds: 800)) {
-                        await Future.delayed(
-                          Duration(milliseconds: 800 - elapsed.inMilliseconds),
-                        );
-                      }
-
-                      if (mounted) _isSyncing.value = false;
-                    },
-              child: AnimatedScale(
-                scale: pressed ? 0.92 : 1.0,
-                duration: const Duration(milliseconds: 100),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
+                  child: AnimatedScale(
+                    scale: pressed ? 0.92 : 1.0,
+                    duration: const Duration(milliseconds: 100),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isOnline
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.6),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                              alpha: isOnline ? 0.12 : 0.04,
+                            ),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: AnimatedRotation(
-                    turns: rotation,
-                    duration: const Duration(milliseconds: 800),
-                    curve: Curves.easeInOutBack,
-                    child: Icon(
-                      Icons.sync,
-                      size: 20,
-                      color: syncing ? AppColors.textMuted : AppColors.primary,
+                      child: AnimatedRotation(
+                        turns: rotation,
+                        duration: const Duration(milliseconds: 800),
+                        curve: Curves.easeInOutBack,
+                        child: Icon(
+                          Icons.sync,
+                          size: 20,
+                          color: isDisabled
+                              ? AppColors.textMuted
+                              : AppColors.primary,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             );
           },
         );
@@ -783,68 +812,78 @@ class _ShiftScreenState extends State<ShiftScreen>
   Widget _buildTodayAttendanceSection(AttendanceState state) {
     final today = DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now());
     final att = state.todayAttendance;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+    return BlocBuilder<ConnectivityCubit, ConnectivityState>(
+      buildWhen: (previous, current) => previous.isOnline != current.isOnline,
+      builder: (context, connectivityState) {
+        final isOnline = connectivityState.isOnline;
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Absensi Hari Ini',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Absensi Hari Ini',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              Text(
+                today,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildAttendanceStatusRow(
+                label: 'Absen Masuk',
+                time: att?.checkIn != null
+                    ? DateFormat(
+                        'HH:mm',
+                      ).format(DateTime.parse(att!.checkIn!).toLocal())
+                    : null,
+                subtitle: att?.checkIn != null
+                    ? 'Terabsen'
+                    : 'Belum absen masuk',
+                onPressed: (isOnline && att?.checkIn == null)
+                    ? () => _handleAttendanceCheckIn()
+                    : null,
+                icon: Icons.login_rounded,
+                isOnline: isOnline,
+              ),
+              const Divider(height: 32),
+              _buildAttendanceStatusRow(
+                label: 'Absen Pulang',
+                time: att?.checkOut != null
+                    ? DateFormat(
+                        'HH:mm',
+                      ).format(DateTime.parse(att!.checkOut!).toLocal())
+                    : null,
+                subtitle: att?.checkOut != null
+                    ? 'Selesai'
+                    : (att?.checkIn != null
+                          ? 'Siap absen pulang'
+                          : 'Absen masuk dulu'),
+                onPressed:
+                    (isOnline && att?.checkIn != null && att?.checkOut == null)
+                    ? () => _handleAttendanceCheckOut(att!.id!)
+                    : null,
+                icon: Icons.logout_rounded,
+                isOnline: isOnline,
+              ),
+            ],
           ),
-          Text(
-            today,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 24),
-          _buildAttendanceStatusRow(
-            label: 'Absen Masuk',
-            time: att?.checkIn != null
-                ? DateFormat(
-                    'HH:mm',
-                  ).format(DateTime.parse(att!.checkIn!).toLocal())
-                : null,
-            subtitle: att?.checkIn != null ? 'Terabsen' : 'Belum absen masuk',
-            onPressed: att?.checkIn == null
-                ? () => _handleAttendanceCheckIn()
-                : null,
-            icon: Icons.login_rounded,
-          ),
-          const Divider(height: 32),
-          _buildAttendanceStatusRow(
-            label: 'Absen Pulang',
-            time: att?.checkOut != null
-                ? DateFormat(
-                    'HH:mm',
-                  ).format(DateTime.parse(att!.checkOut!).toLocal())
-                : null,
-            subtitle: att?.checkOut != null
-                ? 'Selesai'
-                : (att?.checkIn != null
-                      ? 'Siap absen pulang'
-                      : 'Absen masuk dulu'),
-            onPressed: (att?.checkIn != null && att?.checkOut == null)
-                ? () => _handleAttendanceCheckOut(att!.id!)
-                : null,
-            icon: Icons.logout_rounded,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -854,6 +893,7 @@ class _ShiftScreenState extends State<ShiftScreen>
     required String subtitle,
     VoidCallback? onPressed,
     required IconData icon,
+    required bool isOnline,
   }) {
     return Row(
       children: [
@@ -902,6 +942,14 @@ class _ShiftScreenState extends State<ShiftScreen>
           )
         else if (time != null)
           const Icon(Icons.check_circle, color: AppColors.success)
+        else if (!isOnline)
+          const Text(
+            'Butuh koneksi',
+            style: TextStyle(
+              color: AppColors.warning,
+              fontWeight: FontWeight.w600,
+            ),
+          )
         else
           const Text('—', style: TextStyle(color: AppColors.textMuted)),
       ],
@@ -1117,54 +1165,71 @@ class _ShiftScreenState extends State<ShiftScreen>
   void _showOpenShiftDialog() {
     final TextEditingController cashController = TextEditingController();
     final TextEditingController notesController = TextEditingController();
+    String? cashError;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Buka Shift'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: cashController,
-                decoration: const InputDecoration(
-                  labelText: 'Modal Awal',
-                  prefixText: 'Rp ',
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Buka Shift'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: cashController,
+                  onChanged: (_) {
+                    if (cashError != null) {
+                      setDialogState(() => cashError = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Modal Awal',
+                    prefixText: 'Rp ',
+                    errorText: cashError,
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: notesController,
-                decoration: const InputDecoration(labelText: 'Catatan'),
-              ),
-            ],
+                const SizedBox(height: 16),
+                TextField(
+                  controller: notesController,
+                  decoration: const InputDecoration(labelText: 'Catatan'),
+                ),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final parsedCash = double.tryParse(cashController.text.trim());
+                if (parsedCash == null || parsedCash <= 0) {
+                  setDialogState(() {
+                    cashError = 'Modal awal wajib diisi dengan angka valid';
+                  });
+                  return;
+                }
+
+                final authState = this.context.read<AuthCubit>().state;
+                authState.maybeWhen(
+                  authenticated: (_, user) {
+                    this.context.read<ShiftCubit>().openShift(
+                      user.id,
+                      parsedCash,
+                      notesController.text,
+                    );
+                  },
+                  orElse: () {},
+                );
+                Navigator.pop(context);
+              },
+              child: const Text('Simpan'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final authState = this.context.read<AuthCubit>().state;
-              authState.maybeWhen(
-                authenticated: (_, user) {
-                  this.context.read<ShiftCubit>().openShift(
-                    user.id,
-                    double.tryParse(cashController.text) ?? 0,
-                    notesController.text,
-                  );
-                },
-                orElse: () {},
-              );
-              Navigator.pop(context);
-            },
-            child: const Text('Simpan'),
-          ),
-        ],
       ),
     );
   }

@@ -26,6 +26,7 @@ class CartSummaryStep extends StatelessWidget {
   final Function(int?) onPriceCategoryChanged;
   final Function(int?) onPromoChanged;
   final VoidCallback onCheckVoucher;
+  final bool showValidationErrors;
 
   const CartSummaryStep({
     super.key,
@@ -42,6 +43,7 @@ class CartSummaryStep extends StatelessWidget {
     required this.onPriceCategoryChanged,
     required this.onPromoChanged,
     required this.onCheckVoucher,
+    required this.showValidationErrors,
   });
 
   @override
@@ -56,6 +58,9 @@ class CartSummaryStep extends StatelessWidget {
           onChanged: (val) => context.read<CheckoutCubit>().setBuyerName(val),
           decoration: InputDecoration(
             hintText: 'Contoh: Ahmad',
+            errorText: showValidationErrors && checkoutState.buyerName.trim().isEmpty
+                ? 'Nama pembeli wajib diisi'
+                : null,
             isDense: true,
             prefixIcon: const Icon(Icons.person_outline, size: 24),
             border: OutlineInputBorder(

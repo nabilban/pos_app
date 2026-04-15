@@ -14,6 +14,7 @@ class PaymentSelectionStep extends StatelessWidget {
   final CheckoutState checkoutState;
   final List<PaymentMethod> paymentMethods;
   final TextEditingController cashController;
+  final bool showValidationErrors;
 
   const PaymentSelectionStep({
     super.key,
@@ -21,6 +22,7 @@ class PaymentSelectionStep extends StatelessWidget {
     required this.checkoutState,
     required this.paymentMethods,
     required this.cashController,
+    required this.showValidationErrors,
   });
 
   @override
@@ -70,6 +72,10 @@ class PaymentSelectionStep extends StatelessWidget {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               prefixText: 'Rp ',
+              errorText:
+                  showValidationErrors && checkoutState.cashAmount < cartState.total
+                  ? 'Nominal dibayar wajib diisi dan tidak boleh kurang dari total'
+                  : null,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

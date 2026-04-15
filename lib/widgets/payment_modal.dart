@@ -3,12 +3,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
+import '../cubits/connectivity_cubit.dart';
+import '../cubits/connectivity_state.dart';
 import '../data/models/payment_method.dart';
 import '../data/repositories/pos_repository.dart';
 import '../data/models/promo.dart';
 import '../data/models/price_category.dart';
 import '../cubits/checkout_cubit.dart';
 import '../cubits/checkout_state.dart';
+import '../data/datasource/local/local_cache_store.dart';
 import 'receipt_dialog.dart';
 import '../utils/app_colors.dart';
 import 'payment/components/payment_button.dart';
@@ -21,7 +24,10 @@ Future<void> showPaymentModal(BuildContext context) {
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (_) => BlocProvider(
-      create: (context) => CheckoutCubit(context.read<IPosRepository>()),
+      create: (context) => CheckoutCubit(
+        context.read<IPosRepository>(),
+        context.read<LocalCacheStore>(),
+      ),
       child: const _PaymentSheet(),
     ),
   );
@@ -44,6 +50,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   List<PriceCategory> _priceCategories = [];
   bool _isCheckingVoucher = false;
   bool _isClosing = false;
+  bool _showValidationErrors = false;
   int? _selectedPriceCategoryId;
   int? _selectedPromoId;
   String? _promoWarning;
@@ -233,56 +240,64 @@ class _PaymentSheetState extends State<_PaymentSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CheckoutCubit, CheckoutState>(
-      listener: (context, checkoutState) {
-        if (checkoutState.success) {
-          _isClosing = true;
-          Navigator.pop(context);
-          showReceiptDialog(
-            context,
-            checkoutState.selectedMethod,
-            buyerName: checkoutState.buyerName,
-            invoiceNumber: checkoutState.invoiceNumber,
-          );
-          context.read<CartCubit>().clear();
-        }
-      },
-      builder: (context, checkoutState) {
-        return BlocConsumer<CartCubit, CartState>(
-          listener: (context, cartState) {
-            if (cartState.items.isEmpty && !_isClosing) {
+    return BlocBuilder<ConnectivityCubit, ConnectivityState>(
+      builder: (context, connectivityState) {
+        final isOnline = connectivityState.isOnline;
+        return BlocConsumer<CheckoutCubit, CheckoutState>(
+          listener: (context, checkoutState) {
+            if (checkoutState.success) {
               _isClosing = true;
-              context.read<CartCubit>().clear();
               Navigator.pop(context);
+              showReceiptDialog(
+                context,
+                checkoutState.selectedMethod,
+                buyerName: checkoutState.buyerName,
+                invoiceNumber: checkoutState.invoiceNumber,
+                isOffline: checkoutState.savedOffline,
+              );
+              context.read<CartCubit>().clear();
             }
           },
-          builder: (context, cartState) {
-            return Stack(
-              children: [
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.9,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                  ),
-                  child: SafeArea(
-                    bottom: true,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildHeader(checkoutState, cartState),
-                        const Divider(height: 1),
-                        _buildContent(checkoutState, cartState),
-                        _buildFooter(checkoutState, cartState),
-                      ],
+          builder: (context, checkoutState) {
+            return BlocConsumer<CartCubit, CartState>(
+              listener: (context, cartState) {
+                if (cartState.items.isEmpty && !_isClosing) {
+                  _isClosing = true;
+                  context.read<CartCubit>().clear();
+                  Navigator.pop(context);
+                }
+              },
+              builder: (context, cartState) {
+                return Stack(
+                  children: [
+                    Container(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.9,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(32),
+                        ),
+                      ),
+                      child: SafeArea(
+                        bottom: true,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildHeader(checkoutState, cartState),
+                            const Divider(height: 1),
+                            _buildContent(checkoutState, cartState),
+                            _buildFooter(checkoutState, cartState, isOnline),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                if (checkoutState.isProcessing || _isCheckingVoucher)
-                  _buildLoadingOverlay(),
-              ],
+                    if (checkoutState.isProcessing || _isCheckingVoucher)
+                      _buildLoadingOverlay(),
+                  ],
+                );
+              },
             );
           },
         );
@@ -298,7 +313,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           if (checkoutState.currentStep == 1)
             IconButton(
               icon: const Icon(Icons.arrow_back_ios, size: 20),
-              onPressed: () => context.read<CheckoutCubit>().setStep(0),
+              onPressed: () {
+                setState(() => _showValidationErrors = false);
+                context.read<CheckoutCubit>().setStep(0);
+              },
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
@@ -362,6 +380,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 onPriceCategoryChanged: _onPriceCategoryChanged,
                 onPromoChanged: _onPromoChanged,
                 onCheckVoucher: _checkVoucher,
+                showValidationErrors: _showValidationErrors,
               )
             else
               PaymentSelectionStep(
@@ -369,6 +388,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 checkoutState: checkoutState,
                 paymentMethods: _paymentMethods,
                 cashController: _cashController,
+                showValidationErrors: _showValidationErrors,
               ),
           ],
         ),
@@ -401,38 +421,86 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     );
   }
 
-  Widget _buildFooter(CheckoutState checkoutState, CartState cartState) {
+  Widget _buildFooter(
+    CheckoutState checkoutState,
+    CartState cartState,
+    bool isOnline,
+  ) {
+    final isPaymentStep = checkoutState.currentStep == 1;
+    final isOfflinePaymentStep = isPaymentStep && !isOnline;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-      child: PrimaryButton(
-        label: checkoutState.isProcessing
-            ? 'Memproses...'
-            : (checkoutState.currentStep == 0 ? 'Lanjut Pembayaran' : 'Proses Transaksi'),
-        icon: checkoutState.currentStep == 0 ? Icons.arrow_forward : Icons.check,
-        onPressed: _isButtonEnabled(checkoutState, cartState)
-            ? () {
-                if (checkoutState.currentStep == 0) {
-                  context.read<CheckoutCubit>().setStep(1);
-                } else {
-                  context.read<CheckoutCubit>().processCheckout(cartState);
-                }
-              }
-            : null,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isOfflinePaymentStep)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              margin: const EdgeInsets.only(bottom: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF8E8),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFF4C542), width: 1.2),
+              ),
+              child: const Text(
+                'Anda offline. Transaksi akan disimpan dan disinkronkan otomatis nanti.',
+                style: TextStyle(
+                  color: Color(0xFFB45309),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          PrimaryButton(
+            label: checkoutState.isProcessing
+                ? 'Memproses...'
+                : (checkoutState.currentStep == 0
+                      ? 'Lanjut Pembayaran'
+                      : (isOnline ? 'Proses Transaksi' : 'Simpan Offline')),
+            icon: checkoutState.currentStep == 0
+                ? Icons.arrow_forward
+                : (isOnline ? Icons.check : Icons.save),
+            onPressed: checkoutState.isProcessing
+                ? null
+                : () {
+                    final isValid = _validateCurrentStep(
+                      checkoutState,
+                      cartState,
+                    );
+                    if (!isValid) {
+                      setState(() => _showValidationErrors = true);
+                      return;
+                    }
+
+                    setState(() => _showValidationErrors = false);
+                    if (checkoutState.currentStep == 0) {
+                      context.read<CheckoutCubit>().setStep(1);
+                    } else {
+                      context.read<CheckoutCubit>().processCheckout(
+                        cartState,
+                        isOnline: isOnline,
+                      );
+                    }
+                  },
+          ),
+        ],
       ),
     );
   }
 
-  bool _isButtonEnabled(CheckoutState checkoutState, CartState cartState) {
-    if (checkoutState.isProcessing) return false;
+  bool _validateCurrentStep(CheckoutState checkoutState, CartState cartState) {
     if (checkoutState.currentStep == 0) {
       return checkoutState.buyerName.trim().isNotEmpty;
-    } else {
-      final isCash = ['cash', 'tunai'].contains(checkoutState.selectedMethod.toLowerCase());
-      if (isCash) {
-        return checkoutState.cashAmount >= cartState.total;
-      }
-      return true;
     }
+
+    final isCash =
+        ['cash', 'tunai'].contains(checkoutState.selectedMethod.toLowerCase());
+    if (isCash) {
+      return checkoutState.cashAmount >= cartState.total;
+    }
+    return true;
   }
 
   Widget _buildLoadingOverlay() {

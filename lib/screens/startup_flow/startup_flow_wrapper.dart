@@ -7,7 +7,6 @@ import '../../cubits/shift_cubit.dart';
 import '../../cubits/shift_state.dart';
 import '../../cubits/connectivity_cubit.dart';
 import '../../cubits/connectivity_state.dart';
-import '../../widgets/no_internet_banner.dart';
 import '../main_layout.dart';
 import 'open_shift_screen.dart';
 import 'attendance_checkin_screen.dart';
@@ -79,12 +78,7 @@ class _StartupFlowWrapperState extends State<StartupFlowWrapper> {
                 child = const MainLayout();
               }
 
-              return Column(
-                children: [
-                  const NoInternetBanner(),
-                  Expanded(child: child),
-                ],
-              );
+              return child;
             },
           );
         },

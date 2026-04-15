@@ -11,6 +11,7 @@ class CheckoutState with _$CheckoutState {
     @Default(0.0) double cashAmount,
     @Default(false) bool isProcessing,
     @Default(false) bool success,
+    @Default(false) bool savedOffline,
     String? invoiceNumber,
     String? error,
     int? selectedPriceCategoryId,

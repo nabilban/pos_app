@@ -24,6 +24,7 @@ mixin _$CheckoutState {
   double get cashAmount => throw _privateConstructorUsedError;
   bool get isProcessing => throw _privateConstructorUsedError;
   bool get success => throw _privateConstructorUsedError;
+  bool get savedOffline => throw _privateConstructorUsedError;
   String? get invoiceNumber => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
   int? get selectedPriceCategoryId => throw _privateConstructorUsedError;
@@ -49,6 +50,7 @@ abstract class $CheckoutStateCopyWith<$Res> {
     double cashAmount,
     bool isProcessing,
     bool success,
+    bool savedOffline,
     String? invoiceNumber,
     String? error,
     int? selectedPriceCategoryId,
@@ -76,6 +78,7 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
     Object? cashAmount = null,
     Object? isProcessing = null,
     Object? success = null,
+    Object? savedOffline = null,
     Object? invoiceNumber = freezed,
     Object? error = freezed,
     Object? selectedPriceCategoryId = freezed,
@@ -105,6 +108,10 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
             success: null == success
                 ? _value.success
                 : success // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            savedOffline: null == savedOffline
+                ? _value.savedOffline
+                : savedOffline // ignore: cast_nullable_to_non_nullable
                       as bool,
             invoiceNumber: freezed == invoiceNumber
                 ? _value.invoiceNumber
@@ -140,6 +147,7 @@ abstract class _$$CheckoutStateImplCopyWith<$Res>
     double cashAmount,
     bool isProcessing,
     bool success,
+    bool savedOffline,
     String? invoiceNumber,
     String? error,
     int? selectedPriceCategoryId,
@@ -166,6 +174,7 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
     Object? cashAmount = null,
     Object? isProcessing = null,
     Object? success = null,
+    Object? savedOffline = null,
     Object? invoiceNumber = freezed,
     Object? error = freezed,
     Object? selectedPriceCategoryId = freezed,
@@ -196,6 +205,10 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
             ? _value.success
             : success // ignore: cast_nullable_to_non_nullable
                   as bool,
+        savedOffline: null == savedOffline
+            ? _value.savedOffline
+            : savedOffline // ignore: cast_nullable_to_non_nullable
+                  as bool,
         invoiceNumber: freezed == invoiceNumber
             ? _value.invoiceNumber
             : invoiceNumber // ignore: cast_nullable_to_non_nullable
@@ -223,6 +236,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
     this.cashAmount = 0.0,
     this.isProcessing = false,
     this.success = false,
+    this.savedOffline = false,
     this.invoiceNumber,
     this.error,
     this.selectedPriceCategoryId,
@@ -248,6 +262,9 @@ class _$CheckoutStateImpl implements _CheckoutState {
   @JsonKey()
   final bool success;
   @override
+  @JsonKey()
+  final bool savedOffline;
+  @override
   final String? invoiceNumber;
   @override
   final String? error;
@@ -256,7 +273,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
 
   @override
   String toString() {
-    return 'CheckoutState(currentStep: $currentStep, selectedMethod: $selectedMethod, buyerName: $buyerName, cashAmount: $cashAmount, isProcessing: $isProcessing, success: $success, invoiceNumber: $invoiceNumber, error: $error, selectedPriceCategoryId: $selectedPriceCategoryId)';
+    return 'CheckoutState(currentStep: $currentStep, selectedMethod: $selectedMethod, buyerName: $buyerName, cashAmount: $cashAmount, isProcessing: $isProcessing, success: $success, savedOffline: $savedOffline, invoiceNumber: $invoiceNumber, error: $error, selectedPriceCategoryId: $selectedPriceCategoryId)';
   }
 
   @override
@@ -275,6 +292,8 @@ class _$CheckoutStateImpl implements _CheckoutState {
             (identical(other.isProcessing, isProcessing) ||
                 other.isProcessing == isProcessing) &&
             (identical(other.success, success) || other.success == success) &&
+            (identical(other.savedOffline, savedOffline) ||
+                other.savedOffline == savedOffline) &&
             (identical(other.invoiceNumber, invoiceNumber) ||
                 other.invoiceNumber == invoiceNumber) &&
             (identical(other.error, error) || other.error == error) &&
@@ -294,6 +313,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
     cashAmount,
     isProcessing,
     success,
+    savedOffline,
     invoiceNumber,
     error,
     selectedPriceCategoryId,
@@ -316,6 +336,7 @@ abstract class _CheckoutState implements CheckoutState {
     final double cashAmount,
     final bool isProcessing,
     final bool success,
+    final bool savedOffline,
     final String? invoiceNumber,
     final String? error,
     final int? selectedPriceCategoryId,
@@ -333,6 +354,8 @@ abstract class _CheckoutState implements CheckoutState {
   bool get isProcessing;
   @override
   bool get success;
+  @override
+  bool get savedOffline;
   @override
   String? get invoiceNumber;
   @override
