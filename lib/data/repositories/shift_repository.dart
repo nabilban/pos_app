@@ -1,5 +1,6 @@
 import '../datasource/remote/api_client.dart';
 import '../database/app_database.dart' as db;
+import '../datasource/local/local_cache_store.dart';
 import '../models/shift.dart';
 
 abstract class IShiftRepository {
@@ -13,22 +14,34 @@ abstract class IShiftRepository {
 class ShiftRepository implements IShiftRepository {
   final ApiClient _apiClient;
   // ignore: unused_field
-  final db.AppDatabase _db; // Keeping for potential other usages, but not for Shift sync
+  final db.AppDatabase _db;
+  final LocalCacheStore _cache;
 
-  ShiftRepository(this._apiClient, this._db);
+  static const _activeShiftKey = 'shift_active';
+  static const _shiftHistoryKey = 'shift_history';
+
+  ShiftRepository(this._apiClient, this._db, this._cache);
 
   @override
   Future<ShiftModel?> getActiveShift(int userId) async {
     try {
       final response = await _apiClient.authenticatedDio.get('/shifts/active');
       if (response.data['data'] != null) {
-        return ShiftModel.fromJson(response.data['data']);
+        final shift = ShiftModel.fromJson(
+          Map<String, dynamic>.from(response.data['data']),
+        );
+        await _cache.saveObject(_activeShiftKey, shift.toJson());
+        return shift;
       }
-    } catch (e) {
-      // If error (e.g. 404 or network error), we return null
-      // Cubit will handle the "no active shift" state
+      await _cache.saveObject(_activeShiftKey, null);
+      return null;
+    } catch (_) {
+      final cached = await _cache.readObject(_activeShiftKey);
+      if (cached != null) {
+        return ShiftModel.fromJson(cached);
+      }
+      return null;
     }
-    return null;
   }
 
   @override
@@ -37,6 +50,16 @@ class ShiftRepository implements IShiftRepository {
       '/shifts/open',
       data: {'cash_in': initialCash, 'notes': notes},
     );
+
+    final active = await getActiveShift(userId);
+    if (active != null) {
+      final history = await getHistory();
+      final merged = [active, ...history.where((h) => h.id != active.id)];
+      await _cache.saveList(
+        _shiftHistoryKey,
+        merged.map((e) => e.toJson()).toList(growable: false),
+      );
+    }
   }
 
   @override
@@ -45,6 +68,7 @@ class ShiftRepository implements IShiftRepository {
       '/shifts/close',
       data: {'cash_out': finalCash, 'notes': notes},
     );
+    await _cache.saveObject(_activeShiftKey, null);
   }
 
   @override
@@ -52,8 +76,19 @@ class ShiftRepository implements IShiftRepository {
     try {
       final response = await _apiClient.authenticatedDio.get('/shifts/history');
       final List data = response.data['data'] ?? [];
-      return data.map((json) => ShiftModel.fromJson(json)).toList();
-    } catch (e) {
+      final history = data
+          .map((json) => ShiftModel.fromJson(Map<String, dynamic>.from(json)))
+          .toList();
+      await _cache.saveList(
+        _shiftHistoryKey,
+        history.map((e) => e.toJson()).toList(growable: false),
+      );
+      return history;
+    } catch (_) {
+      final cached = await _cache.readList(_shiftHistoryKey);
+      if (cached.isNotEmpty) {
+        return cached.map(ShiftModel.fromJson).toList(growable: false);
+      }
       rethrow;
     }
   }
@@ -65,7 +100,13 @@ class ShiftRepository implements IShiftRepository {
         '/shifts/$id/notes',
         data: {'notes': notes},
       );
-    } catch (e) {
+
+      final history = await getHistory();
+      await _cache.saveList(
+        _shiftHistoryKey,
+        history.map((e) => e.toJson()).toList(growable: false),
+      );
+    } catch (_) {
       rethrow;
     }
   }

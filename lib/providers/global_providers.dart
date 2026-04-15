@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dio/dio.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../cubits/cart_cubit.dart';
 import '../cubits/history_cubit.dart';
@@ -10,6 +11,7 @@ import '../cubits/auth_cubit.dart';
 import '../data/database/app_database.dart';
 import '../data/datasource/local/token_manager.dart';
 import '../data/datasource/local/user_manager.dart';
+import '../data/datasource/local/local_cache_store.dart';
 import '../data/datasource/remote/api_client.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/pos_repository.dart';
@@ -19,6 +21,7 @@ import '../data/repositories/attendance_repository.dart';
 import '../data/repositories/shift_repository.dart';
 import '../cubits/attendance_cubit.dart';
 import '../cubits/shift_cubit.dart';
+import '../cubits/connectivity_cubit.dart';
 import '../main.dart' show navigatorKey;
 
 class GlobalProviders extends StatelessWidget {
@@ -37,6 +40,8 @@ class GlobalProviders extends StatelessWidget {
         RepositoryProvider<UserManager>(
           create: (context) => UserManager(context.read<AppDatabase>()),
         ),
+        RepositoryProvider<LocalCacheStore>(create: (_) => LocalCacheStore()),
+        RepositoryProvider<Connectivity>(create: (_) => Connectivity()),
         RepositoryProvider<Dio>(
           create: (_) => Dio(
             BaseOptions(
@@ -74,24 +79,32 @@ class GlobalProviders extends StatelessWidget {
           ),
         ),
         RepositoryProvider<IPosRepository>(
-          create: (context) => PosRepository(context.read<ApiClient>()),
+          create: (context) => PosRepository(
+            context.read<ApiClient>(),
+            context.read<LocalCacheStore>(),
+          ),
         ),
         RepositoryProvider<IUserRepository>(
           create: (context) => UserRepository(context.read<UserManager>()),
         ),
         RepositoryProvider<ISalesRepository>(
-          create: (context) => SalesRepository(context.read<ApiClient>()),
+          create: (context) => SalesRepository(
+            context.read<ApiClient>(),
+            context.read<LocalCacheStore>(),
+          ),
         ),
         RepositoryProvider<IAttendanceRepository>(
           create: (context) => AttendanceRepository(
             context.read<ApiClient>(),
             context.read<AppDatabase>(),
+            context.read<LocalCacheStore>(),
           ),
         ),
         RepositoryProvider<IShiftRepository>(
           create: (context) => ShiftRepository(
             context.read<ApiClient>(),
             context.read<AppDatabase>(),
+            context.read<LocalCacheStore>(),
           ),
         ),
       ],
@@ -116,6 +129,10 @@ class GlobalProviders extends StatelessWidget {
             create: (context) => ShiftCubit(context.read<IShiftRepository>()),
           ),
           BlocProvider(create: (context) => SettingsCubit()),
+          BlocProvider(
+            create: (context) =>
+                ConnectivityCubit(context.read<Connectivity>()),
+          ),
         ],
         child: child,
       ),

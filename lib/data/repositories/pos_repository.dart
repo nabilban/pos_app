@@ -9,6 +9,7 @@ import '../models/sale_request.dart';
 import '../models/price_category.dart';
 import '../models/price_category_product.dart';
 import '../datasource/remote/api_client.dart';
+import '../datasource/local/local_cache_store.dart';
 
 abstract class IPosRepository {
   Future<List<Product>> getProducts();
@@ -24,21 +25,62 @@ abstract class IPosRepository {
 
 class PosRepository implements IPosRepository {
   final ApiClient _apiClient;
+  final LocalCacheStore _cache;
 
-  PosRepository(this._apiClient);
+  static const _productsKey = 'pos_products';
+  static const _categoriesKey = 'pos_categories';
+  static const _brandsKey = 'pos_brands';
+  static const _paymentMethodsKey = 'pos_payment_methods';
+  static const _promosKey = 'pos_promos';
+  static const _priceCategoriesKey = 'pos_price_categories';
+
+  String _priceCategoryProductsKey(int categoryId) =>
+      'pos_price_category_products_$categoryId';
+
+  PosRepository(this._apiClient, this._cache);
 
   @override
   Future<List<Product>> getProducts() async {
-    final response = await _apiClient.authenticatedDio.get('/products');
-    final List<dynamic> data = response.data['data'] ?? [];
-    return data.map((json) => Product.fromJson(json)).toList();
+    try {
+      final response = await _apiClient.authenticatedDio.get('/products');
+      final List<dynamic> data = response.data['data'] ?? [];
+      final products = data
+          .map((json) => Product.fromJson(json as Map<String, dynamic>))
+          .toList();
+      await _cache.saveList(
+        _productsKey,
+        products.map((e) => e.toJson()).toList(growable: false),
+      );
+      return products;
+    } catch (_) {
+      final cached = await _cache.readList(_productsKey);
+      if (cached.isNotEmpty) {
+        return cached.map(Product.fromJson).toList(growable: false);
+      }
+      rethrow;
+    }
   }
 
   @override
   Future<List<Category>> getCategories() async {
-    final response = await _apiClient.authenticatedDio.get('/categories');
-    final List<dynamic> data = response.data['data'] ?? [];
-    return data.map((json) => Category.fromJson(json)).toList();
+    try {
+      final response = await _apiClient.authenticatedDio.get('/categories');
+      final List<dynamic> data = response.data['data'] ?? [];
+      final categories = data
+          .map((json) => Category.fromJson(json as Map<String, dynamic>))
+          .toList();
+      await _cache.saveList(
+        _categoriesKey,
+        categories.map((e) => e.toJson()).toList(growable: false),
+      );
+      return categories;
+    } catch (_) {
+      final cached = await _cache.readList(_categoriesKey);
+      if (cached.isNotEmpty) {
+        return cached.map(Category.fromJson).toList(growable: false);
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -46,8 +88,19 @@ class PosRepository implements IPosRepository {
     try {
       final response = await _apiClient.authenticatedDio.get('/brands');
       final List<dynamic> data = response.data['data'] ?? [];
-      return data.map((json) => Brand.fromJson(json)).toList();
-    } catch (e) {
+      final brands = data
+          .map((json) => Brand.fromJson(json as Map<String, dynamic>))
+          .toList();
+      await _cache.saveList(
+        _brandsKey,
+        brands.map((e) => e.toJson()).toList(growable: false),
+      );
+      return brands;
+    } catch (_) {
+      final cached = await _cache.readList(_brandsKey);
+      if (cached.isNotEmpty) {
+        return cached.map(Brand.fromJson).toList(growable: false);
+      }
       rethrow;
     }
   }
@@ -59,8 +112,19 @@ class PosRepository implements IPosRepository {
         '/payment-methods',
       );
       final List<dynamic> data = response.data['data'] ?? [];
-      return data.map((json) => PaymentMethod.fromJson(json)).toList();
-    } catch (e) {
+      final paymentMethods = data
+          .map((json) => PaymentMethod.fromJson(json as Map<String, dynamic>))
+          .toList();
+      await _cache.saveList(
+        _paymentMethodsKey,
+        paymentMethods.map((e) => e.toJson()).toList(growable: false),
+      );
+      return paymentMethods;
+    } catch (_) {
+      final cached = await _cache.readList(_paymentMethodsKey);
+      if (cached.isNotEmpty) {
+        return cached.map(PaymentMethod.fromJson).toList(growable: false);
+      }
       rethrow;
     }
   }
@@ -70,8 +134,19 @@ class PosRepository implements IPosRepository {
     try {
       final response = await _apiClient.authenticatedDio.get('/promos');
       final List<dynamic> data = response.data['data'] ?? [];
-      return data.map((json) => Promo.fromJson(json)).toList();
-    } catch (e) {
+      final promos = data
+          .map((json) => Promo.fromJson(json as Map<String, dynamic>))
+          .toList();
+      await _cache.saveList(
+        _promosKey,
+        promos.map((e) => e.toJson()).toList(growable: false),
+      );
+      return promos;
+    } catch (_) {
+      final cached = await _cache.readList(_promosKey);
+      if (cached.isNotEmpty) {
+        return cached.map(Promo.fromJson).toList(growable: false);
+      }
       rethrow;
     }
   }
@@ -126,7 +201,6 @@ class PosRepository implements IPosRepository {
     }
   }
 
-
   @override
   Future<List<PriceCategory>> getPriceCategories() async {
     try {
@@ -134,8 +208,19 @@ class PosRepository implements IPosRepository {
         '/price-categories',
       );
       final List<dynamic> data = response.data['data'] ?? [];
-      return data.map((json) => PriceCategory.fromJson(json)).toList();
-    } catch (e) {
+      final categories = data
+          .map((json) => PriceCategory.fromJson(json as Map<String, dynamic>))
+          .toList();
+      await _cache.saveList(
+        _priceCategoriesKey,
+        categories.map((e) => e.toJson()).toList(growable: false),
+      );
+      return categories;
+    } catch (_) {
+      final cached = await _cache.readList(_priceCategoriesKey);
+      if (cached.isNotEmpty) {
+        return cached.map(PriceCategory.fromJson).toList(growable: false);
+      }
       rethrow;
     }
   }
@@ -149,8 +234,26 @@ class PosRepository implements IPosRepository {
         '/price-categories/$categoryId/products',
       );
       final List<dynamic> data = response.data['data'] ?? [];
-      return data.map((json) => PriceCategoryProduct.fromJson(json)).toList();
-    } catch (e) {
+      final products = data
+          .map(
+            (json) =>
+                PriceCategoryProduct.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
+      await _cache.saveList(
+        _priceCategoryProductsKey(categoryId),
+        products.map((e) => e.toJson()).toList(growable: false),
+      );
+      return products;
+    } catch (_) {
+      final cached = await _cache.readList(
+        _priceCategoryProductsKey(categoryId),
+      );
+      if (cached.isNotEmpty) {
+        return cached
+            .map(PriceCategoryProduct.fromJson)
+            .toList(growable: false);
+      }
       rethrow;
     }
   }

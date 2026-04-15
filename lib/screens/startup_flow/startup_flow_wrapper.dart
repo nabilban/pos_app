@@ -5,6 +5,9 @@ import '../../cubits/attendance_cubit.dart';
 import '../../cubits/attendance_state.dart';
 import '../../cubits/shift_cubit.dart';
 import '../../cubits/shift_state.dart';
+import '../../cubits/connectivity_cubit.dart';
+import '../../cubits/connectivity_state.dart';
+import '../../widgets/no_internet_banner.dart';
 import '../main_layout.dart';
 import 'open_shift_screen.dart';
 import 'attendance_checkin_screen.dart';
@@ -36,46 +39,56 @@ class _StartupFlowWrapperState extends State<StartupFlowWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ShiftCubit, ShiftState>(
-      builder: (context, shiftState) {
-        return BlocBuilder<AttendanceCubit, AttendanceState>(
-          builder: (context, attendanceState) {
-            // 1. Loading State (Only if no data exists yet)
-            final isInitialLoading = 
-                (shiftState.isLoading && shiftState.activeShift == null) || 
-                (attendanceState.isLoading && attendanceState.todayAttendance == null);
+    return BlocListener<ConnectivityCubit, ConnectivityState>(
+      listenWhen: (previous, current) =>
+          previous.isOnline != current.isOnline && current.isOnline,
+      listener: (context, state) => _initializeStatus(),
+      child: BlocBuilder<ShiftCubit, ShiftState>(
+        builder: (context, shiftState) {
+          return BlocBuilder<AttendanceCubit, AttendanceState>(
+            builder: (context, attendanceState) {
+              // 1. Loading State (Only if no data exists yet)
+              final isInitialLoading =
+                  (shiftState.isLoading && shiftState.activeShift == null) ||
+                  (attendanceState.isLoading &&
+                      attendanceState.todayAttendance == null);
 
-            if (isInitialLoading) {
-              return const Scaffold(
-                body: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Menyiapkan data toko...'),
-                    ],
+              Widget child;
+              if (isInitialLoading) {
+                child = const Scaffold(
+                  body: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Menyiapkan data toko...'),
+                      ],
+                    ),
                   ),
-                ),
+                );
+              } else if (shiftState.activeShift == null ||
+                  shiftState.activeShift?.startTime == null) {
+                // 2. Open Shift Check
+                child = const OpenShiftScreen();
+              } else if (attendanceState.todayAttendance == null) {
+                // 3. Attendance Check
+                child = const AttendanceCheckInScreen();
+              } else {
+                // 4. All set, show Main Dashboard
+                child = const MainLayout();
+              }
+
+              return Column(
+                children: [
+                  const NoInternetBanner(),
+                  Expanded(child: child),
+                ],
               );
-            }
-
-            // 2. Open Shift Check
-            if (shiftState.activeShift == null ||
-                shiftState.activeShift?.startTime == null) {
-              return const OpenShiftScreen();
-            }
-
-            // 3. Attendance Check
-            if (attendanceState.todayAttendance == null) {
-              return const AttendanceCheckInScreen();
-            }
-
-            // 4. All set, show Main Dashboard
-            return const MainLayout();
-          },
-        );
-      },
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -9,6 +9,8 @@ import '../cubits/attendance_cubit.dart';
 import '../cubits/attendance_state.dart';
 import '../cubits/history_cubit.dart';
 import '../cubits/history_state.dart';
+import '../cubits/connectivity_cubit.dart';
+import '../cubits/connectivity_state.dart';
 import '../utils/app_colors.dart';
 import '../utils/currency_util.dart';
 import '../data/models/shift.dart';
@@ -70,27 +72,42 @@ class _ShiftScreenState extends State<ShiftScreen>
 
   @override
   Widget build(BuildContext context) {
-    final String baseUrl = dotenv.env['upload_url'] ??
+    final String baseUrl =
+        dotenv.env['upload_url'] ??
         (dotenv.env['remote_backend'] ?? 'http://localhost:8080/api')
             .replaceFirst('/api', '');
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-
-      body: BlocBuilder<ShiftCubit, ShiftState>(
-        builder: (context, state) {
-          return Column(
-            children: [
-              const SizedBox(height: 8),
-              _buildTabToggle(state.selectedTab),
-              Expanded(
-                child: state.selectedTab == 0
-                    ? _buildShiftTab(state)
-                    : _buildAttendanceTab(baseUrl),
-              ),
-            ],
-          );
-        },
+    return BlocListener<ConnectivityCubit, ConnectivityState>(
+      listenWhen: (previous, current) =>
+          previous.isOnline != current.isOnline && current.isOnline,
+      listener: (context, _) {
+        final authState = context.read<AuthCubit>().state;
+        authState.maybeWhen(
+          authenticated: (_, user) {
+            context.read<ShiftCubit>().checkStatus(user.id);
+            context.read<AttendanceCubit>().checkStatus(user.id);
+            context.read<HistoryCubit>().loadSales();
+          },
+          orElse: () {},
+        );
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
+        body: BlocBuilder<ShiftCubit, ShiftState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                const SizedBox(height: 8),
+                _buildTabToggle(state.selectedTab),
+                Expanded(
+                  child: state.selectedTab == 0
+                      ? _buildShiftTab(state)
+                      : _buildAttendanceTab(baseUrl),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -130,7 +147,7 @@ class _ShiftScreenState extends State<ShiftScreen>
   }) {
     return Expanded(
       child: GestureDetector(
-      onTap: () {
+        onTap: () {
           context.read<ShiftCubit>().setTab(index);
           if (index == 1) {
             context.read<AttendanceCubit>().loadHistory();
@@ -335,11 +352,7 @@ class _ShiftScreenState extends State<ShiftScreen>
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.edit_note,
-                    color: Colors.white70,
-                    size: 18,
-                  ),
+                  const Icon(Icons.edit_note, color: Colors.white70, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -353,8 +366,8 @@ class _ShiftScreenState extends State<ShiftScreen>
                         fontSize: 14,
                         fontStyle:
                             (shift.notes != null && shift.notes!.isNotEmpty)
-                                ? FontStyle.normal
-                                : FontStyle.italic,
+                            ? FontStyle.normal
+                            : FontStyle.italic,
                       ),
                     ),
                   ),
@@ -757,7 +770,9 @@ class _ShiftScreenState extends State<ShiftScreen>
                 ),
               )
             else
-              ...state.history.map((a) => _buildAttendanceHistoryItem(a, baseUrl)),
+              ...state.history.map(
+                (a) => _buildAttendanceHistoryItem(a, baseUrl),
+              ),
             const SizedBox(height: 48),
           ],
         );
@@ -791,29 +806,40 @@ class _ShiftScreenState extends State<ShiftScreen>
           ),
           Text(
             today,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 24),
           _buildAttendanceStatusRow(
             label: 'Absen Masuk',
-            time: att?.checkIn != null 
-                ? DateFormat('HH:mm').format(DateTime.parse(att!.checkIn!).toLocal()) 
+            time: att?.checkIn != null
+                ? DateFormat(
+                    'HH:mm',
+                  ).format(DateTime.parse(att!.checkIn!).toLocal())
                 : null,
             subtitle: att?.checkIn != null ? 'Terabsen' : 'Belum absen masuk',
-            onPressed: att?.checkIn == null ? () => _handleAttendanceCheckIn() : null,
+            onPressed: att?.checkIn == null
+                ? () => _handleAttendanceCheckIn()
+                : null,
             icon: Icons.login_rounded,
           ),
           const Divider(height: 32),
           _buildAttendanceStatusRow(
             label: 'Absen Pulang',
-            time: att?.checkOut != null 
-                ? DateFormat('HH:mm').format(DateTime.parse(att!.checkOut!).toLocal()) 
+            time: att?.checkOut != null
+                ? DateFormat(
+                    'HH:mm',
+                  ).format(DateTime.parse(att!.checkOut!).toLocal())
                 : null,
-            subtitle: att?.checkOut != null 
-                ? 'Selesai' 
-                : (att?.checkIn != null ? 'Siap absen pulang' : 'Absen masuk dulu'),
-            onPressed: (att?.checkIn != null && att?.checkOut == null) 
-                ? () => _handleAttendanceCheckOut(att!.id!) 
+            subtitle: att?.checkOut != null
+                ? 'Selesai'
+                : (att?.checkIn != null
+                      ? 'Siap absen pulang'
+                      : 'Absen masuk dulu'),
+            onPressed: (att?.checkIn != null && att?.checkOut == null)
+                ? () => _handleAttendanceCheckOut(att!.id!)
                 : null,
             icon: Icons.logout_rounded,
           ),
@@ -846,7 +872,10 @@ class _ShiftScreenState extends State<ShiftScreen>
             children: [
               Text(
                 label,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
               Text(
                 time != null ? '$subtitle $time' : subtitle,
@@ -865,7 +894,9 @@ class _ShiftScreenState extends State<ShiftScreen>
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             child: Text(label),
           )
@@ -878,9 +909,13 @@ class _ShiftScreenState extends State<ShiftScreen>
   }
 
   Widget _buildAttendanceHistoryItem(AttendanceModel a, String baseUrl) {
-    final checkIn = a.checkIn != null ? DateTime.parse(a.checkIn!).toLocal() : null;
-    final checkOut = a.checkOut != null ? DateTime.parse(a.checkOut!).toLocal() : null;
-    
+    final checkIn = a.checkIn != null
+        ? DateTime.parse(a.checkIn!).toLocal()
+        : null;
+    final checkOut = a.checkOut != null
+        ? DateTime.parse(a.checkOut!).toLocal()
+        : null;
+
     String duration = '';
     if (checkIn != null && checkOut != null) {
       final diff = checkOut.difference(checkIn);
@@ -909,8 +944,13 @@ class _ShiftScreenState extends State<ShiftScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  checkIn != null ? DateFormat('EEE, dd MMM yyyy').format(checkIn) : '-',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  checkIn != null
+                      ? DateFormat('EEE, dd MMM yyyy').format(checkIn)
+                      : '-',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -921,7 +961,11 @@ class _ShiftScreenState extends State<ShiftScreen>
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.circle, size: 8, color: AppColors.success),
+                          const Icon(
+                            Icons.circle,
+                            size: 8,
+                            color: AppColors.success,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Masuk: ${DateFormat('HH.mm').format(checkIn)}',
@@ -933,7 +977,11 @@ class _ShiftScreenState extends State<ShiftScreen>
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.circle, size: 8, color: AppColors.warning),
+                          const Icon(
+                            Icons.circle,
+                            size: 8,
+                            color: AppColors.warning,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Pulang: ${DateFormat('HH.mm').format(checkOut)}',
@@ -947,7 +995,10 @@ class _ShiftScreenState extends State<ShiftScreen>
                   const SizedBox(height: 4),
                   Text(
                     duration,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ],
@@ -992,7 +1043,9 @@ class _ShiftScreenState extends State<ShiftScreen>
             padding: const EdgeInsets.symmetric(vertical: 2),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.5),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(12),
+              ),
             ),
             child: Text(
               label,
@@ -1024,9 +1077,9 @@ class _ShiftScreenState extends State<ShiftScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal mengambil foto: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal mengambil foto: $e')));
       }
     }
   }
@@ -1046,13 +1099,17 @@ class _ShiftScreenState extends State<ShiftScreen>
       );
 
       if (photo != null && mounted) {
-        context.read<AttendanceCubit>().checkOut(attendanceId, userId, photo.path);
+        context.read<AttendanceCubit>().checkOut(
+          attendanceId,
+          userId,
+          photo.path,
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal mengambil foto: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal mengambil foto: $e')));
       }
     }
   }
@@ -1112,7 +1169,6 @@ class _ShiftScreenState extends State<ShiftScreen>
     );
   }
 
-
   void _showUpdateNotesDialog(ShiftModel shift) {
     if (shift.id == null) return;
     final TextEditingController notesController = TextEditingController(
@@ -1149,7 +1205,10 @@ class _ShiftScreenState extends State<ShiftScreen>
                 const SizedBox(height: 4),
                 Text(
                   '$userName · $timeStr',
-                  style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 TextField(
@@ -1229,9 +1288,9 @@ class _ShiftScreenState extends State<ShiftScreen>
                       child: ElevatedButton(
                         onPressed: () {
                           context.read<ShiftCubit>().updateNotes(
-                                shift.id!,
-                                notesController.text,
-                              );
+                            shift.id!,
+                            notesController.text,
+                          );
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(

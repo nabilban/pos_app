@@ -5,6 +5,8 @@ import '../cubits/cart_cubit.dart';
 import '../cubits/cart_state.dart';
 import '../cubits/pos_cubit.dart';
 import '../cubits/pos_state.dart';
+import '../cubits/connectivity_cubit.dart';
+import '../cubits/connectivity_state.dart';
 import '../data/repositories/pos_repository.dart';
 
 import '../widgets/category_bar.dart';
@@ -36,35 +38,41 @@ class _PosScreenState extends State<PosScreen> {
     return BlocProvider(
       create: (context) =>
           PosCubit(RepositoryProvider.of<IPosRepository>(context)),
-      child: BlocBuilder<PosCubit, PosState>(
-        builder: (context, posState) {
-          if (posState.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+      child: BlocListener<ConnectivityCubit, ConnectivityState>(
+        listenWhen: (previous, current) =>
+            previous.isOnline != current.isOnline && current.isOnline,
+        listener: (context, _) => context.read<PosCubit>().loadData(),
+        child: BlocBuilder<PosCubit, PosState>(
+          builder: (context, posState) {
+            if (posState.isLoading) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
 
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 600;
-              final cartWidth = isWide
-                  ? constraints.maxWidth * 0.30
-                  : constraints.maxWidth;
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 600;
+                final cartWidth = isWide
+                    ? constraints.maxWidth * 0.30
+                    : constraints.maxWidth;
 
-              final List<Product> filteredProducts = context.read<PosCubit>().filteredProducts;
+                final List<Product> filteredProducts = context
+                    .read<PosCubit>()
+                    .filteredProducts;
 
-              return ColoredBox(
-                color: const Color(0xFFF8FAFC),
-                child: Column(
-                  children: [
-                    CategoryBar(
-                      categories: posState.categories,
-                      selected: posState.selectedCategory,
-                      onSelect: (cat) =>
-                          context.read<PosCubit>().setCategory(cat),
-                    ),
-                        const SearchFilterBar(),
-                        Expanded(
+                return ColoredBox(
+                  color: const Color(0xFFF8FAFC),
+                  child: Column(
+                    children: [
+                      CategoryBar(
+                        categories: posState.categories,
+                        selected: posState.selectedCategory,
+                        onSelect: (cat) =>
+                            context.read<PosCubit>().setCategory(cat),
+                      ),
+                      const SearchFilterBar(),
+                      Expanded(
                         child: isWide
                             ? Row(
                                 children: [
@@ -95,8 +103,9 @@ class _PosScreenState extends State<PosScreen> {
                   ),
                 );
               },
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
