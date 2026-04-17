@@ -44,7 +44,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   final _cashController = TextEditingController();
   final _voucherController = TextEditingController();
   final _buyerController = TextEditingController();
-  
+
   List<PaymentMethod> _paymentMethods = [];
   List<Promo> _promos = [];
   List<PriceCategory> _priceCategories = [];
@@ -114,10 +114,25 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       final repo = context.read<IPosRepository>();
       final methods = await repo.getPaymentMethods();
       if (mounted) {
+        final isOnline = context.read<ConnectivityCubit>().state.isOnline;
+        final saleMethods = methods
+            .where((m) => m.showInSale)
+            .toList(growable: false);
+        final offlineCashMethod = _findCashMethod(saleMethods);
+
         setState(() {
-          _paymentMethods = methods.where((m) => m.showInSale).toList();
-          if (_paymentMethods.isNotEmpty) {
-            context.read<CheckoutCubit>().setPaymentMethod(_paymentMethods.first.name);
+          _paymentMethods = saleMethods;
+
+          if (isOnline) {
+            if (_paymentMethods.isNotEmpty) {
+              context.read<CheckoutCubit>().setPaymentMethod(
+                _paymentMethods.first.name,
+              );
+            }
+          } else if (offlineCashMethod != null) {
+            context.read<CheckoutCubit>().setPaymentMethod(
+              offlineCashMethod.name,
+            );
           }
         });
       }
@@ -139,11 +154,14 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     }
 
     final promo = _promos.firstWhere((p) => p.promoId == promoId);
-    
+
     setState(() => _isCheckingVoucher = true);
     try {
       final repo = context.read<IPosRepository>();
-      final result = await repo.checkVoucher(promo.voucherCode ?? promo.name, cartState.items);
+      final result = await repo.checkVoucher(
+        promo.voucherCode ?? promo.name,
+        cartState.items,
+      );
       if (mounted) {
         context.read<CartCubit>().applyPromo(result);
         setState(() => _selectedPromoId = promoId);
@@ -259,6 +277,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             }
           },
           builder: (context, checkoutState) {
+            if (!isOnline) {
+              _enforceOfflineCashSelection(checkoutState);
+            }
+
             return BlocConsumer<CartCubit, CartState>(
               listener: (context, cartState) {
                 if (cartState.items.isEmpty && !_isClosing) {
@@ -287,7 +309,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                           children: [
                             _buildHeader(checkoutState, cartState),
                             const Divider(height: 1),
-                            _buildContent(checkoutState, cartState),
+                            _buildContent(checkoutState, cartState, isOnline),
                             _buildFooter(checkoutState, cartState, isOnline),
                           ],
                         ),
@@ -334,10 +356,13 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                   ),
                 ),
                 Text(
-                  checkoutState.currentStep == 0 
-                      ? '${cartState.items.length} produk' 
+                  checkoutState.currentStep == 0
+                      ? '${cartState.items.length} produk'
                       : 'Atas nama: ${checkoutState.buyerName}',
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF94A3B8),
+                  ),
                 ),
               ],
             ),
@@ -353,7 +378,11 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     );
   }
 
-  Widget _buildContent(CheckoutState checkoutState, CartState cartState) {
+  Widget _buildContent(
+    CheckoutState checkoutState,
+    CartState cartState,
+    bool isOnline,
+  ) {
     return Flexible(
       child: SingleChildScrollView(
         padding: EdgeInsets.only(
@@ -364,7 +393,8 @@ class _PaymentSheetState extends State<_PaymentSheet> {
         ),
         child: Column(
           children: [
-            if (checkoutState.error != null) _buildErrorBanner(checkoutState.error!),
+            if (checkoutState.error != null)
+              _buildErrorBanner(checkoutState.error!),
             if (checkoutState.currentStep == 0)
               CartSummaryStep(
                 cartState: cartState,
@@ -389,6 +419,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 paymentMethods: _paymentMethods,
                 cashController: _cashController,
                 showValidationErrors: _showValidationErrors,
+                isOnline: isOnline,
               ),
           ],
         ),
@@ -413,7 +444,11 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           Expanded(
             child: Text(
               error,
-              style: const TextStyle(color: AppColors.error, fontSize: 14, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                color: AppColors.error,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -426,33 +461,11 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     CartState cartState,
     bool isOnline,
   ) {
-    final isPaymentStep = checkoutState.currentStep == 1;
-    final isOfflinePaymentStep = isPaymentStep && !isOnline;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (isOfflinePaymentStep)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              margin: const EdgeInsets.only(bottom: 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF8E8),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFF4C542), width: 1.2),
-              ),
-              child: const Text(
-                'Anda offline. Transaksi akan disimpan dan disinkronkan otomatis nanti.',
-                style: TextStyle(
-                  color: Color(0xFFB45309),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
-              ),
-            ),
           PrimaryButton(
             label: checkoutState.isProcessing
                 ? 'Memproses...'
@@ -468,6 +481,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                     final isValid = _validateCurrentStep(
                       checkoutState,
                       cartState,
+                      isOnline,
                     );
                     if (!isValid) {
                       setState(() => _showValidationErrors = true);
@@ -490,17 +504,59 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     );
   }
 
-  bool _validateCurrentStep(CheckoutState checkoutState, CartState cartState) {
+  bool _validateCurrentStep(
+    CheckoutState checkoutState,
+    CartState cartState,
+    bool isOnline,
+  ) {
     if (checkoutState.currentStep == 0) {
       return checkoutState.buyerName.trim().isNotEmpty;
     }
 
-    final isCash =
-        ['cash', 'tunai'].contains(checkoutState.selectedMethod.toLowerCase());
+    final isCash = _isCashMethod(checkoutState.selectedMethod);
+    if (!isOnline && !isCash) {
+      return false;
+    }
+
     if (isCash) {
       return checkoutState.cashAmount >= cartState.total;
     }
     return true;
+  }
+
+  bool _isCashMethod(String methodName) {
+    final normalized = methodName.trim().toLowerCase();
+    return normalized == 'cash' || normalized == 'tunai';
+  }
+
+  PaymentMethod? _findCashMethod(List<PaymentMethod> methods) {
+    for (final method in methods) {
+      if (_isCashMethod(method.name)) {
+        return method;
+      }
+    }
+    return null;
+  }
+
+  void _enforceOfflineCashSelection(CheckoutState checkoutState) {
+    final cashMethod = _findCashMethod(_paymentMethods);
+    final targetMethod = cashMethod?.name ?? 'Cash';
+
+    if (_isCashMethod(checkoutState.selectedMethod) &&
+        checkoutState.selectedMethod == targetMethod) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final currentMethod = context.read<CheckoutCubit>().state.selectedMethod;
+      if (_isCashMethod(currentMethod) && currentMethod == targetMethod) {
+        return;
+      }
+
+      context.read<CheckoutCubit>().setPaymentMethod(targetMethod);
+    });
   }
 
   Widget _buildLoadingOverlay() {

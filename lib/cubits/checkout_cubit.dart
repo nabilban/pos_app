@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/repositories/pos_repository.dart';
 import '../data/datasource/local/local_cache_store.dart';
 import '../data/models/sale_request_mapper.dart';
+import '../data/models/payment_method.dart';
 import '../data/constants/offline_sync_constants.dart';
 import 'package:uuid/uuid.dart';
 import 'cart_state.dart';
@@ -50,19 +51,36 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     );
 
     try {
-      final methods = await _repository.getPaymentMethods();
-      final method = methods.firstWhere(
-        (m) => m.name == state.selectedMethod,
-        orElse: () => methods.first,
-      );
+      List<PaymentMethod> methods = const <PaymentMethod>[];
+      try {
+        methods = await _repository.getPaymentMethods();
+      } catch (_) {
+        if (isOnline) rethrow;
+      }
 
       if (!isOnline) {
+        final cashMethod = _findCashMethod(methods);
+        final cashMethodName = cashMethod?.name ?? 'Cash';
+        final cashMethodId = cashMethod?.paymentMethodId ?? 0;
+
+        if (state.selectedMethod != cashMethodName) {
+          emit(state.copyWith(selectedMethod: cashMethodName, error: null));
+        }
+
         await _saveOfflineCheckout(
           cartState,
-          paymentMethodId: method.paymentMethodId,
+          paymentMethodId: cashMethodId,
+          paymentMethodName: cashMethodName,
         );
         return;
       }
+
+      if (methods.isEmpty) {
+        throw Exception('Metode pembayaran tidak tersedia.');
+      }
+
+      final method =
+          _findMethodByName(methods, state.selectedMethod) ?? methods.first;
 
       final request = SaleRequestMapper.fromCart(
         cartState: cartState,
@@ -87,6 +105,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   Future<void> _saveOfflineCheckout(
     CartState cartState, {
     required int paymentMethodId,
+    required String paymentMethodName,
   }) async {
     try {
       final request = SaleRequestMapper.fromCart(
@@ -115,7 +134,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
         'created_at': now.toIso8601String(),
         'sold_at': soldAt,
         'status': 'pending',
-        'payment_method': state.selectedMethod,
+        'payment_method': paymentMethodName,
         'total': cartState.total,
         'transaction': transaction,
       });
@@ -126,6 +145,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
           isProcessing: false,
           success: true,
           savedOffline: true,
+          selectedMethod: paymentMethodName,
           invoiceNumber: localInvoice,
         ),
       );
@@ -141,5 +161,28 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
   void reset() {
     emit(const CheckoutState());
+  }
+
+  PaymentMethod? _findMethodByName(
+    List<PaymentMethod> methods,
+    String methodName,
+  ) {
+    final selected = methodName.trim().toLowerCase();
+    for (final method in methods) {
+      if (method.name.trim().toLowerCase() == selected) {
+        return method;
+      }
+    }
+    return null;
+  }
+
+  PaymentMethod? _findCashMethod(List<PaymentMethod> methods) {
+    for (final method in methods) {
+      final normalized = method.name.trim().toLowerCase();
+      if (normalized == 'cash' || normalized == 'tunai') {
+        return method;
+      }
+    }
+    return null;
   }
 }

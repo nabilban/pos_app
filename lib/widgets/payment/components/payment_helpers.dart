@@ -34,7 +34,7 @@ class AmountChip extends StatelessWidget {
 class DropdownSelector extends StatelessWidget {
   final String value;
   final List<String> items;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<String?>? onChanged;
 
   const DropdownSelector({
     super.key,
@@ -54,14 +54,13 @@ class DropdownSelector extends StatelessWidget {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: items.contains(value) ? value : (items.isNotEmpty ? items.first : null),
+          value: items.contains(value)
+              ? value
+              : (items.isNotEmpty ? items.first : null),
           isExpanded: true,
           onChanged: onChanged,
           items: items.map((String val) {
-            return DropdownMenuItem<String>(
-              value: val,
-              child: Text(val),
-            );
+            return DropdownMenuItem<String>(value: val, child: Text(val));
           }).toList(),
         ),
       ),

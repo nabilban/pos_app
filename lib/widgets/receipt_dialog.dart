@@ -28,9 +28,9 @@ Future<void> showReceiptDialog(
 
   // Read user info from AuthCubit
   final user = context.read<AuthCubit>().state.maybeMap(
-        authenticated: (s) => s.user,
-        orElse: () => null,
-      );
+    authenticated: (s) => s.user,
+    orElse: () => null,
+  );
 
   final dateStr = DateUtil.formatFull(DateTime.now());
 
@@ -254,36 +254,16 @@ class _ReceiptDialog extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (isOffline) ...[
+                      _OfflineInfoCard(dateStr: dateStr),
+                      const SizedBox(height: 14),
+                    ],
                     if (invoiceNumber != null)
                       _Row(
                         label: 'Invoice ID',
                         value: invoiceNumber!,
                         isBold: true,
                       ),
-                    if (isOffline) ...[
-                      const SizedBox(height: 10),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF8E8),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: const Color(0xFFF4C542),
-                            width: 1.2,
-                          ),
-                        ),
-                        child: const Text(
-                          'Mode Offline\nTransaksi ini disimpan di perangkat dan akan dikirim otomatis saat koneksi kembali.',
-                          style: TextStyle(
-                            color: Color(0xFFB45309),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
-                    ],
                     _Row(label: 'Tanggal', value: dateStr),
                     _Row(label: 'Metode Bayar', value: paymentMethod),
                     _Row(
@@ -508,6 +488,64 @@ class _Row extends StatelessWidget {
               color: isTotal
                   ? AppColors.success
                   : (color ?? AppColors.textPrimary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OfflineInfoCard extends StatelessWidget {
+  final String dateStr;
+
+  const _OfflineInfoCard({required this.dateStr});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E8),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF4C542), width: 1.1),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 2),
+            child: Icon(
+              Icons.cloud_off_rounded,
+              color: Color(0xFFB45309),
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Transaksi Disimpan Offline',
+                  style: TextStyle(
+                    color: Color(0xFFB45309),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Tersimpan lokal pada $dateStr. Akan dikirim saat koneksi kembali.',
+                  style: const TextStyle(
+                    color: Color(0xFFB45309),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    height: 1.35,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
