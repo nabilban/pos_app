@@ -114,6 +114,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.cartItem != null;
+    final bottomSafeInset = MediaQuery.viewPaddingOf(context).bottom;
 
     return Container(
       decoration: const BoxDecoration(
@@ -202,7 +203,7 @@ class _VariantSelectionModalState extends State<VariantSelectionModal> {
 
           // Footer / Action
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomSafeInset),
             decoration: const BoxDecoration(
               border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
             ),

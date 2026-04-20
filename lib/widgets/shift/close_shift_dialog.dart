@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../cubits/shift_cubit.dart';
 import '../../cubits/auth_cubit.dart';
+import '../../cubits/connectivity_cubit.dart';
 import '../../cubits/history_cubit.dart';
 import '../../data/models/shift.dart';
 import '../../utils/app_colors.dart';
@@ -38,6 +39,16 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
   }
 
   Future<void> _onCloseShift() async {
+    final isOnline = context.read<ConnectivityCubit>().state.isOnline;
+    if (!isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tutup shift hanya bisa dilakukan saat online.'),
+        ),
+      );
+      return;
+    }
+
     final finalCash = double.tryParse(_cashController.text);
     if (finalCash == null || finalCash < 0) {
       setState(() {
@@ -84,6 +95,7 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
   Widget build(BuildContext context) {
     final authState = context.watch<AuthCubit>().state;
     final historyState = context.watch<HistoryCubit>().state;
+    final isOnline = context.watch<ConnectivityCubit>().state.isOnline;
 
     final userName = authState.maybeWhen(
       authenticated: (_, user) => user.name,
@@ -185,6 +197,29 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
 
               const SizedBox(height: 24),
 
+              if (!isOnline)
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF8E8),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFF4C542)),
+                  ),
+                  child: const Text(
+                    'Tidak ada koneksi. Tutup shift dan logout hanya bisa saat online.',
+                    style: TextStyle(
+                      color: Color(0xFFB45309),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+
               // Input Sections
               _buildInputLabel('Uang di Kasir Sekarang'),
               TextField(
@@ -274,7 +309,7 @@ class _CloseShiftDialogState extends State<CloseShiftDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _isClosing ? null : _onCloseShift,
+                      onPressed: (!isOnline || _isClosing) ? null : _onCloseShift,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFEF4444),
                         foregroundColor: Colors.white,
