@@ -15,7 +15,6 @@ import '../widgets/cart_sidebar.dart';
 import '../widgets/payment_modal.dart';
 import '../widgets/search_filter_bar.dart';
 import '../widgets/variant_selection_modal.dart';
-import '../widgets/no_internet_banner.dart';
 
 class PosScreen extends StatefulWidget {
   const PosScreen({super.key});
@@ -66,12 +65,6 @@ class _PosScreenState extends State<PosScreen> {
                   color: const Color(0xFFF8FAFC),
                   child: Column(
                     children: [
-                      const NoInternetBanner(
-                        title: 'Sedang Offline',
-                        message:
-                            'Transaksi tetap bisa diproses dan akan disinkronisasi otomatis saat koneksi pulih.',
-                        showPendingSales: true,
-                      ),
                       CategoryBar(
                         categories: posState.categories,
                         selected: posState.selectedCategory,

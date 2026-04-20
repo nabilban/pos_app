@@ -6,7 +6,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../cubits/cart_cubit.dart';
 import '../cubits/history_cubit.dart';
-import '../cubits/settings_cubit.dart';
 import '../cubits/auth_cubit.dart';
 import '../data/database/app_database.dart';
 import '../data/datasource/local/token_manager.dart';
@@ -128,7 +127,6 @@ class GlobalProviders extends StatelessWidget {
           BlocProvider(
             create: (context) => ShiftCubit(context.read<IShiftRepository>()),
           ),
-          BlocProvider(create: (context) => SettingsCubit()),
           BlocProvider(
             create: (context) =>
                 ConnectivityCubit(context.read<Connectivity>()),

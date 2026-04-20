@@ -4,6 +4,7 @@ import '../utils/app_colors.dart';
 class PosHeader extends StatelessWidget {
   final VoidCallback onLeadingTap;
   final VoidCallback? onSettingsTap;
+  final List<Widget> trailingActions;
   final String title;
   final bool showBackButton;
 
@@ -11,6 +12,7 @@ class PosHeader extends StatelessWidget {
     super.key,
     required this.onLeadingTap,
     this.onSettingsTap,
+    this.trailingActions = const [],
     this.title = 'Point of Sale',
     this.showBackButton = false,
   });
@@ -42,22 +44,36 @@ class PosHeader extends StatelessWidget {
             tooltip: showBackButton ? 'Kembali' : 'Menu',
           ),
           const SizedBox(width: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
+          if (trailingActions.isNotEmpty) ...[
+            ...trailingActions,
+            if (trailingActions.isNotEmpty) const SizedBox(width: 4),
+          ],
           if (onSettingsTap != null) ...[
-            const Spacer(),
-            IconButton(
+            IconButton.outlined(
               onPressed: onSettingsTap,
+              style: IconButton.styleFrom(
+                side: BorderSide(
+                  color: AppColors.textSecondary.withOpacity(0.2),
+                  width: 1,
+                ),
+                shape: const CircleBorder(),
+              ),
               icon: const Icon(
                 Icons.settings_outlined,
                 color: AppColors.textSecondary,
-                size: 24,
+                size: 20,
               ),
               tooltip: 'Pengaturan',
             ),

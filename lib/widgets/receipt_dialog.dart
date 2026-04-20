@@ -511,41 +511,21 @@ class _OfflineInfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFF4C542), width: 1.1),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 2),
-            child: Icon(
-              Icons.cloud_off_rounded,
-              color: Color(0xFFB45309),
-              size: 18,
-            ),
+          Icon(
+            Icons.wifi_off_rounded,
+            color: Color(0xFFB45309),
+            size: 18,
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Transaksi Disimpan Offline',
-                  style: TextStyle(
-                    color: Color(0xFFB45309),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Tersimpan lokal pada $dateStr. Akan dikirim saat koneksi kembali.',
-                  style: const TextStyle(
-                    color: Color(0xFFB45309),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    height: 1.35,
-                  ),
-                ),
-              ],
+          SizedBox(width: 10),
+          Text(
+            'Transaksi Disimpan Offline',
+            style: TextStyle(
+              color: Color(0xFFB45309),
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
             ),
           ),
         ],

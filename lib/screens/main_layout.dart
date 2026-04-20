@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../widgets/pos_header.dart';
+import '../widgets/pos_status_actions.dart';
 import 'pos_screen.dart';
 import 'history_screen.dart';
 import 'shift_screen.dart';
@@ -76,6 +77,13 @@ class _MainLayoutState extends State<MainLayout> {
                         _selectedIndex = 3;
                       });
                     },
+              trailingActions: _selectedIndex == 3
+                  ? const []
+                  : const [PosStatusActions()],
+            ),
+            const NoInternetBanner(
+              showPendingSales: true,
+              margin: EdgeInsets.fromLTRB(16, 8, 16, 0),
             ),
             Expanded(
               // Using IndexedStack allows preserving the state of POS screen (e.g. cart contents being visible/rebuilt efficiently)

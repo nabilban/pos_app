@@ -15,7 +15,6 @@ import '../utils/app_colors.dart';
 import '../utils/currency_util.dart';
 import '../data/models/shift.dart';
 import '../data/models/attendance.dart';
-import '../widgets/no_internet_banner.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -98,13 +97,7 @@ class _ShiftScreenState extends State<ShiftScreen>
           builder: (context, state) {
             return Column(
               children: [
-                const NoInternetBanner(
-                  title: 'Mode Offline',
-                  message:
-                      'Menampilkan data shift dari cache. Buka/Tutup shift & absensi membutuhkan koneksi.',
-                  margin: EdgeInsets.fromLTRB(24, 14, 24, 8),
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 14),
                 _buildTabToggle(state.selectedTab),
                 Expanded(
                   child: state.selectedTab == 0
@@ -559,13 +552,17 @@ class _ShiftScreenState extends State<ShiftScreen>
             return ValueListenableBuilder<bool>(
               valueListenable: isPressed,
               builder: (context, pressed, _) {
-                final double rotation = syncing ? 2 : 0; // 2 turns = 720 degrees
+                final double rotation = syncing
+                    ? 2
+                    : 0; // 2 turns = 720 degrees
                 final isDisabled = syncing || !isOnline;
 
                 return GestureDetector(
                   onTapDown: isDisabled ? null : (_) => isPressed.value = true,
                   onTapUp: isDisabled ? null : (_) => isPressed.value = false,
-                  onTapCancel: isDisabled ? null : () => isPressed.value = false,
+                  onTapCancel: isDisabled
+                      ? null
+                      : () => isPressed.value = false,
                   onTap: isDisabled
                       ? null
                       : () async {

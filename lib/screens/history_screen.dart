@@ -7,7 +7,6 @@ import '../cubits/connectivity_state.dart';
 import '../data/models/sale.dart';
 import '../utils/currency_util.dart';
 import '../widgets/history_detail_dialog.dart';
-import '../widgets/no_internet_banner.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -84,14 +83,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             onRefresh: () => cubit.loadSales(),
             child: CustomScrollView(
               slivers: [
-              const SliverToBoxAdapter(
-                child: NoInternetBanner(
-                  title: 'Mode Offline',
-                  message:
-                      'Menampilkan data dari cache. Riwayat terbaru akan tersedia saat online.',
-                  margin: EdgeInsets.fromLTRB(16, 16, 16, 4),
-                ),
-              ),
                 // ── Summary Cards ──
                 SliverToBoxAdapter(
                   child: Padding(
