@@ -23,6 +23,7 @@ mixin _$HistoryState {
   String get searchQuery => throw _privateConstructorUsedError;
   DateTime? get selectedDate => throw _privateConstructorUsedError;
   String get selectedPaymentMethod => throw _privateConstructorUsedError;
+  List<String> get paymentMethods => throw _privateConstructorUsedError;
 
   /// Create a copy of HistoryState
   /// with the given fields replaced by the non-null parameter values.
@@ -45,6 +46,7 @@ abstract class $HistoryStateCopyWith<$Res> {
     String searchQuery,
     DateTime? selectedDate,
     String selectedPaymentMethod,
+    List<String> paymentMethods,
   });
 }
 
@@ -69,6 +71,7 @@ class _$HistoryStateCopyWithImpl<$Res, $Val extends HistoryState>
     Object? searchQuery = null,
     Object? selectedDate = freezed,
     Object? selectedPaymentMethod = null,
+    Object? paymentMethods = null,
   }) {
     return _then(
       _value.copyWith(
@@ -96,6 +99,10 @@ class _$HistoryStateCopyWithImpl<$Res, $Val extends HistoryState>
                 ? _value.selectedPaymentMethod
                 : selectedPaymentMethod // ignore: cast_nullable_to_non_nullable
                       as String,
+            paymentMethods: null == paymentMethods
+                ? _value.paymentMethods
+                : paymentMethods // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
           )
           as $Val,
     );
@@ -118,6 +125,7 @@ abstract class _$$HistoryStateImplCopyWith<$Res>
     String searchQuery,
     DateTime? selectedDate,
     String selectedPaymentMethod,
+    List<String> paymentMethods,
   });
 }
 
@@ -141,6 +149,7 @@ class __$$HistoryStateImplCopyWithImpl<$Res>
     Object? searchQuery = null,
     Object? selectedDate = freezed,
     Object? selectedPaymentMethod = null,
+    Object? paymentMethods = null,
   }) {
     return _then(
       _$HistoryStateImpl(
@@ -168,6 +177,10 @@ class __$$HistoryStateImplCopyWithImpl<$Res>
             ? _value.selectedPaymentMethod
             : selectedPaymentMethod // ignore: cast_nullable_to_non_nullable
                   as String,
+        paymentMethods: null == paymentMethods
+            ? _value._paymentMethods
+            : paymentMethods // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
       ),
     );
   }
@@ -183,7 +196,9 @@ class _$HistoryStateImpl implements _HistoryState {
     this.searchQuery = '',
     this.selectedDate,
     this.selectedPaymentMethod = 'Semua Metode',
-  }) : _sales = sales;
+    final List<String> paymentMethods = const ['Semua Metode'],
+  }) : _sales = sales,
+       _paymentMethods = paymentMethods;
 
   final List<Sale> _sales;
   @override
@@ -208,10 +223,18 @@ class _$HistoryStateImpl implements _HistoryState {
   @override
   @JsonKey()
   final String selectedPaymentMethod;
+  final List<String> _paymentMethods;
+  @override
+  @JsonKey()
+  List<String> get paymentMethods {
+    if (_paymentMethods is EqualUnmodifiableListView) return _paymentMethods;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_paymentMethods);
+  }
 
   @override
   String toString() {
-    return 'HistoryState(sales: $sales, isLoading: $isLoading, error: $error, searchQuery: $searchQuery, selectedDate: $selectedDate, selectedPaymentMethod: $selectedPaymentMethod)';
+    return 'HistoryState(sales: $sales, isLoading: $isLoading, error: $error, searchQuery: $searchQuery, selectedDate: $selectedDate, selectedPaymentMethod: $selectedPaymentMethod, paymentMethods: $paymentMethods)';
   }
 
   @override
@@ -228,7 +251,11 @@ class _$HistoryStateImpl implements _HistoryState {
             (identical(other.selectedDate, selectedDate) ||
                 other.selectedDate == selectedDate) &&
             (identical(other.selectedPaymentMethod, selectedPaymentMethod) ||
-                other.selectedPaymentMethod == selectedPaymentMethod));
+                other.selectedPaymentMethod == selectedPaymentMethod) &&
+            const DeepCollectionEquality().equals(
+              other._paymentMethods,
+              _paymentMethods,
+            ));
   }
 
   @override
@@ -240,6 +267,7 @@ class _$HistoryStateImpl implements _HistoryState {
     searchQuery,
     selectedDate,
     selectedPaymentMethod,
+    const DeepCollectionEquality().hash(_paymentMethods),
   );
 
   /// Create a copy of HistoryState
@@ -259,6 +287,7 @@ abstract class _HistoryState implements HistoryState {
     final String searchQuery,
     final DateTime? selectedDate,
     final String selectedPaymentMethod,
+    final List<String> paymentMethods,
   }) = _$HistoryStateImpl;
 
   @override
@@ -273,6 +302,8 @@ abstract class _HistoryState implements HistoryState {
   DateTime? get selectedDate;
   @override
   String get selectedPaymentMethod;
+  @override
+  List<String> get paymentMethods;
 
   /// Create a copy of HistoryState
   /// with the given fields replaced by the non-null parameter values.

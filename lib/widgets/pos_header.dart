@@ -65,7 +65,7 @@ class PosHeader extends StatelessWidget {
               onPressed: onSettingsTap,
               style: IconButton.styleFrom(
                 side: BorderSide(
-                  color: AppColors.textSecondary.withOpacity(0.2),
+                  color: const Color(0xFF64748B).withValues(alpha: 0.1),
                   width: 1,
                 ),
                 shape: const CircleBorder(),

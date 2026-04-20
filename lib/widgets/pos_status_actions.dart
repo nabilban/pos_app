@@ -74,7 +74,7 @@ class _PosStatusActionsState extends State<PosStatusActions>
 
       await _loadPendingCount();
 
-      if (result.created > 0) {
+      if (mounted && result.created > 0) {
         context.read<HistoryCubit>().loadSales();
       }
 
@@ -82,21 +82,24 @@ class _PosStatusActionsState extends State<PosStatusActions>
           ? 'Sinkronisasi selesai: ${result.created} transaksi tersinkron.'
           : 'Sinkronisasi selesai, ${result.failed} transaksi gagal.';
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Gagal sinkronisasi: $e')));
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isSyncing = false;
-      });
-      _syncController.stop();
-      _syncController.reset();
+      if (mounted) {
+        setState(() {
+          _isSyncing = false;
+        });
+        _syncController.stop();
+        _syncController.reset();
+      }
     }
   }
 
@@ -110,7 +113,7 @@ class _PosStatusActionsState extends State<PosStatusActions>
           : 'Sinkronisasi offline',
       style: IconButton.styleFrom(
         side: BorderSide(
-          color: const Color(0xFF2458D3).withOpacity(0.2),
+          color: const Color(0xFF2458D3).withValues(alpha: 0.2),
           width: 1,
         ),
         shape: const CircleBorder(),
@@ -180,7 +183,7 @@ class _PosStatusActionsState extends State<PosStatusActions>
                 tooltip: 'Mode offline',
                 style: IconButton.styleFrom(
                   side: BorderSide(
-                    color: const Color(0xFFD97706).withOpacity(0.2),
+                    color: const Color(0xFFD97706).withValues(alpha: 0.2),
                     width: 1,
                   ),
                   shape: const CircleBorder(),

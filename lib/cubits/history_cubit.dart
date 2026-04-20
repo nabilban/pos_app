@@ -1,13 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import '../data/repositories/sales_repository.dart';
+import '../data/repositories/pos_repository.dart';
 import '../data/models/sale.dart';
 import 'history_state.dart';
 
 class HistoryCubit extends Cubit<HistoryState> {
   final ISalesRepository _salesRepository;
+  final IPosRepository _posRepository;
 
-  HistoryCubit(this._salesRepository)
+  HistoryCubit(this._salesRepository, this._posRepository)
       : super(HistoryState(selectedDate: DateTime.now())) {
     loadSales();
   }
@@ -16,7 +18,21 @@ class HistoryCubit extends Cubit<HistoryState> {
     emit(state.copyWith(isLoading: true, error: ''));
     try {
       final sales = await _salesRepository.getSales();
-      emit(state.copyWith(sales: sales, isLoading: false));
+      final masterPaymentMethods = await _posRepository.getPaymentMethods();
+      
+      // Use master list for dropdown, ensuring 'Semua Metode' is first
+      final methods = masterPaymentMethods
+          .map((m) => m.name.trim())
+          .toSet()
+          .toList();
+      methods.sort();
+      final allMethods = ['Semua Metode', ...methods];
+
+      emit(state.copyWith(
+        sales: sales, 
+        paymentMethods: allMethods,
+        isLoading: false,
+      ));
     } catch (e) {
       final message = e is DioException ? (e.message ?? e.toString()) : e.toString();
       emit(state.copyWith(isLoading: false, error: message));
@@ -53,20 +69,21 @@ class HistoryCubit extends Cubit<HistoryState> {
 
     // Filter by payment method
     if (state.selectedPaymentMethod != 'Semua Metode') {
-      sales = sales
-          .where(
-              (s) => s.paymentMethod?.name == state.selectedPaymentMethod)
-          .toList();
+      final selected = state.selectedPaymentMethod.toLowerCase().trim();
+      sales = sales.where((s) {
+        final methodName = s.paymentMethod?.name.toLowerCase().trim();
+        return methodName == selected;
+      }).toList();
     }
 
     // Filter by search query
     if (state.searchQuery.isNotEmpty) {
-      final q = state.searchQuery.toLowerCase();
+      final q = state.searchQuery.toLowerCase().trim();
       sales = sales.where((s) {
         if (s.invoiceNumber.toLowerCase().contains(q)) return true;
         if (s.customerName.toLowerCase().contains(q)) return true;
-        if (s.items.any(
-            (item) => item.product?.name.toLowerCase().contains(q) ?? false)) {
+        if (s.items.any((item) =>
+            item.product?.name.toLowerCase().contains(q) ?? false)) {
           return true;
         }
         return false;
@@ -82,15 +99,4 @@ class HistoryCubit extends Cubit<HistoryState> {
   /// Total revenue for the current filter
   double get totalOmzet =>
       filteredSales.fold(0.0, (sum, s) => sum + s.grandTotal);
-
-  /// Unique payment method names extracted from the loaded sales data
-  List<String> get paymentMethods {
-    final methods = state.sales
-        .where((s) => s.paymentMethod != null)
-        .map((s) => s.paymentMethod!.name)
-        .toSet()
-        .toList();
-    methods.sort();
-    return ['Semua Metode', ...methods];
-  }
 }

@@ -117,7 +117,10 @@ class GlobalProviders extends StatelessWidget {
           ),
           BlocProvider(create: (_) => CartCubit()),
           BlocProvider(
-            create: (context) => HistoryCubit(context.read<ISalesRepository>()),
+            create: (context) => HistoryCubit(
+              context.read<ISalesRepository>(),
+              context.read<IPosRepository>(),
+            ),
           ),
           BlocProvider(
             create: (context) =>

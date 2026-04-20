@@ -115,8 +115,6 @@ class AppDatabase extends _$AppDatabase {
   // --- ATTENDANCE OPERATIONS ---
 
   Future<Attendance?> getTodayAttendance(int userId) async {
-    final now = DateTime.now();
-    final startOfDay = DateTime(now.year, now.month, now.day);
     return await (select(attendances)
           ..where((t) => t.userId.equals(userId))
           ..where((t) => t.checkIn.isNotNull()) // Simplified for today check if using Strings

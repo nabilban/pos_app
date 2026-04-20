@@ -251,7 +251,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   fontSize: 14,
                                   color: Color(0xFF475569),
                                 ),
-                                items: cubit.paymentMethods
+                                items: state.paymentMethods
                                     .map(
                                       (m) => DropdownMenuItem(
                                         value: m,

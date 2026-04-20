@@ -12,5 +12,6 @@ class HistoryState with _$HistoryState {
     @Default('') String searchQuery,
     DateTime? selectedDate,
     @Default('Semua Metode') String selectedPaymentMethod,
+    @Default(['Semua Metode']) List<String> paymentMethods,
   }) = _HistoryState;
 }

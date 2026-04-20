@@ -19,6 +19,7 @@ class PosCubit extends Cubit<PosState> {
       final products = await _repository.getProducts();
       final categories = await _repository.getCategories();
       final brands = await _repository.getBrands();
+      final paymentMethods = await _repository.getPaymentMethods();
 
       if (isClosed) return;
       emit(
@@ -26,6 +27,7 @@ class PosCubit extends Cubit<PosState> {
           products: products,
           categories: categories,
           brands: brands,
+          paymentMethods: paymentMethods,
           isLoading: false,
         ),
       );

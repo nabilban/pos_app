@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../datasource/remote/api_client.dart';
 import '../database/app_database.dart';
 import '../models/shift.dart';

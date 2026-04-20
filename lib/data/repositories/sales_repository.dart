@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../models/sale.dart';
@@ -7,7 +6,6 @@ import '../datasource/local/local_cache_store.dart';
 import '../database/app_database.dart';
 import '../constants/offline_sync_constants.dart';
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
 
 class OfflineSyncResult {
   final String message;
@@ -35,7 +33,6 @@ class SalesRepository implements ISalesRepository {
   final ApiClient _apiClient;
   final LocalCacheStore _cache;
   final AppDatabase _db;
-  final Uuid _uuid = const Uuid();
 
   SalesRepository(this._apiClient, this._cache, this._db);
 

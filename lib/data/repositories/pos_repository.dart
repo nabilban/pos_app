@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../models/product.dart';
 import '../models/category.dart';
 import '../models/brand.dart';

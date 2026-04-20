@@ -23,6 +23,7 @@ mixin _$PosState {
   List<Product> get products => throw _privateConstructorUsedError;
   List<Category> get categories => throw _privateConstructorUsedError;
   List<Brand> get brands => throw _privateConstructorUsedError;
+  List<PaymentMethod> get paymentMethods => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
 
   /// Create a copy of PosState
@@ -44,6 +45,7 @@ abstract class $PosStateCopyWith<$Res> {
     List<Product> products,
     List<Category> categories,
     List<Brand> brands,
+    List<PaymentMethod> paymentMethods,
     bool isLoading,
   });
 
@@ -72,6 +74,7 @@ class _$PosStateCopyWithImpl<$Res, $Val extends PosState>
     Object? products = null,
     Object? categories = null,
     Object? brands = null,
+    Object? paymentMethods = null,
     Object? isLoading = null,
   }) {
     return _then(
@@ -100,6 +103,10 @@ class _$PosStateCopyWithImpl<$Res, $Val extends PosState>
                 ? _value.brands
                 : brands // ignore: cast_nullable_to_non_nullable
                       as List<Brand>,
+            paymentMethods: null == paymentMethods
+                ? _value.paymentMethods
+                : paymentMethods // ignore: cast_nullable_to_non_nullable
+                      as List<PaymentMethod>,
             isLoading: null == isLoading
                 ? _value.isLoading
                 : isLoading // ignore: cast_nullable_to_non_nullable
@@ -154,6 +161,7 @@ abstract class _$$PosStateImplCopyWith<$Res>
     List<Product> products,
     List<Category> categories,
     List<Brand> brands,
+    List<PaymentMethod> paymentMethods,
     bool isLoading,
   });
 
@@ -183,6 +191,7 @@ class __$$PosStateImplCopyWithImpl<$Res>
     Object? products = null,
     Object? categories = null,
     Object? brands = null,
+    Object? paymentMethods = null,
     Object? isLoading = null,
   }) {
     return _then(
@@ -211,6 +220,10 @@ class __$$PosStateImplCopyWithImpl<$Res>
             ? _value._brands
             : brands // ignore: cast_nullable_to_non_nullable
                   as List<Brand>,
+        paymentMethods: null == paymentMethods
+            ? _value._paymentMethods
+            : paymentMethods // ignore: cast_nullable_to_non_nullable
+                  as List<PaymentMethod>,
         isLoading: null == isLoading
             ? _value.isLoading
             : isLoading // ignore: cast_nullable_to_non_nullable
@@ -230,10 +243,12 @@ class _$PosStateImpl implements _PosState {
     final List<Product> products = const [],
     final List<Category> categories = const [],
     final List<Brand> brands = const [],
+    final List<PaymentMethod> paymentMethods = const [],
     this.isLoading = false,
   }) : _products = products,
        _categories = categories,
-       _brands = brands;
+       _brands = brands,
+       _paymentMethods = paymentMethods;
 
   @override
   final Category? selectedCategory;
@@ -269,13 +284,22 @@ class _$PosStateImpl implements _PosState {
     return EqualUnmodifiableListView(_brands);
   }
 
+  final List<PaymentMethod> _paymentMethods;
+  @override
+  @JsonKey()
+  List<PaymentMethod> get paymentMethods {
+    if (_paymentMethods is EqualUnmodifiableListView) return _paymentMethods;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_paymentMethods);
+  }
+
   @override
   @JsonKey()
   final bool isLoading;
 
   @override
   String toString() {
-    return 'PosState(selectedCategory: $selectedCategory, selectedBrand: $selectedBrand, searchQuery: $searchQuery, products: $products, categories: $categories, brands: $brands, isLoading: $isLoading)';
+    return 'PosState(selectedCategory: $selectedCategory, selectedBrand: $selectedBrand, searchQuery: $searchQuery, products: $products, categories: $categories, brands: $brands, paymentMethods: $paymentMethods, isLoading: $isLoading)';
   }
 
   @override
@@ -295,6 +319,10 @@ class _$PosStateImpl implements _PosState {
               _categories,
             ) &&
             const DeepCollectionEquality().equals(other._brands, _brands) &&
+            const DeepCollectionEquality().equals(
+              other._paymentMethods,
+              _paymentMethods,
+            ) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading));
   }
@@ -308,6 +336,7 @@ class _$PosStateImpl implements _PosState {
     const DeepCollectionEquality().hash(_products),
     const DeepCollectionEquality().hash(_categories),
     const DeepCollectionEquality().hash(_brands),
+    const DeepCollectionEquality().hash(_paymentMethods),
     isLoading,
   );
 
@@ -328,6 +357,7 @@ abstract class _PosState implements PosState {
     final List<Product> products,
     final List<Category> categories,
     final List<Brand> brands,
+    final List<PaymentMethod> paymentMethods,
     final bool isLoading,
   }) = _$PosStateImpl;
 
@@ -343,6 +373,8 @@ abstract class _PosState implements PosState {
   List<Category> get categories;
   @override
   List<Brand> get brands;
+  @override
+  List<PaymentMethod> get paymentMethods;
   @override
   bool get isLoading;
 
