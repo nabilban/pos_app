@@ -16,20 +16,12 @@ extension SaleRequestMapper on SaleRequest {
       source: 'pos',
       additionalFee: 0,
       items: cartState.items.map((item) {
-        final List<SaleVariantRequest> flattenedVariants = [];
-        // Repeat variants for each unit of quantity as required by API
-        for (int i = 0; i < item.quantity; i++) {
-          flattenedVariants.addAll(
-            item.selectedOptions.map((opt) => SaleVariantRequest(
-              variantOptionId: opt.id,
-            )),
-          );
-        }
-
         return SaleItemRequest(
           productId: item.product.id,
           quantity: item.quantity,
-          variants: flattenedVariants,
+          variants: item.selectedOptions
+              .map((opt) => SaleVariantRequest(variantOptionId: opt.id))
+              .toList(),
           discount: 0,
         );
       }).toList(),

@@ -81,10 +81,6 @@ class _MainLayoutState extends State<MainLayout> {
                   ? const []
                   : const [PosStatusActions()],
             ),
-            const NoInternetBanner(
-              showPendingSales: true,
-              margin: EdgeInsets.fromLTRB(16, 8, 16, 0),
-            ),
             Expanded(
               // Using IndexedStack allows preserving the state of POS screen (e.g. cart contents being visible/rebuilt efficiently)
               // Since CartState is global it's fine either way, but IndexedStack prevents full rebuilds

@@ -108,35 +108,33 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     required String paymentMethodName,
   }) async {
     try {
+      final now = DateTime.now();
+      final soldAt = now.toUtc().toIso8601String();
+      final offlineId = _uuid.v4();
+      
       final request = SaleRequestMapper.fromCart(
         cartState: cartState,
         checkoutState: state,
         paymentMethodId: paymentMethodId,
-      ).copyWith(source: 'offline');
+      ).copyWith(
+        source: 'offline',
+        offlineId: offlineId,
+        soldAt: soldAt,
+      );
 
-      final now = DateTime.now();
-      final soldAt = now.toUtc().toIso8601String();
-      final offlineId = _uuid.v4();
       final localInvoice =
           'INV-${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.millisecondsSinceEpoch % 10000}';
-
-      final transaction = request.toJson()
-        ..['offline_id'] = offlineId
-        ..['sold_at'] = soldAt
-        ..['source'] = 'offline';
 
       final queue = List<Map<String, dynamic>>.of(
         await _cache.readList(offlineSalesQueueKey),
       );
+      
       queue.add({
         'invoice_number': localInvoice,
         'offline_id': offlineId,
-        'created_at': now.toIso8601String(),
-        'sold_at': soldAt,
-        'status': 'pending',
         'payment_method': paymentMethodName,
         'total': cartState.total,
-        'transaction': transaction,
+        'transaction': request.toJson(),
       });
       await _cache.saveList(offlineSalesQueueKey, queue);
 

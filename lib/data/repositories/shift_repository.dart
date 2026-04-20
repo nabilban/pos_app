@@ -1,7 +1,8 @@
+import 'package:dio/dio.dart';
 import '../datasource/remote/api_client.dart';
-import '../database/app_database.dart' as db;
-import '../datasource/local/local_cache_store.dart';
+import '../database/app_database.dart';
 import '../models/shift.dart';
+import 'package:drift/drift.dart';
 
 abstract class IShiftRepository {
   Future<ShiftModel?> getActiveShift(int userId);
@@ -13,14 +14,9 @@ abstract class IShiftRepository {
 
 class ShiftRepository implements IShiftRepository {
   final ApiClient _apiClient;
-  // ignore: unused_field
-  final db.AppDatabase _db;
-  final LocalCacheStore _cache;
+  final AppDatabase _db;
 
-  static const _activeShiftKey = 'shift_active';
-  static const _shiftHistoryKey = 'shift_history';
-
-  ShiftRepository(this._apiClient, this._db, this._cache);
+  ShiftRepository(this._apiClient, this._db);
 
   @override
   Future<ShiftModel?> getActiveShift(int userId) async {
@@ -30,15 +26,37 @@ class ShiftRepository implements IShiftRepository {
         final shift = ShiftModel.fromJson(
           Map<String, dynamic>.from(response.data['data']),
         );
-        await _cache.saveObject(_activeShiftKey, shift.toJson());
+        
+        await _db.saveShift(ShiftsCompanion.insert(
+          id: Value(shift.id),
+          userId: shift.userId,
+          cashIn: shift.cashIn,
+          cashOut: Value(shift.cashOut),
+          notes: Value(shift.notes),
+          startTime: shift.startTime,
+          endTime: Value(shift.endTime),
+          status: Value(shift.status),
+          syncStatus: Value(shift.syncStatus),
+        ));
+        
         return shift;
       }
-      await _cache.saveObject(_activeShiftKey, null);
+      await _db.clearActiveShifts(userId);
       return null;
     } catch (_) {
-      final cached = await _cache.readObject(_activeShiftKey);
-      if (cached != null) {
-        return ShiftModel.fromJson(cached);
+      final active = await _db.getActiveShift(userId);
+      if (active != null) {
+        return ShiftModel(
+          id: active.id,
+          userId: active.userId,
+          cashIn: active.cashIn,
+          cashOut: active.cashOut,
+          notes: active.notes,
+          startTime: active.startTime,
+          endTime: active.endTime,
+          status: active.status,
+          syncStatus: active.syncStatus,
+        );
       }
       return null;
     }
@@ -50,16 +68,7 @@ class ShiftRepository implements IShiftRepository {
       '/shifts/open',
       data: {'cash_in': initialCash, 'notes': notes},
     );
-
-    final active = await getActiveShift(userId);
-    if (active != null) {
-      final history = await getHistory();
-      final merged = [active, ...history.where((h) => h.id != active.id)];
-      await _cache.saveList(
-        _shiftHistoryKey,
-        merged.map((e) => e.toJson()).toList(growable: false),
-      );
-    }
+    await getActiveShift(userId);
   }
 
   @override
@@ -68,7 +77,12 @@ class ShiftRepository implements IShiftRepository {
       '/shifts/close',
       data: {'cash_out': finalCash, 'notes': notes},
     );
-    await _cache.saveObject(_activeShiftKey, null);
+    await _db.updateShift(id, ShiftsCompanion(
+      status: const Value('closed'),
+      cashOut: Value(finalCash),
+      notes: Value(notes),
+      endTime: Value(DateTime.now()),
+    ));
   }
 
   @override
@@ -79,17 +93,20 @@ class ShiftRepository implements IShiftRepository {
       final history = data
           .map((json) => ShiftModel.fromJson(Map<String, dynamic>.from(json)))
           .toList();
-      await _cache.saveList(
-        _shiftHistoryKey,
-        history.map((e) => e.toJson()).toList(growable: false),
-      );
       return history;
     } catch (_) {
-      final cached = await _cache.readList(_shiftHistoryKey);
-      if (cached.isNotEmpty) {
-        return cached.map(ShiftModel.fromJson).toList(growable: false);
-      }
-      rethrow;
+      final entities = await _db.getShiftHistory();
+      return entities.map((e) => ShiftModel(
+        id: e.id,
+        userId: e.userId,
+        cashIn: e.cashIn,
+        cashOut: e.cashOut,
+        notes: e.notes,
+        startTime: e.startTime,
+        endTime: e.endTime,
+        status: e.status,
+        syncStatus: e.syncStatus,
+      )).toList();
     }
   }
 
@@ -100,12 +117,7 @@ class ShiftRepository implements IShiftRepository {
         '/shifts/$id/notes',
         data: {'notes': notes},
       );
-
-      final history = await getHistory();
-      await _cache.saveList(
-        _shiftHistoryKey,
-        history.map((e) => e.toJson()).toList(growable: false),
-      );
+      await getActiveShift(0); // Dummy ID refresh or update localized
     } catch (_) {
       rethrow;
     }

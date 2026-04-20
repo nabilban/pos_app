@@ -179,17 +179,16 @@ class _PosStatusActionsState extends State<PosStatusActions>
                 onPressed: _showOfflineInfo,
                 tooltip: 'Mode offline',
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFF7ED),
-                  side: const BorderSide(
-                    color: Color(0xFFF97316),
-                    width: 1.2,
+                  side: BorderSide(
+                    color: const Color(0xFFD97706).withOpacity(0.2),
+                    width: 1,
                   ),
                   shape: const CircleBorder(),
                 ),
                 icon: const Icon(
-                  Icons.wifi_off_rounded,
-                  color: Color(0xFFC2410C),
-                  size: 19,
+                  Icons.portable_wifi_off_rounded,
+                  color: Color(0xFFD97706),
+                  size: 20,
                 ),
               ),
             if (isOnline && (_pendingCount > 0 || _isSyncing))

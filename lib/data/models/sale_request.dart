@@ -16,6 +16,8 @@ class SaleRequest with _$SaleRequest {
     @Default('pos') String source,
     @JsonKey(name: 'manual_discount') @Default(0) double manualDiscount,
     @JsonKey(name: 'additional_fee') @Default(0) double additionalFee,
+    @JsonKey(name: 'offline_id') String? offlineId,
+    @JsonKey(name: 'sold_at') String? soldAt,
   }) = _SaleRequest;
 
   factory SaleRequest.fromJson(Map<String, dynamic> json) =>

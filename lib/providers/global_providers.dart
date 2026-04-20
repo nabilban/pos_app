@@ -80,7 +80,7 @@ class GlobalProviders extends StatelessWidget {
         RepositoryProvider<IPosRepository>(
           create: (context) => PosRepository(
             context.read<ApiClient>(),
-            context.read<LocalCacheStore>(),
+            context.read<AppDatabase>(),
           ),
         ),
         RepositoryProvider<IUserRepository>(
@@ -90,20 +90,19 @@ class GlobalProviders extends StatelessWidget {
           create: (context) => SalesRepository(
             context.read<ApiClient>(),
             context.read<LocalCacheStore>(),
+            context.read<AppDatabase>(),
           ),
         ),
         RepositoryProvider<IAttendanceRepository>(
           create: (context) => AttendanceRepository(
             context.read<ApiClient>(),
             context.read<AppDatabase>(),
-            context.read<LocalCacheStore>(),
           ),
         ),
         RepositoryProvider<IShiftRepository>(
           create: (context) => ShiftRepository(
             context.read<ApiClient>(),
             context.read<AppDatabase>(),
-            context.read<LocalCacheStore>(),
           ),
         ),
       ],

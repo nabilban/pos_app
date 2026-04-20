@@ -35,6 +35,10 @@ mixin _$SaleRequest {
   double get manualDiscount => throw _privateConstructorUsedError;
   @JsonKey(name: 'additional_fee')
   double get additionalFee => throw _privateConstructorUsedError;
+  @JsonKey(name: 'offline_id')
+  String? get offlineId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'sold_at')
+  String? get soldAt => throw _privateConstructorUsedError;
 
   /// Serializes this SaleRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -62,6 +66,8 @@ abstract class $SaleRequestCopyWith<$Res> {
     String source,
     @JsonKey(name: 'manual_discount') double manualDiscount,
     @JsonKey(name: 'additional_fee') double additionalFee,
+    @JsonKey(name: 'offline_id') String? offlineId,
+    @JsonKey(name: 'sold_at') String? soldAt,
   });
 }
 
@@ -88,6 +94,8 @@ class _$SaleRequestCopyWithImpl<$Res, $Val extends SaleRequest>
     Object? source = null,
     Object? manualDiscount = null,
     Object? additionalFee = null,
+    Object? offlineId = freezed,
+    Object? soldAt = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -123,6 +131,14 @@ class _$SaleRequestCopyWithImpl<$Res, $Val extends SaleRequest>
                 ? _value.additionalFee
                 : additionalFee // ignore: cast_nullable_to_non_nullable
                       as double,
+            offlineId: freezed == offlineId
+                ? _value.offlineId
+                : offlineId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            soldAt: freezed == soldAt
+                ? _value.soldAt
+                : soldAt // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -147,6 +163,8 @@ abstract class _$$SaleRequestImplCopyWith<$Res>
     String source,
     @JsonKey(name: 'manual_discount') double manualDiscount,
     @JsonKey(name: 'additional_fee') double additionalFee,
+    @JsonKey(name: 'offline_id') String? offlineId,
+    @JsonKey(name: 'sold_at') String? soldAt,
   });
 }
 
@@ -172,6 +190,8 @@ class __$$SaleRequestImplCopyWithImpl<$Res>
     Object? source = null,
     Object? manualDiscount = null,
     Object? additionalFee = null,
+    Object? offlineId = freezed,
+    Object? soldAt = freezed,
   }) {
     return _then(
       _$SaleRequestImpl(
@@ -207,6 +227,14 @@ class __$$SaleRequestImplCopyWithImpl<$Res>
             ? _value.additionalFee
             : additionalFee // ignore: cast_nullable_to_non_nullable
                   as double,
+        offlineId: freezed == offlineId
+            ? _value.offlineId
+            : offlineId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        soldAt: freezed == soldAt
+            ? _value.soldAt
+            : soldAt // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -225,6 +253,8 @@ class _$SaleRequestImpl implements _SaleRequest {
     this.source = 'pos',
     @JsonKey(name: 'manual_discount') this.manualDiscount = 0,
     @JsonKey(name: 'additional_fee') this.additionalFee = 0,
+    @JsonKey(name: 'offline_id') this.offlineId,
+    @JsonKey(name: 'sold_at') this.soldAt,
   }) : _items = items;
 
   factory _$SaleRequestImpl.fromJson(Map<String, dynamic> json) =>
@@ -259,10 +289,16 @@ class _$SaleRequestImpl implements _SaleRequest {
   @override
   @JsonKey(name: 'additional_fee')
   final double additionalFee;
+  @override
+  @JsonKey(name: 'offline_id')
+  final String? offlineId;
+  @override
+  @JsonKey(name: 'sold_at')
+  final String? soldAt;
 
   @override
   String toString() {
-    return 'SaleRequest(paymentMethodId: $paymentMethodId, customerName: $customerName, items: $items, priceCategoryId: $priceCategoryId, promoId: $promoId, source: $source, manualDiscount: $manualDiscount, additionalFee: $additionalFee)';
+    return 'SaleRequest(paymentMethodId: $paymentMethodId, customerName: $customerName, items: $items, priceCategoryId: $priceCategoryId, promoId: $promoId, source: $source, manualDiscount: $manualDiscount, additionalFee: $additionalFee, offlineId: $offlineId, soldAt: $soldAt)';
   }
 
   @override
@@ -282,7 +318,10 @@ class _$SaleRequestImpl implements _SaleRequest {
             (identical(other.manualDiscount, manualDiscount) ||
                 other.manualDiscount == manualDiscount) &&
             (identical(other.additionalFee, additionalFee) ||
-                other.additionalFee == additionalFee));
+                other.additionalFee == additionalFee) &&
+            (identical(other.offlineId, offlineId) ||
+                other.offlineId == offlineId) &&
+            (identical(other.soldAt, soldAt) || other.soldAt == soldAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -297,6 +336,8 @@ class _$SaleRequestImpl implements _SaleRequest {
     source,
     manualDiscount,
     additionalFee,
+    offlineId,
+    soldAt,
   );
 
   /// Create a copy of SaleRequest
@@ -323,6 +364,8 @@ abstract class _SaleRequest implements SaleRequest {
     final String source,
     @JsonKey(name: 'manual_discount') final double manualDiscount,
     @JsonKey(name: 'additional_fee') final double additionalFee,
+    @JsonKey(name: 'offline_id') final String? offlineId,
+    @JsonKey(name: 'sold_at') final String? soldAt,
   }) = _$SaleRequestImpl;
 
   factory _SaleRequest.fromJson(Map<String, dynamic> json) =
@@ -350,6 +393,12 @@ abstract class _SaleRequest implements SaleRequest {
   @override
   @JsonKey(name: 'additional_fee')
   double get additionalFee;
+  @override
+  @JsonKey(name: 'offline_id')
+  String? get offlineId;
+  @override
+  @JsonKey(name: 'sold_at')
+  String? get soldAt;
 
   /// Create a copy of SaleRequest
   /// with the given fields replaced by the non-null parameter values.

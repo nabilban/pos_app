@@ -13,15 +13,37 @@ import '../entity/role_entity.dart';
 import '../entity/outlet_entity.dart';
 import '../entity/attendance_entity.dart';
 import '../entity/shift_entity.dart';
+import '../entity/pos_entities.dart';
+import '../entity/sale_entities.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Tokens, Users, Roles, Outlets, Attendances, Shifts])
+@DriftDatabase(tables: [
+  Tokens,
+  Users,
+  Roles,
+  Outlets,
+  Attendances,
+  Shifts,
+  Categories,
+  Brands,
+  Units,
+  Products,
+  ProductVariants,
+  VariantOptions,
+  PaymentMethods,
+  PriceCategories,
+  Promos,
+  PriceCategoryProducts,
+  Sales,
+  SaleItems,
+  SaleItemVariants,
+])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -97,7 +119,7 @@ class AppDatabase extends _$AppDatabase {
     final startOfDay = DateTime(now.year, now.month, now.day);
     return await (select(attendances)
           ..where((t) => t.userId.equals(userId))
-          ..where((t) => t.checkInTime.isBiggerOrEqualValue(startOfDay))
+          ..where((t) => t.checkIn.isNotNull()) // Simplified for today check if using Strings
           ..limit(1))
         .getSingleOrNull();
   }
@@ -108,6 +130,10 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> updateAttendance(int id, AttendancesCompanion entry) async {
     await (update(attendances)..where((t) => t.id.equals(id))).write(entry);
+  }
+
+  Future<List<Attendance>> getAttendanceHistory() async {
+    return await (select(attendances)..orderBy([(t) => OrderingTerm.desc(t.checkIn)])).get();
   }
 
   // --- SHIFT OPERATIONS ---
@@ -137,6 +163,143 @@ class AppDatabase extends _$AppDatabase {
           ..where((t) => t.userId.equals(userId))
           ..where((t) => t.status.equals('open')))
         .go();
+  }
+
+  Future<List<Shift>> getShiftHistory() async {
+    return await (select(shifts)..orderBy([(t) => OrderingTerm.desc(t.startTime)])).get();
+  }
+
+  // --- POS OPERATIONS ---
+
+  Future<void> saveCategories(List<CategoriesCompanion> entries) async {
+    transaction(() async {
+      await delete(categories).go();
+      for (final entry in entries) {
+        await into(categories).insertOnConflictUpdate(entry);
+      }
+    });
+  }
+
+  Future<List<CategoryEntity>> getAllCategories() async {
+    return await select(categories).get();
+  }
+
+  Future<void> saveBrands(List<BrandsCompanion> entries) async {
+    transaction(() async {
+      await delete(brands).go();
+      for (final entry in entries) {
+        await into(brands).insertOnConflictUpdate(entry);
+      }
+    });
+  }
+
+  Future<List<BrandEntity>> getAllBrands() async {
+    return await select(brands).get();
+  }
+
+  Future<void> saveProducts(List<ProductsCompanion> entries) async {
+    transaction(() async {
+      await delete(products).go();
+      for (final entry in entries) {
+        await into(products).insertOnConflictUpdate(entry);
+      }
+    });
+  }
+
+  Future<List<ProductEntity>> getAllProducts() async {
+    return await select(products).get();
+  }
+
+  Future<void> saveProductVariants(List<ProductVariantsCompanion> entries) async {
+    for (final entry in entries) {
+      await into(productVariants).insertOnConflictUpdate(entry);
+    }
+  }
+
+  Future<void> saveVariantOptions(List<VariantOptionsCompanion> entries) async {
+    for (final entry in entries) {
+      await into(variantOptions).insertOnConflictUpdate(entry);
+    }
+  }
+
+  Future<void> savePaymentMethods(List<PaymentMethodsCompanion> entries) async {
+    transaction(() async {
+      await delete(paymentMethods).go();
+      for (final entry in entries) {
+        await into(paymentMethods).insertOnConflictUpdate(entry);
+      }
+    });
+  }
+
+  Future<List<PaymentMethodEntity>> getAllPaymentMethods() async {
+    return await select(paymentMethods).get();
+  }
+
+  Future<void> savePromos(List<PromosCompanion> entries) async {
+    transaction(() async {
+      await delete(promos).go();
+      for (final entry in entries) {
+        await into(promos).insertOnConflictUpdate(entry);
+      }
+    });
+  }
+
+  Future<List<PromoEntity>> getAllPromos() async {
+    return await select(promos).get();
+  }
+
+  Future<void> savePriceCategories(List<PriceCategoriesCompanion> entries) async {
+    transaction(() async {
+      await delete(priceCategories).go();
+      for (final entry in entries) {
+        await into(priceCategories).insertOnConflictUpdate(entry);
+      }
+    });
+  }
+
+  Future<List<PriceCategoryEntity>> getAllPriceCategories() async {
+    return await select(priceCategories).get();
+  }
+
+  Future<void> savePriceCategoryProducts(int priceCategoryId, List<PriceCategoryProductsCompanion> entries) async {
+    transaction(() async {
+      // Clear existing mapping for this category
+      await (delete(priceCategoryProducts)..where((t) => t.priceCategoryId.equals(priceCategoryId))).go();
+      for (final entry in entries) {
+        await into(priceCategoryProducts).insertOnConflictUpdate(entry);
+      }
+    });
+  }
+
+  Future<List<PriceCategoryProductEntity>> getPriceCategoryProducts(int priceCategoryId) async {
+    return await (select(priceCategoryProducts)..where((t) => t.priceCategoryId.equals(priceCategoryId))).get();
+  }
+
+  // --- SALE HISTORY OPERATIONS ---
+
+  Future<void> saveSalesHistory(List<SalesCompanion> salesList) async {
+    transaction(() async {
+      await delete(sales).go();
+      for (final s in salesList) {
+        await into(sales).insertOnConflictUpdate(s);
+      }
+    });
+  }
+
+  Future<void> saveSaleItems(List<SaleItemsCompanion> itemList) async {
+    for (final item in itemList) {
+      await into(saleItems).insertOnConflictUpdate(item);
+    }
+  }
+
+  Future<void> saveSaleItemVariants(List<SaleItemVariantsCompanion> variantList) async {
+    for (final v in variantList) {
+      await into(saleItemVariants).insertOnConflictUpdate(v);
+    }
+  }
+
+  Future<List<SaleEntity>> getAllSales() async {
+    return await select(sales).get();
   }
 }
 

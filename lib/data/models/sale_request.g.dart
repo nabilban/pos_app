@@ -18,6 +18,8 @@ _$SaleRequestImpl _$$SaleRequestImplFromJson(Map<String, dynamic> json) =>
       source: json['source'] as String? ?? 'pos',
       manualDiscount: (json['manual_discount'] as num?)?.toDouble() ?? 0,
       additionalFee: (json['additional_fee'] as num?)?.toDouble() ?? 0,
+      offlineId: json['offline_id'] as String?,
+      soldAt: json['sold_at'] as String?,
     );
 
 Map<String, dynamic> _$$SaleRequestImplToJson(_$SaleRequestImpl instance) =>
@@ -30,6 +32,8 @@ Map<String, dynamic> _$$SaleRequestImplToJson(_$SaleRequestImpl instance) =>
       'source': instance.source,
       'manual_discount': instance.manualDiscount,
       'additional_fee': instance.additionalFee,
+      'offline_id': instance.offlineId,
+      'sold_at': instance.soldAt,
     };
 
 _$SaleItemRequestImpl _$$SaleItemRequestImplFromJson(
