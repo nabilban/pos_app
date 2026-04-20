@@ -41,25 +41,29 @@ class ShiftRepository implements IShiftRepository {
         
         return shift;
       }
-      await _db.clearActiveShifts(userId);
-      return null;
+      
+      return await _fetchLocalActiveShift(userId);
     } catch (_) {
-      final active = await _db.getActiveShift(userId);
-      if (active != null) {
-        return ShiftModel(
-          id: active.id,
-          userId: active.userId,
-          cashIn: active.cashIn,
-          cashOut: active.cashOut,
-          notes: active.notes,
-          startTime: active.startTime,
-          endTime: active.endTime,
-          status: active.status,
-          syncStatus: active.syncStatus,
-        );
-      }
-      return null;
+      return await _fetchLocalActiveShift(userId);
     }
+  }
+
+  Future<ShiftModel?> _fetchLocalActiveShift(int userId) async {
+    final active = await _db.getActiveShift(userId);
+    if (active != null) {
+      return ShiftModel(
+        id: active.id,
+        userId: active.userId,
+        cashIn: active.cashIn,
+        cashOut: active.cashOut,
+        notes: active.notes,
+        startTime: active.startTime,
+        endTime: active.endTime,
+        status: active.status,
+        syncStatus: active.syncStatus,
+      );
+    }
+    return null;
   }
 
   @override
@@ -117,8 +121,10 @@ class ShiftRepository implements IShiftRepository {
         '/shifts/$id/notes',
         data: {'notes': notes},
       );
-      await getActiveShift(0); // Dummy ID refresh or update localized
+      await _db.updateShift(id, ShiftsCompanion(notes: Value(notes)));
     } catch (_) {
+      // Still update local even on sync failure
+      await _db.updateShift(id, ShiftsCompanion(notes: Value(notes)));
       rethrow;
     }
   }

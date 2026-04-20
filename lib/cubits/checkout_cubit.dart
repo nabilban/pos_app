@@ -109,7 +109,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   }) async {
     try {
       final now = DateTime.now();
-      final soldAt = now.toUtc().toIso8601String();
+      final soldAt = now.toIso8601String();
       final offlineId = _uuid.v4();
       
       final request = SaleRequestMapper.fromCart(

@@ -41,22 +41,27 @@ class AttendanceRepository implements IAttendanceRepository {
         
         return attendance;
       }
-      return null;
+      
+      return await _fetchLocalTodayAttendance(userId);
     } catch (_) {
-      final today = await _db.getTodayAttendance(userId);
-      if (today != null) {
-        return AttendanceModel(
-          id: today.id,
-          userId: today.userId,
-          photoIn: today.photoIn,
-          photoOut: today.photoOut,
-          checkIn: today.checkIn,
-          checkOut: today.checkOut,
-          syncStatus: today.syncStatus,
-        );
-      }
-      return null;
+      return await _fetchLocalTodayAttendance(userId);
     }
+  }
+
+  Future<AttendanceModel?> _fetchLocalTodayAttendance(int userId) async {
+    final today = await _db.getTodayAttendance(userId);
+    if (today != null) {
+      return AttendanceModel(
+        id: today.id,
+        userId: today.userId,
+        photoIn: today.photoIn,
+        photoOut: today.photoOut,
+        checkIn: today.checkIn,
+        checkOut: today.checkOut,
+        syncStatus: today.syncStatus,
+      );
+    }
+    return null;
   }
 
   @override

@@ -125,7 +125,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<int> saveAttendance(AttendancesCompanion entry) async {
-    return await into(attendances).insert(entry);
+    return await into(attendances).insertOnConflictUpdate(entry);
   }
 
   Future<void> updateAttendance(int id, AttendancesCompanion entry) async {
@@ -147,7 +147,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<int> saveShift(ShiftsCompanion entry) async {
-    return await into(shifts).insert(entry);
+    return await into(shifts).insertOnConflictUpdate(entry);
   }
 
   Future<void> updateShift(int id, ShiftsCompanion entry) async {
