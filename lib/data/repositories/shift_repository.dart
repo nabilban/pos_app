@@ -96,20 +96,40 @@ class ShiftRepository implements IShiftRepository {
       final history = data
           .map((json) => ShiftModel.fromJson(Map<String, dynamic>.from(json)))
           .toList();
+
+      // Cache history locally
+      for (final shift in history) {
+        await _db.saveShiftHistory(ShiftHistoriesCompanion.insert(
+          id: Value(shift.id),
+          userId: shift.userId,
+          cashIn: shift.cashIn,
+          cashOut: Value(shift.cashOut),
+          notes: Value(shift.notes),
+          startTime: shift.startTime,
+          endTime: Value(shift.endTime),
+          status: Value(shift.status),
+          syncStatus: Value(shift.syncStatus),
+        ));
+      }
+
       return history;
     } catch (_) {
       final entities = await _db.getShiftHistory();
-      return entities.map((e) => ShiftModel(
-        id: e.id,
-        userId: e.userId,
-        cashIn: e.cashIn,
-        cashOut: e.cashOut,
-        notes: e.notes,
-        startTime: e.startTime,
-        endTime: e.endTime,
-        status: e.status,
-        syncStatus: e.syncStatus,
-      )).toList();
+      return entities
+          .map(
+            (e) => ShiftModel(
+              id: e.id,
+              userId: e.userId,
+              cashIn: e.cashIn,
+              cashOut: e.cashOut,
+              notes: e.notes,
+              startTime: e.startTime,
+              endTime: e.endTime,
+              status: e.status,
+              syncStatus: e.syncStatus,
+            ),
+          )
+          .toList();
     }
   }
 

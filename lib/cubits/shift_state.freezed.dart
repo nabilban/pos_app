@@ -51,6 +51,7 @@ abstract class $ShiftStateCopyWith<$Res> {
     String? error,
   });
 
+  $ShiftModelCopyWith<$Res>? get activeShift;
   $AttendanceModelCopyWith<$Res>? get todayAttendance;
 }
 
@@ -116,6 +117,20 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
+  $ShiftModelCopyWith<$Res>? get activeShift {
+    if (_value.activeShift == null) {
+      return null;
+    }
+
+    return $ShiftModelCopyWith<$Res>(_value.activeShift!, (value) {
+      return _then(_value.copyWith(activeShift: value) as $Val);
+    });
+  }
+
+  /// Create a copy of ShiftState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
   $AttendanceModelCopyWith<$Res>? get todayAttendance {
     if (_value.todayAttendance == null) {
       return null;
@@ -146,6 +161,8 @@ abstract class _$$ShiftStateImplCopyWith<$Res>
     String? error,
   });
 
+  @override
+  $ShiftModelCopyWith<$Res>? get activeShift;
   @override
   $AttendanceModelCopyWith<$Res>? get todayAttendance;
 }
@@ -266,10 +283,8 @@ class _$ShiftStateImpl implements _ShiftState {
             other is _$ShiftStateImpl &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            const DeepCollectionEquality().equals(
-              other.activeShift,
-              activeShift,
-            ) &&
+            (identical(other.activeShift, activeShift) ||
+                other.activeShift == activeShift) &&
             const DeepCollectionEquality().equals(other._history, _history) &&
             (identical(other.selectedTab, selectedTab) ||
                 other.selectedTab == selectedTab) &&
@@ -286,7 +301,7 @@ class _$ShiftStateImpl implements _ShiftState {
   int get hashCode => Object.hash(
     runtimeType,
     isLoading,
-    const DeepCollectionEquality().hash(activeShift),
+    activeShift,
     const DeepCollectionEquality().hash(_history),
     selectedTab,
     todayAttendance,

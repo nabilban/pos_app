@@ -7673,6 +7673,995 @@ class SaleItemVariantsCompanion extends UpdateCompanion<SaleItemVariantEntity> {
   }
 }
 
+class $ShiftHistoriesTable extends ShiftHistories
+    with TableInfo<$ShiftHistoriesTable, ShiftHistory> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ShiftHistoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cashInMeta = const VerificationMeta('cashIn');
+  @override
+  late final GeneratedColumn<double> cashIn = GeneratedColumn<double>(
+    'cash_in',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cashOutMeta = const VerificationMeta(
+    'cashOut',
+  );
+  @override
+  late final GeneratedColumn<double> cashOut = GeneratedColumn<double>(
+    'cash_out',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startTimeMeta = const VerificationMeta(
+    'startTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startTime = GeneratedColumn<DateTime>(
+    'start_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endTimeMeta = const VerificationMeta(
+    'endTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
+    'end_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('closed'),
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<String> syncStatus = GeneratedColumn<String>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userId,
+    cashIn,
+    cashOut,
+    notes,
+    startTime,
+    endTime,
+    status,
+    syncStatus,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'shift_histories';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ShiftHistory> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('cash_in')) {
+      context.handle(
+        _cashInMeta,
+        cashIn.isAcceptableOrUnknown(data['cash_in']!, _cashInMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cashInMeta);
+    }
+    if (data.containsKey('cash_out')) {
+      context.handle(
+        _cashOutMeta,
+        cashOut.isAcceptableOrUnknown(data['cash_out']!, _cashOutMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('start_time')) {
+      context.handle(
+        _startTimeMeta,
+        startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startTimeMeta);
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(
+        _endTimeMeta,
+        endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ShiftHistory map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ShiftHistory(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      ),
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_id'],
+      )!,
+      cashIn: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cash_in'],
+      )!,
+      cashOut: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cash_out'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      startTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_time'],
+      )!,
+      endTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_time'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_status'],
+      )!,
+    );
+  }
+
+  @override
+  $ShiftHistoriesTable createAlias(String alias) {
+    return $ShiftHistoriesTable(attachedDatabase, alias);
+  }
+}
+
+class ShiftHistory extends DataClass implements Insertable<ShiftHistory> {
+  final int? id;
+  final int userId;
+  final double cashIn;
+  final double? cashOut;
+  final String? notes;
+  final DateTime startTime;
+  final DateTime? endTime;
+  final String status;
+  final String syncStatus;
+  const ShiftHistory({
+    this.id,
+    required this.userId,
+    required this.cashIn,
+    this.cashOut,
+    this.notes,
+    required this.startTime,
+    this.endTime,
+    required this.status,
+    required this.syncStatus,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    map['user_id'] = Variable<int>(userId);
+    map['cash_in'] = Variable<double>(cashIn);
+    if (!nullToAbsent || cashOut != null) {
+      map['cash_out'] = Variable<double>(cashOut);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['start_time'] = Variable<DateTime>(startTime);
+    if (!nullToAbsent || endTime != null) {
+      map['end_time'] = Variable<DateTime>(endTime);
+    }
+    map['status'] = Variable<String>(status);
+    map['sync_status'] = Variable<String>(syncStatus);
+    return map;
+  }
+
+  ShiftHistoriesCompanion toCompanion(bool nullToAbsent) {
+    return ShiftHistoriesCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      userId: Value(userId),
+      cashIn: Value(cashIn),
+      cashOut: cashOut == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cashOut),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      startTime: Value(startTime),
+      endTime: endTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endTime),
+      status: Value(status),
+      syncStatus: Value(syncStatus),
+    );
+  }
+
+  factory ShiftHistory.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ShiftHistory(
+      id: serializer.fromJson<int?>(json['ID']),
+      userId: serializer.fromJson<int>(json['user_id']),
+      cashIn: serializer.fromJson<double>(json['cash_in']),
+      cashOut: serializer.fromJson<double?>(json['cash_out']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      startTime: serializer.fromJson<DateTime>(json['start_time']),
+      endTime: serializer.fromJson<DateTime?>(json['end_time']),
+      status: serializer.fromJson<String>(json['status']),
+      syncStatus: serializer.fromJson<String>(json['sync_status']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ID': serializer.toJson<int?>(id),
+      'user_id': serializer.toJson<int>(userId),
+      'cash_in': serializer.toJson<double>(cashIn),
+      'cash_out': serializer.toJson<double?>(cashOut),
+      'notes': serializer.toJson<String?>(notes),
+      'start_time': serializer.toJson<DateTime>(startTime),
+      'end_time': serializer.toJson<DateTime?>(endTime),
+      'status': serializer.toJson<String>(status),
+      'sync_status': serializer.toJson<String>(syncStatus),
+    };
+  }
+
+  ShiftHistory copyWith({
+    Value<int?> id = const Value.absent(),
+    int? userId,
+    double? cashIn,
+    Value<double?> cashOut = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    DateTime? startTime,
+    Value<DateTime?> endTime = const Value.absent(),
+    String? status,
+    String? syncStatus,
+  }) => ShiftHistory(
+    id: id.present ? id.value : this.id,
+    userId: userId ?? this.userId,
+    cashIn: cashIn ?? this.cashIn,
+    cashOut: cashOut.present ? cashOut.value : this.cashOut,
+    notes: notes.present ? notes.value : this.notes,
+    startTime: startTime ?? this.startTime,
+    endTime: endTime.present ? endTime.value : this.endTime,
+    status: status ?? this.status,
+    syncStatus: syncStatus ?? this.syncStatus,
+  );
+  ShiftHistory copyWithCompanion(ShiftHistoriesCompanion data) {
+    return ShiftHistory(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      cashIn: data.cashIn.present ? data.cashIn.value : this.cashIn,
+      cashOut: data.cashOut.present ? data.cashOut.value : this.cashOut,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
+      status: data.status.present ? data.status.value : this.status,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ShiftHistory(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('cashIn: $cashIn, ')
+          ..write('cashOut: $cashOut, ')
+          ..write('notes: $notes, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('status: $status, ')
+          ..write('syncStatus: $syncStatus')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    userId,
+    cashIn,
+    cashOut,
+    notes,
+    startTime,
+    endTime,
+    status,
+    syncStatus,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ShiftHistory &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.cashIn == this.cashIn &&
+          other.cashOut == this.cashOut &&
+          other.notes == this.notes &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
+          other.status == this.status &&
+          other.syncStatus == this.syncStatus);
+}
+
+class ShiftHistoriesCompanion extends UpdateCompanion<ShiftHistory> {
+  final Value<int?> id;
+  final Value<int> userId;
+  final Value<double> cashIn;
+  final Value<double?> cashOut;
+  final Value<String?> notes;
+  final Value<DateTime> startTime;
+  final Value<DateTime?> endTime;
+  final Value<String> status;
+  final Value<String> syncStatus;
+  const ShiftHistoriesCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.cashIn = const Value.absent(),
+    this.cashOut = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
+    this.status = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+  });
+  ShiftHistoriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int userId,
+    required double cashIn,
+    this.cashOut = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime startTime,
+    this.endTime = const Value.absent(),
+    this.status = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+  }) : userId = Value(userId),
+       cashIn = Value(cashIn),
+       startTime = Value(startTime);
+  static Insertable<ShiftHistory> custom({
+    Expression<int>? id,
+    Expression<int>? userId,
+    Expression<double>? cashIn,
+    Expression<double>? cashOut,
+    Expression<String>? notes,
+    Expression<DateTime>? startTime,
+    Expression<DateTime>? endTime,
+    Expression<String>? status,
+    Expression<String>? syncStatus,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (cashIn != null) 'cash_in': cashIn,
+      if (cashOut != null) 'cash_out': cashOut,
+      if (notes != null) 'notes': notes,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
+      if (status != null) 'status': status,
+      if (syncStatus != null) 'sync_status': syncStatus,
+    });
+  }
+
+  ShiftHistoriesCompanion copyWith({
+    Value<int?>? id,
+    Value<int>? userId,
+    Value<double>? cashIn,
+    Value<double?>? cashOut,
+    Value<String?>? notes,
+    Value<DateTime>? startTime,
+    Value<DateTime?>? endTime,
+    Value<String>? status,
+    Value<String>? syncStatus,
+  }) {
+    return ShiftHistoriesCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      cashIn: cashIn ?? this.cashIn,
+      cashOut: cashOut ?? this.cashOut,
+      notes: notes ?? this.notes,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      status: status ?? this.status,
+      syncStatus: syncStatus ?? this.syncStatus,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
+    }
+    if (cashIn.present) {
+      map['cash_in'] = Variable<double>(cashIn.value);
+    }
+    if (cashOut.present) {
+      map['cash_out'] = Variable<double>(cashOut.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (startTime.present) {
+      map['start_time'] = Variable<DateTime>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<DateTime>(endTime.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<String>(syncStatus.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ShiftHistoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('cashIn: $cashIn, ')
+          ..write('cashOut: $cashOut, ')
+          ..write('notes: $notes, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
+          ..write('status: $status, ')
+          ..write('syncStatus: $syncStatus')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AttendanceHistoriesTable extends AttendanceHistories
+    with TableInfo<$AttendanceHistoriesTable, AttendanceHistory> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AttendanceHistoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _photoInMeta = const VerificationMeta(
+    'photoIn',
+  );
+  @override
+  late final GeneratedColumn<String> photoIn = GeneratedColumn<String>(
+    'photo_in',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _photoOutMeta = const VerificationMeta(
+    'photoOut',
+  );
+  @override
+  late final GeneratedColumn<String> photoOut = GeneratedColumn<String>(
+    'photo_out',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _checkInMeta = const VerificationMeta(
+    'checkIn',
+  );
+  @override
+  late final GeneratedColumn<String> checkIn = GeneratedColumn<String>(
+    'check_in',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _checkOutMeta = const VerificationMeta(
+    'checkOut',
+  );
+  @override
+  late final GeneratedColumn<String> checkOut = GeneratedColumn<String>(
+    'check_out',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<String> syncStatus = GeneratedColumn<String>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    userId,
+    photoIn,
+    photoOut,
+    checkIn,
+    checkOut,
+    syncStatus,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'attendance_histories';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AttendanceHistory> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('photo_in')) {
+      context.handle(
+        _photoInMeta,
+        photoIn.isAcceptableOrUnknown(data['photo_in']!, _photoInMeta),
+      );
+    }
+    if (data.containsKey('photo_out')) {
+      context.handle(
+        _photoOutMeta,
+        photoOut.isAcceptableOrUnknown(data['photo_out']!, _photoOutMeta),
+      );
+    }
+    if (data.containsKey('check_in')) {
+      context.handle(
+        _checkInMeta,
+        checkIn.isAcceptableOrUnknown(data['check_in']!, _checkInMeta),
+      );
+    }
+    if (data.containsKey('check_out')) {
+      context.handle(
+        _checkOutMeta,
+        checkOut.isAcceptableOrUnknown(data['check_out']!, _checkOutMeta),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AttendanceHistory map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AttendanceHistory(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      ),
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user_id'],
+      )!,
+      photoIn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_in'],
+      ),
+      photoOut: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_out'],
+      ),
+      checkIn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}check_in'],
+      ),
+      checkOut: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}check_out'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_status'],
+      )!,
+    );
+  }
+
+  @override
+  $AttendanceHistoriesTable createAlias(String alias) {
+    return $AttendanceHistoriesTable(attachedDatabase, alias);
+  }
+}
+
+class AttendanceHistory extends DataClass
+    implements Insertable<AttendanceHistory> {
+  final int? id;
+  final int userId;
+  final String? photoIn;
+  final String? photoOut;
+  final String? checkIn;
+  final String? checkOut;
+  final String syncStatus;
+  const AttendanceHistory({
+    this.id,
+    required this.userId,
+    this.photoIn,
+    this.photoOut,
+    this.checkIn,
+    this.checkOut,
+    required this.syncStatus,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    map['user_id'] = Variable<int>(userId);
+    if (!nullToAbsent || photoIn != null) {
+      map['photo_in'] = Variable<String>(photoIn);
+    }
+    if (!nullToAbsent || photoOut != null) {
+      map['photo_out'] = Variable<String>(photoOut);
+    }
+    if (!nullToAbsent || checkIn != null) {
+      map['check_in'] = Variable<String>(checkIn);
+    }
+    if (!nullToAbsent || checkOut != null) {
+      map['check_out'] = Variable<String>(checkOut);
+    }
+    map['sync_status'] = Variable<String>(syncStatus);
+    return map;
+  }
+
+  AttendanceHistoriesCompanion toCompanion(bool nullToAbsent) {
+    return AttendanceHistoriesCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      userId: Value(userId),
+      photoIn: photoIn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photoIn),
+      photoOut: photoOut == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photoOut),
+      checkIn: checkIn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(checkIn),
+      checkOut: checkOut == null && nullToAbsent
+          ? const Value.absent()
+          : Value(checkOut),
+      syncStatus: Value(syncStatus),
+    );
+  }
+
+  factory AttendanceHistory.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AttendanceHistory(
+      id: serializer.fromJson<int?>(json['ID']),
+      userId: serializer.fromJson<int>(json['user_id']),
+      photoIn: serializer.fromJson<String?>(json['photo_in']),
+      photoOut: serializer.fromJson<String?>(json['photo_out']),
+      checkIn: serializer.fromJson<String?>(json['check_in']),
+      checkOut: serializer.fromJson<String?>(json['check_out']),
+      syncStatus: serializer.fromJson<String>(json['sync_status']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ID': serializer.toJson<int?>(id),
+      'user_id': serializer.toJson<int>(userId),
+      'photo_in': serializer.toJson<String?>(photoIn),
+      'photo_out': serializer.toJson<String?>(photoOut),
+      'check_in': serializer.toJson<String?>(checkIn),
+      'check_out': serializer.toJson<String?>(checkOut),
+      'sync_status': serializer.toJson<String>(syncStatus),
+    };
+  }
+
+  AttendanceHistory copyWith({
+    Value<int?> id = const Value.absent(),
+    int? userId,
+    Value<String?> photoIn = const Value.absent(),
+    Value<String?> photoOut = const Value.absent(),
+    Value<String?> checkIn = const Value.absent(),
+    Value<String?> checkOut = const Value.absent(),
+    String? syncStatus,
+  }) => AttendanceHistory(
+    id: id.present ? id.value : this.id,
+    userId: userId ?? this.userId,
+    photoIn: photoIn.present ? photoIn.value : this.photoIn,
+    photoOut: photoOut.present ? photoOut.value : this.photoOut,
+    checkIn: checkIn.present ? checkIn.value : this.checkIn,
+    checkOut: checkOut.present ? checkOut.value : this.checkOut,
+    syncStatus: syncStatus ?? this.syncStatus,
+  );
+  AttendanceHistory copyWithCompanion(AttendanceHistoriesCompanion data) {
+    return AttendanceHistory(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      photoIn: data.photoIn.present ? data.photoIn.value : this.photoIn,
+      photoOut: data.photoOut.present ? data.photoOut.value : this.photoOut,
+      checkIn: data.checkIn.present ? data.checkIn.value : this.checkIn,
+      checkOut: data.checkOut.present ? data.checkOut.value : this.checkOut,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AttendanceHistory(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('photoIn: $photoIn, ')
+          ..write('photoOut: $photoOut, ')
+          ..write('checkIn: $checkIn, ')
+          ..write('checkOut: $checkOut, ')
+          ..write('syncStatus: $syncStatus')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, userId, photoIn, photoOut, checkIn, checkOut, syncStatus);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AttendanceHistory &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.photoIn == this.photoIn &&
+          other.photoOut == this.photoOut &&
+          other.checkIn == this.checkIn &&
+          other.checkOut == this.checkOut &&
+          other.syncStatus == this.syncStatus);
+}
+
+class AttendanceHistoriesCompanion extends UpdateCompanion<AttendanceHistory> {
+  final Value<int?> id;
+  final Value<int> userId;
+  final Value<String?> photoIn;
+  final Value<String?> photoOut;
+  final Value<String?> checkIn;
+  final Value<String?> checkOut;
+  final Value<String> syncStatus;
+  const AttendanceHistoriesCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.photoIn = const Value.absent(),
+    this.photoOut = const Value.absent(),
+    this.checkIn = const Value.absent(),
+    this.checkOut = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+  });
+  AttendanceHistoriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int userId,
+    this.photoIn = const Value.absent(),
+    this.photoOut = const Value.absent(),
+    this.checkIn = const Value.absent(),
+    this.checkOut = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+  }) : userId = Value(userId);
+  static Insertable<AttendanceHistory> custom({
+    Expression<int>? id,
+    Expression<int>? userId,
+    Expression<String>? photoIn,
+    Expression<String>? photoOut,
+    Expression<String>? checkIn,
+    Expression<String>? checkOut,
+    Expression<String>? syncStatus,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (photoIn != null) 'photo_in': photoIn,
+      if (photoOut != null) 'photo_out': photoOut,
+      if (checkIn != null) 'check_in': checkIn,
+      if (checkOut != null) 'check_out': checkOut,
+      if (syncStatus != null) 'sync_status': syncStatus,
+    });
+  }
+
+  AttendanceHistoriesCompanion copyWith({
+    Value<int?>? id,
+    Value<int>? userId,
+    Value<String?>? photoIn,
+    Value<String?>? photoOut,
+    Value<String?>? checkIn,
+    Value<String?>? checkOut,
+    Value<String>? syncStatus,
+  }) {
+    return AttendanceHistoriesCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      photoIn: photoIn ?? this.photoIn,
+      photoOut: photoOut ?? this.photoOut,
+      checkIn: checkIn ?? this.checkIn,
+      checkOut: checkOut ?? this.checkOut,
+      syncStatus: syncStatus ?? this.syncStatus,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
+    }
+    if (photoIn.present) {
+      map['photo_in'] = Variable<String>(photoIn.value);
+    }
+    if (photoOut.present) {
+      map['photo_out'] = Variable<String>(photoOut.value);
+    }
+    if (checkIn.present) {
+      map['check_in'] = Variable<String>(checkIn.value);
+    }
+    if (checkOut.present) {
+      map['check_out'] = Variable<String>(checkOut.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<String>(syncStatus.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AttendanceHistoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('photoIn: $photoIn, ')
+          ..write('photoOut: $photoOut, ')
+          ..write('checkIn: $checkIn, ')
+          ..write('checkOut: $checkOut, ')
+          ..write('syncStatus: $syncStatus')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7702,6 +8691,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SaleItemVariantsTable saleItemVariants = $SaleItemVariantsTable(
     this,
   );
+  late final $ShiftHistoriesTable shiftHistories = $ShiftHistoriesTable(this);
+  late final $AttendanceHistoriesTable attendanceHistories =
+      $AttendanceHistoriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7726,6 +8718,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     sales,
     saleItems,
     saleItemVariants,
+    shiftHistories,
+    attendanceHistories,
   ];
 }
 
@@ -14363,6 +15357,530 @@ typedef $$SaleItemVariantsTableProcessedTableManager =
       SaleItemVariantEntity,
       PrefetchHooks Function({bool saleItemId, bool variantOptionId})
     >;
+typedef $$ShiftHistoriesTableCreateCompanionBuilder =
+    ShiftHistoriesCompanion Function({
+      Value<int?> id,
+      required int userId,
+      required double cashIn,
+      Value<double?> cashOut,
+      Value<String?> notes,
+      required DateTime startTime,
+      Value<DateTime?> endTime,
+      Value<String> status,
+      Value<String> syncStatus,
+    });
+typedef $$ShiftHistoriesTableUpdateCompanionBuilder =
+    ShiftHistoriesCompanion Function({
+      Value<int?> id,
+      Value<int> userId,
+      Value<double> cashIn,
+      Value<double?> cashOut,
+      Value<String?> notes,
+      Value<DateTime> startTime,
+      Value<DateTime?> endTime,
+      Value<String> status,
+      Value<String> syncStatus,
+    });
+
+class $$ShiftHistoriesTableFilterComposer
+    extends Composer<_$AppDatabase, $ShiftHistoriesTable> {
+  $$ShiftHistoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cashIn => $composableBuilder(
+    column: $table.cashIn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cashOut => $composableBuilder(
+    column: $table.cashOut,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ShiftHistoriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ShiftHistoriesTable> {
+  $$ShiftHistoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get cashIn => $composableBuilder(
+    column: $table.cashIn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get cashOut => $composableBuilder(
+    column: $table.cashOut,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ShiftHistoriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ShiftHistoriesTable> {
+  $$ShiftHistoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<double> get cashIn =>
+      $composableBuilder(column: $table.cashIn, builder: (column) => column);
+
+  GeneratedColumn<double> get cashOut =>
+      $composableBuilder(column: $table.cashOut, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+}
+
+class $$ShiftHistoriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ShiftHistoriesTable,
+          ShiftHistory,
+          $$ShiftHistoriesTableFilterComposer,
+          $$ShiftHistoriesTableOrderingComposer,
+          $$ShiftHistoriesTableAnnotationComposer,
+          $$ShiftHistoriesTableCreateCompanionBuilder,
+          $$ShiftHistoriesTableUpdateCompanionBuilder,
+          (
+            ShiftHistory,
+            BaseReferences<_$AppDatabase, $ShiftHistoriesTable, ShiftHistory>,
+          ),
+          ShiftHistory,
+          PrefetchHooks Function()
+        > {
+  $$ShiftHistoriesTableTableManager(
+    _$AppDatabase db,
+    $ShiftHistoriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ShiftHistoriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ShiftHistoriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ShiftHistoriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int?> id = const Value.absent(),
+                Value<int> userId = const Value.absent(),
+                Value<double> cashIn = const Value.absent(),
+                Value<double?> cashOut = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> startTime = const Value.absent(),
+                Value<DateTime?> endTime = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> syncStatus = const Value.absent(),
+              }) => ShiftHistoriesCompanion(
+                id: id,
+                userId: userId,
+                cashIn: cashIn,
+                cashOut: cashOut,
+                notes: notes,
+                startTime: startTime,
+                endTime: endTime,
+                status: status,
+                syncStatus: syncStatus,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int?> id = const Value.absent(),
+                required int userId,
+                required double cashIn,
+                Value<double?> cashOut = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                required DateTime startTime,
+                Value<DateTime?> endTime = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> syncStatus = const Value.absent(),
+              }) => ShiftHistoriesCompanion.insert(
+                id: id,
+                userId: userId,
+                cashIn: cashIn,
+                cashOut: cashOut,
+                notes: notes,
+                startTime: startTime,
+                endTime: endTime,
+                status: status,
+                syncStatus: syncStatus,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ShiftHistoriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ShiftHistoriesTable,
+      ShiftHistory,
+      $$ShiftHistoriesTableFilterComposer,
+      $$ShiftHistoriesTableOrderingComposer,
+      $$ShiftHistoriesTableAnnotationComposer,
+      $$ShiftHistoriesTableCreateCompanionBuilder,
+      $$ShiftHistoriesTableUpdateCompanionBuilder,
+      (
+        ShiftHistory,
+        BaseReferences<_$AppDatabase, $ShiftHistoriesTable, ShiftHistory>,
+      ),
+      ShiftHistory,
+      PrefetchHooks Function()
+    >;
+typedef $$AttendanceHistoriesTableCreateCompanionBuilder =
+    AttendanceHistoriesCompanion Function({
+      Value<int?> id,
+      required int userId,
+      Value<String?> photoIn,
+      Value<String?> photoOut,
+      Value<String?> checkIn,
+      Value<String?> checkOut,
+      Value<String> syncStatus,
+    });
+typedef $$AttendanceHistoriesTableUpdateCompanionBuilder =
+    AttendanceHistoriesCompanion Function({
+      Value<int?> id,
+      Value<int> userId,
+      Value<String?> photoIn,
+      Value<String?> photoOut,
+      Value<String?> checkIn,
+      Value<String?> checkOut,
+      Value<String> syncStatus,
+    });
+
+class $$AttendanceHistoriesTableFilterComposer
+    extends Composer<_$AppDatabase, $AttendanceHistoriesTable> {
+  $$AttendanceHistoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoIn => $composableBuilder(
+    column: $table.photoIn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoOut => $composableBuilder(
+    column: $table.photoOut,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get checkIn => $composableBuilder(
+    column: $table.checkIn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get checkOut => $composableBuilder(
+    column: $table.checkOut,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AttendanceHistoriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AttendanceHistoriesTable> {
+  $$AttendanceHistoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get photoIn => $composableBuilder(
+    column: $table.photoIn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get photoOut => $composableBuilder(
+    column: $table.photoOut,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get checkIn => $composableBuilder(
+    column: $table.checkIn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get checkOut => $composableBuilder(
+    column: $table.checkOut,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AttendanceHistoriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AttendanceHistoriesTable> {
+  $$AttendanceHistoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get photoIn =>
+      $composableBuilder(column: $table.photoIn, builder: (column) => column);
+
+  GeneratedColumn<String> get photoOut =>
+      $composableBuilder(column: $table.photoOut, builder: (column) => column);
+
+  GeneratedColumn<String> get checkIn =>
+      $composableBuilder(column: $table.checkIn, builder: (column) => column);
+
+  GeneratedColumn<String> get checkOut =>
+      $composableBuilder(column: $table.checkOut, builder: (column) => column);
+
+  GeneratedColumn<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+}
+
+class $$AttendanceHistoriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AttendanceHistoriesTable,
+          AttendanceHistory,
+          $$AttendanceHistoriesTableFilterComposer,
+          $$AttendanceHistoriesTableOrderingComposer,
+          $$AttendanceHistoriesTableAnnotationComposer,
+          $$AttendanceHistoriesTableCreateCompanionBuilder,
+          $$AttendanceHistoriesTableUpdateCompanionBuilder,
+          (
+            AttendanceHistory,
+            BaseReferences<
+              _$AppDatabase,
+              $AttendanceHistoriesTable,
+              AttendanceHistory
+            >,
+          ),
+          AttendanceHistory,
+          PrefetchHooks Function()
+        > {
+  $$AttendanceHistoriesTableTableManager(
+    _$AppDatabase db,
+    $AttendanceHistoriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AttendanceHistoriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AttendanceHistoriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$AttendanceHistoriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int?> id = const Value.absent(),
+                Value<int> userId = const Value.absent(),
+                Value<String?> photoIn = const Value.absent(),
+                Value<String?> photoOut = const Value.absent(),
+                Value<String?> checkIn = const Value.absent(),
+                Value<String?> checkOut = const Value.absent(),
+                Value<String> syncStatus = const Value.absent(),
+              }) => AttendanceHistoriesCompanion(
+                id: id,
+                userId: userId,
+                photoIn: photoIn,
+                photoOut: photoOut,
+                checkIn: checkIn,
+                checkOut: checkOut,
+                syncStatus: syncStatus,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int?> id = const Value.absent(),
+                required int userId,
+                Value<String?> photoIn = const Value.absent(),
+                Value<String?> photoOut = const Value.absent(),
+                Value<String?> checkIn = const Value.absent(),
+                Value<String?> checkOut = const Value.absent(),
+                Value<String> syncStatus = const Value.absent(),
+              }) => AttendanceHistoriesCompanion.insert(
+                id: id,
+                userId: userId,
+                photoIn: photoIn,
+                photoOut: photoOut,
+                checkIn: checkIn,
+                checkOut: checkOut,
+                syncStatus: syncStatus,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AttendanceHistoriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AttendanceHistoriesTable,
+      AttendanceHistory,
+      $$AttendanceHistoriesTableFilterComposer,
+      $$AttendanceHistoriesTableOrderingComposer,
+      $$AttendanceHistoriesTableAnnotationComposer,
+      $$AttendanceHistoriesTableCreateCompanionBuilder,
+      $$AttendanceHistoriesTableUpdateCompanionBuilder,
+      (
+        AttendanceHistory,
+        BaseReferences<
+          _$AppDatabase,
+          $AttendanceHistoriesTable,
+          AttendanceHistory
+        >,
+      ),
+      AttendanceHistory,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -14405,4 +15923,8 @@ class $AppDatabaseManager {
       $$SaleItemsTableTableManager(_db, _db.saleItems);
   $$SaleItemVariantsTableTableManager get saleItemVariants =>
       $$SaleItemVariantsTableTableManager(_db, _db.saleItemVariants);
+  $$ShiftHistoriesTableTableManager get shiftHistories =>
+      $$ShiftHistoriesTableTableManager(_db, _db.shiftHistories);
+  $$AttendanceHistoriesTableTableManager get attendanceHistories =>
+      $$AttendanceHistoriesTableTableManager(_db, _db.attendanceHistories);
 }

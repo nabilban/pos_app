@@ -15,6 +15,8 @@ import '../entity/attendance_entity.dart';
 import '../entity/shift_entity.dart';
 import '../entity/pos_entities.dart';
 import '../entity/sale_entities.dart';
+import '../entity/shift_history_entity.dart';
+import '../entity/attendance_history_entity.dart';
 
 part 'app_database.g.dart';
 
@@ -38,12 +40,14 @@ part 'app_database.g.dart';
   Sales,
   SaleItems,
   SaleItemVariants,
+  ShiftHistories,
+  AttendanceHistories,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -126,12 +130,18 @@ class AppDatabase extends _$AppDatabase {
     return await into(attendances).insertOnConflictUpdate(entry);
   }
 
+  Future<int> saveAttendanceHistory(AttendanceHistoriesCompanion entry) async {
+    return await into(attendanceHistories).insertOnConflictUpdate(entry);
+  }
+
   Future<void> updateAttendance(int id, AttendancesCompanion entry) async {
     await (update(attendances)..where((t) => t.id.equals(id))).write(entry);
   }
 
-  Future<List<Attendance>> getAttendanceHistory() async {
-    return await (select(attendances)..orderBy([(t) => OrderingTerm.desc(t.checkIn)])).get();
+  Future<List<AttendanceHistory>> getAttendanceHistory() async {
+    return await (select(attendanceHistories)
+          ..orderBy([(t) => OrderingTerm.desc(t.checkIn)]))
+        .get();
   }
 
   // --- SHIFT OPERATIONS ---
@@ -146,6 +156,10 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> saveShift(ShiftsCompanion entry) async {
     return await into(shifts).insertOnConflictUpdate(entry);
+  }
+
+  Future<int> saveShiftHistory(ShiftHistoriesCompanion entry) async {
+    return await into(shiftHistories).insertOnConflictUpdate(entry);
   }
 
   Future<void> updateShift(int id, ShiftsCompanion entry) async {
@@ -163,8 +177,10 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
-  Future<List<Shift>> getShiftHistory() async {
-    return await (select(shifts)..orderBy([(t) => OrderingTerm.desc(t.startTime)])).get();
+  Future<List<ShiftHistory>> getShiftHistory() async {
+    return await (select(shiftHistories)
+          ..orderBy([(t) => OrderingTerm.desc(t.startTime)]))
+        .get();
   }
 
   // --- POS OPERATIONS ---

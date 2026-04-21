@@ -92,23 +92,44 @@ class AttendanceRepository implements IAttendanceRepository {
   @override
   Future<List<AttendanceModel>> getHistory() async {
     try {
-      final response = await _apiClient.authenticatedDio.get('/attendances/history');
+      final response =
+          await _apiClient.authenticatedDio.get('/attendances/history');
       final List data = response.data['data'] ?? [];
       final history = data
-          .map((json) => AttendanceModel.fromJson(Map<String, dynamic>.from(json)))
+          .map(
+            (json) => AttendanceModel.fromJson(Map<String, dynamic>.from(json)),
+          )
           .toList();
+
+      // Cache history locally
+      for (final attendance in history) {
+        await _db.saveAttendanceHistory(AttendanceHistoriesCompanion.insert(
+          id: Value(attendance.id),
+          userId: attendance.userId,
+          photoIn: Value(attendance.photoIn),
+          photoOut: Value(attendance.photoOut),
+          checkIn: Value(attendance.checkIn),
+          checkOut: Value(attendance.checkOut),
+          syncStatus: Value(attendance.syncStatus),
+        ));
+      }
+
       return history;
     } catch (_) {
       final entities = await _db.getAttendanceHistory();
-      return entities.map((e) => AttendanceModel(
-        id: e.id,
-        userId: e.userId,
-        photoIn: e.photoIn,
-        photoOut: e.photoOut,
-        checkIn: e.checkIn,
-        checkOut: e.checkOut,
-        syncStatus: e.syncStatus,
-      )).toList();
+      return entities
+          .map(
+            (e) => AttendanceModel(
+              id: e.id,
+              userId: e.userId,
+              photoIn: e.photoIn,
+              photoOut: e.photoOut,
+              checkIn: e.checkIn,
+              checkOut: e.checkOut,
+              syncStatus: e.syncStatus,
+            ),
+          )
+          .toList();
     }
   }
 }
