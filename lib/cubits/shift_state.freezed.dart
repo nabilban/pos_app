@@ -22,6 +22,9 @@ mixin _$ShiftState {
   List<ShiftModel> get history => throw _privateConstructorUsedError;
   int get selectedTab =>
       throw _privateConstructorUsedError; // 0: Shift, 1: Absensi
+  AttendanceModel? get todayAttendance => throw _privateConstructorUsedError;
+  List<AttendanceModel> get attendanceHistory =>
+      throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
   /// Create a copy of ShiftState
@@ -43,10 +46,12 @@ abstract class $ShiftStateCopyWith<$Res> {
     ShiftModel? activeShift,
     List<ShiftModel> history,
     int selectedTab,
+    AttendanceModel? todayAttendance,
+    List<AttendanceModel> attendanceHistory,
     String? error,
   });
 
-  $ShiftModelCopyWith<$Res>? get activeShift;
+  $AttendanceModelCopyWith<$Res>? get todayAttendance;
 }
 
 /// @nodoc
@@ -68,6 +73,8 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
     Object? activeShift = freezed,
     Object? history = null,
     Object? selectedTab = null,
+    Object? todayAttendance = freezed,
+    Object? attendanceHistory = null,
     Object? error = freezed,
   }) {
     return _then(
@@ -88,6 +95,14 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
                 ? _value.selectedTab
                 : selectedTab // ignore: cast_nullable_to_non_nullable
                       as int,
+            todayAttendance: freezed == todayAttendance
+                ? _value.todayAttendance
+                : todayAttendance // ignore: cast_nullable_to_non_nullable
+                      as AttendanceModel?,
+            attendanceHistory: null == attendanceHistory
+                ? _value.attendanceHistory
+                : attendanceHistory // ignore: cast_nullable_to_non_nullable
+                      as List<AttendanceModel>,
             error: freezed == error
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
@@ -101,13 +116,13 @@ class _$ShiftStateCopyWithImpl<$Res, $Val extends ShiftState>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ShiftModelCopyWith<$Res>? get activeShift {
-    if (_value.activeShift == null) {
+  $AttendanceModelCopyWith<$Res>? get todayAttendance {
+    if (_value.todayAttendance == null) {
       return null;
     }
 
-    return $ShiftModelCopyWith<$Res>(_value.activeShift!, (value) {
-      return _then(_value.copyWith(activeShift: value) as $Val);
+    return $AttendanceModelCopyWith<$Res>(_value.todayAttendance!, (value) {
+      return _then(_value.copyWith(todayAttendance: value) as $Val);
     });
   }
 }
@@ -126,11 +141,13 @@ abstract class _$$ShiftStateImplCopyWith<$Res>
     ShiftModel? activeShift,
     List<ShiftModel> history,
     int selectedTab,
+    AttendanceModel? todayAttendance,
+    List<AttendanceModel> attendanceHistory,
     String? error,
   });
 
   @override
-  $ShiftModelCopyWith<$Res>? get activeShift;
+  $AttendanceModelCopyWith<$Res>? get todayAttendance;
 }
 
 /// @nodoc
@@ -151,6 +168,8 @@ class __$$ShiftStateImplCopyWithImpl<$Res>
     Object? activeShift = freezed,
     Object? history = null,
     Object? selectedTab = null,
+    Object? todayAttendance = freezed,
+    Object? attendanceHistory = null,
     Object? error = freezed,
   }) {
     return _then(
@@ -171,6 +190,14 @@ class __$$ShiftStateImplCopyWithImpl<$Res>
             ? _value.selectedTab
             : selectedTab // ignore: cast_nullable_to_non_nullable
                   as int,
+        todayAttendance: freezed == todayAttendance
+            ? _value.todayAttendance
+            : todayAttendance // ignore: cast_nullable_to_non_nullable
+                  as AttendanceModel?,
+        attendanceHistory: null == attendanceHistory
+            ? _value._attendanceHistory
+            : attendanceHistory // ignore: cast_nullable_to_non_nullable
+                  as List<AttendanceModel>,
         error: freezed == error
             ? _value.error
             : error // ignore: cast_nullable_to_non_nullable
@@ -188,8 +215,11 @@ class _$ShiftStateImpl implements _ShiftState {
     this.activeShift,
     final List<ShiftModel> history = const [],
     this.selectedTab = 0,
+    this.todayAttendance,
+    final List<AttendanceModel> attendanceHistory = const [],
     this.error,
-  }) : _history = history;
+  }) : _history = history,
+       _attendanceHistory = attendanceHistory;
 
   @override
   @JsonKey()
@@ -210,11 +240,23 @@ class _$ShiftStateImpl implements _ShiftState {
   final int selectedTab;
   // 0: Shift, 1: Absensi
   @override
+  final AttendanceModel? todayAttendance;
+  final List<AttendanceModel> _attendanceHistory;
+  @override
+  @JsonKey()
+  List<AttendanceModel> get attendanceHistory {
+    if (_attendanceHistory is EqualUnmodifiableListView)
+      return _attendanceHistory;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_attendanceHistory);
+  }
+
+  @override
   final String? error;
 
   @override
   String toString() {
-    return 'ShiftState(isLoading: $isLoading, activeShift: $activeShift, history: $history, selectedTab: $selectedTab, error: $error)';
+    return 'ShiftState(isLoading: $isLoading, activeShift: $activeShift, history: $history, selectedTab: $selectedTab, todayAttendance: $todayAttendance, attendanceHistory: $attendanceHistory, error: $error)';
   }
 
   @override
@@ -224,11 +266,19 @@ class _$ShiftStateImpl implements _ShiftState {
             other is _$ShiftStateImpl &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            (identical(other.activeShift, activeShift) ||
-                other.activeShift == activeShift) &&
+            const DeepCollectionEquality().equals(
+              other.activeShift,
+              activeShift,
+            ) &&
             const DeepCollectionEquality().equals(other._history, _history) &&
             (identical(other.selectedTab, selectedTab) ||
                 other.selectedTab == selectedTab) &&
+            (identical(other.todayAttendance, todayAttendance) ||
+                other.todayAttendance == todayAttendance) &&
+            const DeepCollectionEquality().equals(
+              other._attendanceHistory,
+              _attendanceHistory,
+            ) &&
             (identical(other.error, error) || other.error == error));
   }
 
@@ -236,9 +286,11 @@ class _$ShiftStateImpl implements _ShiftState {
   int get hashCode => Object.hash(
     runtimeType,
     isLoading,
-    activeShift,
+    const DeepCollectionEquality().hash(activeShift),
     const DeepCollectionEquality().hash(_history),
     selectedTab,
+    todayAttendance,
+    const DeepCollectionEquality().hash(_attendanceHistory),
     error,
   );
 
@@ -257,6 +309,8 @@ abstract class _ShiftState implements ShiftState {
     final ShiftModel? activeShift,
     final List<ShiftModel> history,
     final int selectedTab,
+    final AttendanceModel? todayAttendance,
+    final List<AttendanceModel> attendanceHistory,
     final String? error,
   }) = _$ShiftStateImpl;
 
@@ -268,6 +322,10 @@ abstract class _ShiftState implements ShiftState {
   List<ShiftModel> get history;
   @override
   int get selectedTab; // 0: Shift, 1: Absensi
+  @override
+  AttendanceModel? get todayAttendance;
+  @override
+  List<AttendanceModel> get attendanceHistory;
   @override
   String? get error;
 

@@ -6,7 +6,6 @@ import '../cubits/shift_cubit.dart';
 import '../cubits/shift_state.dart';
 import '../cubits/auth_cubit.dart';
 import '../cubits/attendance_cubit.dart';
-import '../cubits/attendance_state.dart';
 import '../cubits/history_cubit.dart';
 import '../cubits/history_state.dart';
 import '../cubits/connectivity_cubit.dart';
@@ -149,9 +148,6 @@ class _ShiftScreenState extends State<ShiftScreen>
       child: GestureDetector(
         onTap: () {
           context.read<ShiftCubit>().setTab(index);
-          if (index == 1) {
-            context.read<AttendanceCubit>().loadHistory();
-          }
         },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -768,9 +764,9 @@ class _ShiftScreenState extends State<ShiftScreen>
   }
 
   Widget _buildAttendanceTab(String baseUrl) {
-    return BlocBuilder<AttendanceCubit, AttendanceState>(
+    return BlocBuilder<ShiftCubit, ShiftState>(
       builder: (context, state) {
-        if (state.isLoading && state.history.isEmpty) {
+        if (state.isLoading && state.attendanceHistory.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
 
@@ -788,7 +784,7 @@ class _ShiftScreenState extends State<ShiftScreen>
               ),
             ),
             const SizedBox(height: 16),
-            if (state.history.isEmpty)
+            if (state.attendanceHistory.isEmpty)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(32),
@@ -796,7 +792,7 @@ class _ShiftScreenState extends State<ShiftScreen>
                 ),
               )
             else
-              ...state.history.map(
+              ...state.attendanceHistory.map(
                 (a) => _buildAttendanceHistoryItem(a, baseUrl),
               ),
             const SizedBox(height: 48),
@@ -806,7 +802,7 @@ class _ShiftScreenState extends State<ShiftScreen>
     );
   }
 
-  Widget _buildTodayAttendanceSection(AttendanceState state) {
+  Widget _buildTodayAttendanceSection(ShiftState state) {
     final today = DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now());
     final att = state.todayAttendance;
     return BlocBuilder<ConnectivityCubit, ConnectivityState>(

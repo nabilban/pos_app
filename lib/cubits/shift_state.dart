@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../data/models/shift.dart';
+import 'package:pos_app/data/models/shift.dart';
+import '../data/models/attendance.dart';
 
 part 'shift_state.freezed.dart';
 
@@ -10,6 +11,8 @@ class ShiftState with _$ShiftState {
     ShiftModel? activeShift,
     @Default([]) List<ShiftModel> history,
     @Default(0) int selectedTab, // 0: Shift, 1: Absensi
+    AttendanceModel? todayAttendance,
+    @Default([]) List<AttendanceModel> attendanceHistory,
     String? error,
   }) = _ShiftState;
 }

@@ -127,7 +127,10 @@ class GlobalProviders extends StatelessWidget {
                 AttendanceCubit(context.read<IAttendanceRepository>()),
           ),
           BlocProvider(
-            create: (context) => ShiftCubit(context.read<IShiftRepository>()),
+            create: (context) => ShiftCubit(
+              context.read<IShiftRepository>(),
+              context.read<IAttendanceRepository>(),
+            ),
           ),
           BlocProvider(
             create: (context) =>
